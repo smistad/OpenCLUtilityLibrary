@@ -44,6 +44,9 @@ oul::Context oul::OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
             case oul::DEVICE_PLATFORM_INTEL:
                 find = "Intel";
             break;
+            case oul::DEVICE_PLATFORM_APPLE:
+                find = "Apple";
+            break;
         }
         for(int i = 0; i < platforms.size(); i++) {
             if(platforms[i].getInfo<CL_PLATFORM_VENDOR>().find(find) != std::string::npos) {
