@@ -32,7 +32,25 @@ oul::Context oul::OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
     if(deviceCriteria.getPlatformCriteria() == oul::DEVICE_PLATFORM_ANY) {
         validPlatforms = this->platforms;
     } else {
-        // TODO: Find the correct platform and add to validPlatforms
+        // Find the correct platform and add to validPlatforms
+        std::string find;
+        switch(deviceCriteria.getPlatformCriteria()) {
+            case oul::DEVICE_PLATFORM_NVIDIA:
+                find = "NVIDIA";
+            break;
+            case oul::DEVICE_PLATFORM_AMD:
+                find = "Advanced Micro Devices";
+            break;
+            case oul::DEVICE_PLATFORM_INTEL:
+                find = "Intel";
+            break;
+        }
+        for(int i = 0; i < platforms.size(); i++) {
+            if(platforms[i].getInfo<CL_PLATFORM_VENDOR>().find(find) != std::string::npos) {
+                validPlatforms.push_back(platforms[i]);
+                break;
+            }
+        }
     }
 
     for(int i = 0; i < validPlatforms.size(); i++) {
