@@ -25,6 +25,47 @@ oul::Context oul::OpenCLManager::createContext(int argc, char** argv) {
  */
 oul::Context oul::OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
 
+    std::vector<Device> validDevices;
+
+    // First, get all the platforms that fit the platform criteria
+    std::vector<Platform> validPlatforms;
+    if(deviceCriteria.getPlatformCriteria() == oul::DEVICE_PLATFORM_ANY) {
+        validPlatforms = this->platforms;
+    } else {
+        // TODO: Find the correct platform and add to validPlatforms
+    }
+
+    for(int i = 0; i < validPlatforms.size(); i++) {
+        // Next, get all devices of correct type for each of those platforms
+        std::vector<Device> platformDevices;
+        cl_device_type deviceType;
+        if(deviceCriteria.getTypeCriteria() == oul::DEVICE_TYPE_ANY) {
+            deviceType = CL_DEVICE_TYPE_ALL;
+        } else if(deviceCriteria.getTypeCriteria() == oul::DEVICE_TYPE_GPU) {
+            deviceType = CL_DEVICE_TYPE_GPU;
+        } else if(deviceCriteria.getTypeCriteria() == oul::DEVICE_TYPE_CPU) {
+            deviceType = CL_DEVICE_TYPE_CPU;
+        }
+        platforms[i].getDevices(deviceType, &platformDevices);
+
+        // Go through each device and see if they have the correct capabilities (if any)
+        for(int j = 0; j < platformDevices.size(); j++) {
+            if(deviceCriteria.getCapabilityCriteria().size() > 0) {
+                // TODO: implement some capability criteria
+            }
+            validDevices.push_back(platformDevices[j]);
+
+            // Watch the device count
+            if(deviceCriteria.getDeviceCount() != oul::DEVICE_COUNT_INFINITE && deviceCriteria.getDeviceCount() == validDevices.size())
+                break;
+        }
+
+        // Watch the device count
+        if(deviceCriteria.getDeviceCount() != oul::DEVICE_COUNT_INFINITE && deviceCriteria.getDeviceCount() == validDevices.size())
+            break;
+    }
+
+    return oul::Context(validDevices);
 }
 
 void oul::OpenCLManager::setDebugMode(bool mode) {

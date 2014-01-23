@@ -5,7 +5,7 @@ const std::vector<DeviceCapability>& DeviceCriteria::getCapabilityCriteria() con
     return capabilityCriteria;
 }
 
-const std::vector<DevicePlatform>& DeviceCriteria::getPlatformCriteria() const {
+DevicePlatform DeviceCriteria::getPlatformCriteria() const {
     return platformCriteria;
 }
 
@@ -20,10 +20,11 @@ DeviceType DeviceCriteria::getTypeCriteria() const {
 oul::DeviceCriteria::DeviceCriteria() {
     typeCriteria = DEVICE_TYPE_ANY;
     deviceCount = DEVICE_COUNT_INFINITE;
+    platformCriteria = DEVICE_PLATFORM_ANY;
 }
 
 void oul::DeviceCriteria::setPlatformCriteria(DevicePlatform platform) {
-    platformCriteria.push_back(platform);
+    platformCriteria = platform;
 }
 
 void oul::DeviceCriteria::setCapabilityCriteria(DeviceCapability capability) {
