@@ -13,6 +13,7 @@ class Context {
         cl::Context context;
         std::vector<cl::CommandQueue> queues;
         std::vector<cl::Program> programs;
+        std::vector<cl::Device> devices;
         cl::Platform platform;
 };
 
