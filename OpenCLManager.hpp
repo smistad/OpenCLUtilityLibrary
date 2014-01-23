@@ -17,10 +17,12 @@ class OpenCLManager {
         oul::Context createContext(std::vector<cl::Device> devices);
         oul::Context createContext(int argc, char ** argv);
         oul::Context createContext(DeviceCriteria criteria);
+        void setDebugMode(bool mode);
     private:
-        OpenCLManager() {};
+        OpenCLManager() {debugMode = false;};
         std::vector<cl::Platform> platforms;
         static OpenCLManager * instance;
+        bool debugMode;
 };
 
 

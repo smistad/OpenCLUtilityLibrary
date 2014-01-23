@@ -26,3 +26,7 @@ oul::Context oul::OpenCLManager::createContext(int argc, char** argv) {
 oul::Context oul::OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
 
 }
+
+void oul::OpenCLManager::setDebugMode(bool mode) {
+    this->debugMode = mode;
+}
