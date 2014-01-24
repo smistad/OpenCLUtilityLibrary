@@ -1,8 +1,8 @@
 #ifndef OPENCLMANAGER_HPP_
 #define OPENCLMANAGER_HPP_
 
-#include "CL/cl.hpp"
 #include <vector>
+#include "CL/cl.hpp"
 #include "Context.hpp"
 #include "DeviceCriteria.hpp"
 
@@ -30,6 +30,7 @@ private:
 	static OpenCLManager * instance;
 };
 
+OpenCLManager* opencl(); //Shortcut for accessing the OpenCLManager
 
 }; // namespace oul
 

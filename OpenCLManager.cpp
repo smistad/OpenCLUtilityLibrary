@@ -13,6 +13,8 @@ OpenCLManager* OpenCLManager::getInstance()
 
 void OpenCLManager::shutdown()
 {
+	//TODO make sure all opencl threads  are finished before returning
+
   delete instance;
   instance = NULL;
 }

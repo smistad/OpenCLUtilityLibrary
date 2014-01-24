@@ -5,8 +5,13 @@ project(OpenCLUtilityLibrary)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake)
 find_package( OpenCL REQUIRED )
 
-include_directories(${OPENCL_INCLUDE_DIR})
-include_directories(/CL)
+set(OpenCLUtilityLibrary_INCLUDE_DIRS
+    .
+    /CL
+    ${OPENCL_INCLUDE_DIR}
+)
+
+include_directories(${OpenCLUtilityLibrary_INCLUDE_DIRS})
 
 set(SOURCE_FILES
     Context.hpp
@@ -22,8 +27,8 @@ set(SOURCE_FILES
 set(OpenCLUtilityLibrary_LINK_LIBRARIES  
     ${OPENCL_LIBRARIES}
 )
-message(STATUS "OPENCL_LIBRARIES " ${OPENCL_LIBRARIES})
-message(STATUS "OpenCLUtilityLibrary_LINK_LIBRARIES " ${OpenCLUtilityLibrary_LINK_LIBRARIES})
 
 add_library (OpenCLUtilityLibrary ${SOURCE_FILES})
 target_link_libraries(OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
+
+add_subdirectory(testing)
