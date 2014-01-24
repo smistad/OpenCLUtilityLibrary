@@ -1,7 +1,7 @@
 #ifndef CONTEXT_HPP_
 #define CONTEXT_HPP_
 
-#include <CL/cl.hpp>
+#include "CL/cl.hpp"
 #include <vector>
 
 namespace oul {

@@ -1,6 +1,8 @@
 #ifndef DEVICECRITERIA_HPP_
 #define DEVICECRITERIA_HPP_
 
+#include <vector>
+
 namespace oul {
 
 enum DeviceType {DEVICE_TYPE_ANY, DEVICE_TYPE_GPU, DEVICE_TYPE_CPU};
