@@ -19,9 +19,9 @@ class OpenCLManager {
         oul::Context createContext(DeviceCriteria criteria);
         void setDebugMode(bool mode);
     private:
+        static OpenCLManager * instance;
         OpenCLManager() {debugMode = false;};
         std::vector<cl::Platform> platforms;
-        static OpenCLManager * instance;
         bool debugMode;
 };
 

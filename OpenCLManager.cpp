@@ -3,10 +3,10 @@
 using namespace cl;
 
 oul::OpenCLManager* oul::OpenCLManager::getInstance() {
-    if(this->instance == NULL) {
-        this->instance = new OpenCLManager();
+    if(oul::OpenCLManager::instance == NULL) {
+        oul::OpenCLManager::instance = new OpenCLManager();
     }
-    return this->instance;
+    return oul::OpenCLManager::instance;
 }
 
 oul::Context oul::OpenCLManager::createContext(
