@@ -1,4 +1,5 @@
 #include "OpenCLManager.hpp"
+#include <iostream>
 
 namespace oul
 {
@@ -22,6 +23,7 @@ void OpenCLManager::shutdown()
 OpenCLManager::OpenCLManager()
 {
 	debugMode = false;
+	cl::Platform::get(&platforms);
 }
 
 Context OpenCLManager::createContext(std::vector<cl::Device> devices) {
@@ -40,6 +42,9 @@ Context OpenCLManager::createContext(int argc, char** argv) {
  * This method finds a set of devices which satisfies the supplied device criteria and creates a context
  */
 Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
+
+	if(debugMode)
+	    std::cout << "Found " << platforms.size() << " OpenCL platforms." << std::endl;
 
     std::vector<cl::Device> validDevices;
 
@@ -73,25 +78,41 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
             }
         }
     }
+	if(debugMode)
+	    std::cout << validPlatforms.size() << " platforms selected." << std::endl;
 
     for(int i = 0; i < validPlatforms.size(); i++) {
+        if(debugMode)
+            std::cout << "Platform " << i << ": " << validPlatforms[i].getInfo<CL_PLATFORM_VENDOR>() << std::endl;
         // Next, get all devices of correct type for each of those platforms
         std::vector<cl::Device> platformDevices;
         cl_device_type deviceType;
         if(deviceCriteria.getTypeCriteria() == DEVICE_TYPE_ANY) {
             deviceType = CL_DEVICE_TYPE_ALL;
+            if(debugMode)
+                std::cout << "Looking for all types of devices." << std::endl;
         } else if(deviceCriteria.getTypeCriteria() == DEVICE_TYPE_GPU) {
             deviceType = CL_DEVICE_TYPE_GPU;
+            if(debugMode)
+                std::cout << "Looking for GPU devices only." << std::endl;
         } else if(deviceCriteria.getTypeCriteria() == DEVICE_TYPE_CPU) {
             deviceType = CL_DEVICE_TYPE_CPU;
+            if(debugMode)
+                std::cout << "Looking for CPU devices only." << std::endl;
         }
         platforms[i].getDevices(deviceType, &platformDevices);
+        if(debugMode)
+            std::cout << platformDevices.size() << " devices found for this platform." << std::endl;
 
         // Go through each device and see if they have the correct capabilities (if any)
         for(int j = 0; j < platformDevices.size(); j++) {
+            if(debugMode)
+                std::cout << "Inspecting device " << j << " with the name " << platformDevices[j].getInfo<CL_DEVICE_NAME>() << std::endl;
             if(deviceCriteria.getCapabilityCriteria().size() > 0) {
                 // TODO: implement some capability criteria
             }
+            if(debugMode)
+                std::cout << "The device was accepted." << std::endl;
             validDevices.push_back(platformDevices[j]);
 
             // Watch the device count
@@ -103,6 +124,8 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
         if(deviceCriteria.getDeviceCount() != DEVICE_COUNT_INFINITE && deviceCriteria.getDeviceCount() == validDevices.size())
             break;
     }
+    if(debugMode)
+        std::cout << "A total of " << validDevices.size() << " were selected for the context." << std::endl;
 
     return Context(validDevices);
 }
