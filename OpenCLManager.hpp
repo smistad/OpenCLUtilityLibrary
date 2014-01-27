@@ -21,6 +21,7 @@ public:
 	Context createContext(int argc, char ** argv);
 	Context createContext(DeviceCriteria criteria);
 	void setDebugMode(bool mode);
+	static bool deviceHasOpenGLInteropCapability(cl::Device device);
 private:
 	OpenCLManager();
 	std::vector<cl::Platform> platforms;

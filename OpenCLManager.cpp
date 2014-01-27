@@ -20,6 +20,10 @@ void OpenCLManager::shutdown()
   instance = NULL;
 }
 
+bool OpenCLManager::deviceHasOpenGLInteropCapability(cl::Device device) {
+    // TODO
+}
+
 OpenCLManager::OpenCLManager()
 {
 	debugMode = false;
@@ -108,8 +112,16 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
         for(int j = 0; j < platformDevices.size(); j++) {
             if(debugMode)
                 std::cout << "Inspecting device " << j << " with the name " << platformDevices[j].getInfo<CL_DEVICE_NAME>() << std::endl;
-            if(deviceCriteria.getCapabilityCriteria().size() > 0) {
+            std::vector<DeviceCapability> capabilityCriteria = deviceCriteria.getCapabilityCriteria();
+            for(int k = 0; k < capabilityCriteria.size(); k++) {
                 // TODO: implement some capability criteria
+                if(capabilityCriteria[k] == DEVICE_CAPABILITY_OPENGL_INTEROP) {
+                    if(!deviceHasOpenGLInteropCapability(platformDevices[j]))
+                        continue;
+                } else if(capabilityCriteria[k] == DEVICE_CAPABILITY_NOT_CONNECTED_TO_SCREEN) {
+                    if(deviceHasOpenGLInteropCapability(platformDevices[j]))
+                        continue;
+                }
             }
             if(debugMode)
                 std::cout << "The device was accepted." << std::endl;
