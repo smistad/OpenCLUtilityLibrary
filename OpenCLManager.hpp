@@ -18,16 +18,16 @@ public:
 	static OpenCLManager * getInstance();
 	static void shutdown();
 
-	Context createContext(std::vector<cl::Device> devices);
+	Context createContext(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled);
 	Context createContext(int argc, char ** argv);
 	Context createContext(DeviceCriteria criteria);
 	void setDebugMode(bool mode);
 	static bool deviceHasOpenGLInteropCapability(cl::Device device);
 	static bool devicePlatformMismatch(cl::Device device, cl::Platform platform);
+	static bool debugMode;
 private:
 	OpenCLManager();
 	std::vector<cl::Platform> platforms;
-	static bool debugMode;
 
 	static OpenCLManager * instance;
 };

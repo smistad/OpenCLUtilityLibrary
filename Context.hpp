@@ -8,7 +8,7 @@ namespace oul {
 
 class Context {
     public:
-        Context(std::vector<cl::Device> devices);
+        Context(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled);
     private:
         cl::Context context;
         std::vector<cl::CommandQueue> queues;

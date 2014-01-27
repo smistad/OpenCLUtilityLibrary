@@ -157,8 +157,8 @@ OpenCLManager::OpenCLManager()
 	cl::Platform::get(&platforms);
 }
 
-Context OpenCLManager::createContext(std::vector<cl::Device> devices) {
-    return Context(devices);
+Context OpenCLManager::createContext(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled) {
+    return Context(devices, OpenGLInterop, profilingEnabled);
 }
 
 /**
@@ -219,6 +219,7 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
 	// Create a vector of devices for each platform
 	std::vector<cl::Device> * platformDevices = new std::vector<cl::Device>[validPlatforms.size()];
 	bool * devicePlatformVendorMismatch = new bool[validPlatforms.size()];
+    bool OpenGLInterop = false;
     for(int i = 0; i < validPlatforms.size(); i++) {
         if(debugMode)
             std::cout << "Platform " << i << ": " << validPlatforms[i].getInfo<CL_PLATFORM_VENDOR>() << std::endl;
@@ -250,6 +251,7 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
             bool accepted = true;
             for(int k = 0; k < capabilityCriteria.size(); k++) {
                 if(capabilityCriteria[k] == DEVICE_CAPABILITY_OPENGL_INTEROP) {
+                    OpenGLInterop = true;
                     if(!deviceHasOpenGLInteropCapability(devices[j]))
                         accepted = false;
                 } else if(capabilityCriteria[k] == DEVICE_CAPABILITY_NOT_CONNECTED_TO_SCREEN) {
@@ -306,7 +308,7 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
     delete[] platformDevices;
     delete[] devicePlatformVendorMismatch;
 
-    return Context(validDevices);
+    return oul::Context(validDevices, OpenGLInterop, false);
 }
 
 void OpenCLManager::setDebugMode(bool mode) {
