@@ -12,8 +12,6 @@ enum DevicePlatform {DEVICE_PLATFORM_ANY, DEVICE_PLATFORM_AMD, DEVICE_PLATFORM_N
 
 enum DeviceCapability {DEVICE_CAPABILITY_OPENGL_INTEROP, DEVICE_CAPABILITY_NOT_CONNECTED_TO_SCREEN};
 
-enum DeviceCount {DEVICE_COUNT_INFINITE};
-
 /**
  * Class used to set up a set of criteria for choosing devices
  */
@@ -23,16 +21,19 @@ class DeviceCriteria {
         void setPlatformCriteria(DevicePlatform platform);
         void setCapabilityCriteria(DeviceCapability capability);
         void setTypeCriteria(DeviceType typeCriteria);
-        void setDeviceCount(DeviceCount count);
+        void setDeviceCountCriteria(unsigned int min, unsigned int max);
+        void setDeviceCountCriteria(unsigned int count);
         const std::vector<DeviceCapability>& getCapabilityCriteria() const;
         DevicePlatform getPlatformCriteria() const;
         DeviceType getTypeCriteria() const;
-        DeviceCount getDeviceCount() const;
+        unsigned int getDeviceCountMinCriteria() const;
+        unsigned int getDeviceCountMaxCriteria() const;
     private:
         DevicePlatform platformCriteria;
         DeviceType typeCriteria; // Can only be one
         std::vector<DeviceCapability> capabilityCriteria; // If multiple capabilities are selected, all of them have to be true
-        DeviceCount deviceCount;
+        unsigned int deviceCountMin;
+        unsigned int deviceCountMax;
 
 };
 

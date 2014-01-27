@@ -32,7 +32,6 @@ void OpenCLManager::shutdown()
 }
 
 bool OpenCLManager::deviceHasOpenGLInteropCapability(cl::Device device) {
-    // TODO
     // Get the cl_device_id of the device
     cl_device_id deviceID = device();
     // Get the platform of device
@@ -250,7 +249,6 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
             std::vector<DeviceCapability> capabilityCriteria = deviceCriteria.getCapabilityCriteria();
             bool accepted = true;
             for(int k = 0; k < capabilityCriteria.size(); k++) {
-                // TODO: implement some capability criteria
                 if(capabilityCriteria[k] == DEVICE_CAPABILITY_OPENGL_INTEROP) {
                     if(!deviceHasOpenGLInteropCapability(devices[j]))
                         accepted = false;
@@ -273,7 +271,7 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
                 std::cout << "A device-platform mismatch was detected." << std::endl;
 
             // Watch the device count
-            if(deviceCriteria.getDeviceCount() != DEVICE_COUNT_INFINITE && deviceCriteria.getDeviceCount() == platformDevices[i].size())
+            if(deviceCriteria.getDeviceCountMaxCriteria() == platformDevices[i].size())
                 break;
         }
     }
