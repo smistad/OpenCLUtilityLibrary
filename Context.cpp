@@ -45,6 +45,7 @@ void Context::createProgramFromSource(
     // Build program for the context devices
     try{
         program.build(devices, buildOptions.c_str());
+        programs.push_back(program);
     } catch(cl::Error &error) {
         if(error.err() == CL_BUILD_PROGRAM_FAILURE) {
             // TODO: do this for all devices
