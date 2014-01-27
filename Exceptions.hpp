@@ -1,3 +1,5 @@
+#ifndef EXCEPTIONS_HPP
+#define EXCEPTIONS_HPP
 #include <exception>
 #include <cstdio>
 namespace oul {
@@ -65,3 +67,4 @@ class NoValidPlatformsException : public Exception {
 };
 
 } // end namespace oul
+#endif

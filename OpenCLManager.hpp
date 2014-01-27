@@ -2,6 +2,7 @@
 #define OPENCLMANAGER_HPP_
 
 #include <vector>
+#define __CL_ENABLE_EXCEPTIONS
 #include "CL/cl.hpp"
 #include "Context.hpp"
 #include "DeviceCriteria.hpp"
