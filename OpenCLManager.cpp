@@ -24,6 +24,36 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(cl::Device device) {
     // TODO
 }
 
+bool OpenCLManager::devicePlatformMismatch(
+        cl::Device device,
+        cl::Platform platform) {
+    // First, find the type/vendor the of platform
+    DevicePlatform platformVendor;
+    std::string platformVendorStr = platform.getInfo<CL_PLATFORM_VENDOR>();
+    if(platformVendorStr.find("Advanced Micro Devices, Inc.") != std::string::npos) {
+        platformVendor = DEVICE_PLATFORM_AMD;
+    } else if(platformVendorStr.find("Apple") != std::string::npos) {
+        platformVendor = DEVICE_PLATFORM_APPLE;
+    } else if(platformVendorStr.find("Intel") != std::string::npos) {
+        platformVendor = DEVICE_PLATFORM_INTEL;
+    } else if(platformVendorStr.find("NVIDIA") != std::string::npos) {
+        platformVendor = DEVICE_PLATFORM_NVIDIA;
+    }
+
+    // Find the device vendor
+    DevicePlatform deviceVendor;
+    std::string deviceVendorStr = device.getInfo<CL_DEVICE_VENDOR>();
+    if(deviceVendorStr.find("Intel") != std::string::npos) {
+        deviceVendor = DEVICE_PLATFORM_INTEL;
+    } else if(deviceVendorStr.find("Advanced Micro Devices, Inc.") != std::string::npos) {
+        deviceVendor = DEVICE_PLATFORM_AMD;
+    } else if(deviceVendorStr.find("NVIDIA") != std::string::npos) {
+        deviceVendor = DEVICE_PLATFORM_NVIDIA;
+    }
+
+    return platformVendor != deviceVendor;
+}
+
 OpenCLManager::OpenCLManager()
 {
 	debugMode = false;
@@ -131,10 +161,12 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
                 std::cout << "The device was accepted." << std::endl;
             platformDevices[i].push_back(devices[j]);
 
-            // TODO: Check for a device-platform mismatch.
+            // Check for a device-platform mismatch.
             // This happens for instance if we try to use the AMD platform on a Intel CPU
             // In this case, the Intel platform would be preferred.
-            devicePlatformVendorMismatch[i] = false;
+            devicePlatformVendorMismatch[i] = devicePlatformMismatch(devices[j], validPlatforms[i]);
+            if(debugMode && devicePlatformVendorMismatch[i])
+                std::cout << "A device-platform mismatch was detected." << std::endl;
 
             // Watch the device count
             if(deviceCriteria.getDeviceCount() != DEVICE_COUNT_INFINITE && deviceCriteria.getDeviceCount() == platformDevices[i].size())

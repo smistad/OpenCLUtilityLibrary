@@ -22,6 +22,7 @@ public:
 	Context createContext(DeviceCriteria criteria);
 	void setDebugMode(bool mode);
 	static bool deviceHasOpenGLInteropCapability(cl::Device device);
+	static bool devicePlatformMismatch(cl::Device device, cl::Platform platform);
 private:
 	OpenCLManager();
 	std::vector<cl::Platform> platforms;
