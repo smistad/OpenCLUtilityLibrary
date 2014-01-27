@@ -2,6 +2,7 @@
 #define DEVICECRITERIA_HPP_
 
 #include <vector>
+
 namespace oul {
 
 
