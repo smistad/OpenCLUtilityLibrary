@@ -82,14 +82,18 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
             }
         }
     }
+    // TODO: Can only use one platform for a context. Need to select the best platform if multiple platforms are selected
 	if(debugMode)
-	    std::cout << validPlatforms.size() << " platforms selected." << std::endl;
+	    std::cout << validPlatforms.size() << " platforms selected for inspection." << std::endl;
 
+	// Create a vector of devices for each platform
+	std::vector<cl::Device> * platformDevices = new std::vector<cl::Device>[validPlatforms.size()];
+	bool * devicePlatformVendorMismatch = new bool[validPlatforms.size()];
     for(int i = 0; i < validPlatforms.size(); i++) {
         if(debugMode)
             std::cout << "Platform " << i << ": " << validPlatforms[i].getInfo<CL_PLATFORM_VENDOR>() << std::endl;
         // Next, get all devices of correct type for each of those platforms
-        std::vector<cl::Device> platformDevices;
+        std::vector<cl::Device> devices;
         cl_device_type deviceType;
         if(deviceCriteria.getTypeCriteria() == DEVICE_TYPE_ANY) {
             deviceType = CL_DEVICE_TYPE_ALL;
@@ -104,40 +108,69 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
             if(debugMode)
                 std::cout << "Looking for CPU devices only." << std::endl;
         }
-        platforms[i].getDevices(deviceType, &platformDevices);
+        platforms[i].getDevices(deviceType, &devices);
         if(debugMode)
-            std::cout << platformDevices.size() << " devices found for this platform." << std::endl;
+            std::cout << devices.size() << " devices found for this platform." << std::endl;
 
         // Go through each device and see if they have the correct capabilities (if any)
-        for(int j = 0; j < platformDevices.size(); j++) {
+        for(int j = 0; j < devices.size(); j++) {
             if(debugMode)
-                std::cout << "Inspecting device " << j << " with the name " << platformDevices[j].getInfo<CL_DEVICE_NAME>() << std::endl;
+                std::cout << "Inspecting device " << j << " with the name " << devices[j].getInfo<CL_DEVICE_NAME>() << std::endl;
             std::vector<DeviceCapability> capabilityCriteria = deviceCriteria.getCapabilityCriteria();
             for(int k = 0; k < capabilityCriteria.size(); k++) {
                 // TODO: implement some capability criteria
                 if(capabilityCriteria[k] == DEVICE_CAPABILITY_OPENGL_INTEROP) {
-                    if(!deviceHasOpenGLInteropCapability(platformDevices[j]))
+                    if(!deviceHasOpenGLInteropCapability(devices[j]))
                         continue;
                 } else if(capabilityCriteria[k] == DEVICE_CAPABILITY_NOT_CONNECTED_TO_SCREEN) {
-                    if(deviceHasOpenGLInteropCapability(platformDevices[j]))
+                    if(deviceHasOpenGLInteropCapability(devices[j]))
                         continue;
                 }
             }
             if(debugMode)
                 std::cout << "The device was accepted." << std::endl;
-            validDevices.push_back(platformDevices[j]);
+            platformDevices[i].push_back(devices[j]);
+
+            // TODO: Check for a device-platform mismatch.
+            // This happens for instance if we try to use the AMD platform on a Intel CPU
+            // In this case, the Intel platform would be preferred.
+            devicePlatformVendorMismatch[i] = false;
 
             // Watch the device count
-            if(deviceCriteria.getDeviceCount() != DEVICE_COUNT_INFINITE && deviceCriteria.getDeviceCount() == validDevices.size())
+            if(deviceCriteria.getDeviceCount() != DEVICE_COUNT_INFINITE && deviceCriteria.getDeviceCount() == platformDevices[i].size())
                 break;
         }
-
-        // Watch the device count
-        if(deviceCriteria.getDeviceCount() != DEVICE_COUNT_INFINITE && deviceCriteria.getDeviceCount() == validDevices.size())
-            break;
     }
-    if(debugMode)
-        std::cout << "A total of " << validDevices.size() << " were selected for the context." << std::endl;
+
+    // Now, finally, select the best platform and its devices by inspecting the platformDevices list
+    int bestPlatform = -1;
+    for(int i = 0; i < validPlatforms.size(); i++) {
+        if(platformDevices[i].size() > 0) { // Make sure the platform has some devices that has all criteria
+            if(bestPlatform == -1) {
+                bestPlatform = i;
+            } else {
+                // Check devicePlatformVendorMismatch
+                if(devicePlatformVendorMismatch[bestPlatform] == true &&
+                        devicePlatformVendorMismatch[i] == false) {
+                    bestPlatform = i;
+                } else if(platformDevices[i].size() > platformDevices[bestPlatform].size()) {
+                    // If more than one platform has not devicePlatformVendorMismatch. Select the one with most devices
+                    bestPlatform = i;
+                }
+            }
+        }
+    }
+    if(bestPlatform == -1) {
+        // TODO: throw an exception
+    } else if(debugMode) {
+        std::cout << "The platform " << validPlatforms[bestPlatform].getInfo<CL_PLATFORM_NAME>() << " was selected as the best platform." << std::endl;
+        std::cout << "A total of " << platformDevices[bestPlatform].size() << " devices were selected for the context from this platform." << std::endl;
+    }
+    validDevices = platformDevices[bestPlatform];
+
+    // Cleanup
+    delete[] platformDevices;
+    delete[] devicePlatformVendorMismatch;
 
     return Context(validDevices);
 }
