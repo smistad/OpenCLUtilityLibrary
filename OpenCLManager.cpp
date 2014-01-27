@@ -282,7 +282,7 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
         if(platformDevices[i].size() > 0) { // Make sure the platform has some devices that has all criteria
             if(bestPlatform == -1) {
                 bestPlatform = i;
-            } else {
+            } else if(platformDevices[i].size() >= deviceCriteria.getDeviceCountMinCriteria()) { // was enough devices found?
                 // Check devicePlatformVendorMismatch
                 if(devicePlatformVendorMismatch[bestPlatform] == true &&
                         devicePlatformVendorMismatch[i] == false) {
@@ -295,7 +295,7 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
         }
     }
     if(bestPlatform == -1) {
-        throw NoValidDevicesException();
+        throw NoValidPlatformsException();
     } else if(debugMode) {
         std::cout << "The platform " << validPlatforms[bestPlatform].getInfo<CL_PLATFORM_NAME>() << " was selected as the best platform." << std::endl;
         std::cout << "A total of " << platformDevices[bestPlatform].size() << " devices were selected for the context from this platform." << std::endl;

@@ -56,10 +56,10 @@ class NoPlatformsInstalledException : public Exception {
         };
 };
 
-class NoValidDevicesException : public Exception {
+class NoValidPlatformsException : public Exception {
     public:
-        NoValidDevicesException() {
-            setMessage("No valid OpenCL devices were found. Check the device criteria.");
+        NoValidPlatformsException() {
+            setMessage("No valid OpenCL platforms were found. Check the device criteria.");
         };
 
 };
