@@ -5,6 +5,7 @@
 #include "CL/cl.hpp"
 #include "Context.hpp"
 #include "DeviceCriteria.hpp"
+#include "Exceptions.hpp"
 
 namespace oul {
 

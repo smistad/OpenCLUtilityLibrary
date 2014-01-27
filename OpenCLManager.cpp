@@ -77,6 +77,9 @@ Context OpenCLManager::createContext(int argc, char** argv) {
  */
 Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
 
+    if(platforms.size() == 0)
+        throw NoPlatformsInstalledException();
+
 	if(debugMode)
 	    std::cout << "Found " << platforms.size() << " OpenCL platforms." << std::endl;
 
@@ -193,7 +196,7 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
         }
     }
     if(bestPlatform == -1) {
-        // TODO: throw an exception
+        throw NoValidDevicesException();
     } else if(debugMode) {
         std::cout << "The platform " << validPlatforms[bestPlatform].getInfo<CL_PLATFORM_NAME>() << " was selected as the best platform." << std::endl;
         std::cout << "A total of " << platformDevices[bestPlatform].size() << " devices were selected for the context from this platform." << std::endl;
