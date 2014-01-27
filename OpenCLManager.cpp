@@ -1,6 +1,17 @@
 #include "OpenCLManager.hpp"
 #include <iostream>
 
+#if defined(__APPLE__) || defined(__MACOSX)
+   #include <OpenCL/cl_gl.h>
+   #include <OpenGL/OpenGL.h>
+#else
+#if _WIN32
+#else
+   #include <GL/glx.h>
+   #include <CL/cl_gl.h>
+#endif
+#endif
+
 namespace oul
 {
 
@@ -22,6 +33,93 @@ void OpenCLManager::shutdown()
 
 bool OpenCLManager::deviceHasOpenGLInteropCapability(cl::Device device) {
     // TODO
+    // Get the cl_device_id of the device
+    cl_device_id deviceID = device();
+    // Get the platform of device
+    cl::Platform platform = device.getInfo<CL_DEVICE_PLATFORM>();
+    // Get all devices that are capable of OpenGL interop with this platform
+    // Create properties for CL-GL context
+    #if defined(__APPLE__) || defined(__MACOSX)
+    // Apple (untested)
+    // TODO: create GL context for Apple
+    cl_context_properties cps[] = {
+       CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,
+       (cl_context_properties)CGLGetShareGroup(CGLGetCurrentContext()),
+       0};
+
+    #else
+    #ifdef _WIN32
+    // Windows
+    // TODO: create GL context for Windows
+      cl_context_properties cps[] = {
+          CL_GL_CONTEXT_KHR,
+          (cl_context_properties)wglGetCurrentContext(),
+          CL_WGL_HDC_KHR,
+          (cl_context_properties)wglGetCurrentDC(),
+          CL_CONTEXT_PLATFORM,
+          (cl_context_properties)(platforms[j])(),
+          0
+      };
+    #else
+    // Linux
+    // Create a GL context using glX
+    int  sngBuf[] = {
+                GLX_RGBA,
+                GLX_RED_SIZE, 1,
+                GLX_GREEN_SIZE, 1,
+                GLX_BLUE_SIZE, 1,
+                GLX_DEPTH_SIZE, 12,
+                None };
+
+    // TODO: should probably free this stuff
+    Display * display = XOpenDisplay(0);
+    XVisualInfo* vi = glXChooseVisual(display, DefaultScreen(display), sngBuf);
+    GLXContext gl2Context = glXCreateContext(display, vi, 0, GL_TRUE);
+
+    if(gl2Context == NULL) {
+        throw Exception("Could not create a GL 2.1 context, please check your graphics drivers");
+    }
+
+    cl_context_properties cps[] = {
+          CL_GL_CONTEXT_KHR,
+          (cl_context_properties)gl2Context,
+          CL_GLX_DISPLAY_KHR,
+          (cl_context_properties)display,
+          CL_CONTEXT_PLATFORM,
+          (cl_context_properties)(platform)(),
+          0
+    };
+    if(debugMode)
+        std::cout << "Current glX context is: " << cps[1] << std::endl;
+    #endif
+    #endif
+
+    // check if any of these devices have the same cl_device_id as deviceID
+    // Query which devices are associated with GL context
+    cl_device_id cl_gl_device_ids[32];
+    size_t returnSize = 0;
+    clGetGLContextInfoKHR_fn glGetGLContextInfo_func = (clGetGLContextInfoKHR_fn)clGetExtensionFunctionAddress("clGetGLContextInfoKHR");
+    glGetGLContextInfo_func(
+            cps,
+            CL_DEVICES_FOR_GL_CONTEXT_KHR,
+            32*sizeof(cl_device_id),
+            &cl_gl_device_ids,
+            &returnSize
+    );
+
+    if(debugMode)
+        std::cout << "There are " << returnSize / sizeof(cl_device_id) << " devices that can be associated with the GL context" << std::endl;
+
+    bool found = false;
+    for(int i = 0; i < returnSize/sizeof(cl_device_id); i++) {
+        cl::Device device2(cl_gl_device_ids[i]);
+        if(deviceID == device2()) {
+            found = true;
+            break;
+        }
+    }
+
+    return found;
 }
 
 bool OpenCLManager::devicePlatformMismatch(
@@ -150,19 +248,22 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
             if(debugMode)
                 std::cout << "Inspecting device " << j << " with the name " << devices[j].getInfo<CL_DEVICE_NAME>() << std::endl;
             std::vector<DeviceCapability> capabilityCriteria = deviceCriteria.getCapabilityCriteria();
+            bool accepted = true;
             for(int k = 0; k < capabilityCriteria.size(); k++) {
                 // TODO: implement some capability criteria
                 if(capabilityCriteria[k] == DEVICE_CAPABILITY_OPENGL_INTEROP) {
                     if(!deviceHasOpenGLInteropCapability(devices[j]))
-                        continue;
+                        accepted = false;
                 } else if(capabilityCriteria[k] == DEVICE_CAPABILITY_NOT_CONNECTED_TO_SCREEN) {
                     if(deviceHasOpenGLInteropCapability(devices[j]))
-                        continue;
+                        accepted = false;
                 }
             }
-            if(debugMode)
-                std::cout << "The device was accepted." << std::endl;
-            platformDevices[i].push_back(devices[j]);
+            if(accepted) {
+                if(debugMode)
+                    std::cout << "The device was accepted." << std::endl;
+                platformDevices[i].push_back(devices[j]);
+            }
 
             // Check for a device-platform mismatch.
             // This happens for instance if we try to use the AMD platform on a Intel CPU
@@ -215,6 +316,7 @@ void OpenCLManager::setDebugMode(bool mode) {
 }
 
 OpenCLManager* OpenCLManager::instance = NULL;
+bool OpenCLManager::debugMode = false;
 OpenCLManager* opencl() { return OpenCLManager::getInstance(); }
 
 }//namespace oul

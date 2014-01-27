@@ -27,7 +27,7 @@ public:
 private:
 	OpenCLManager();
 	std::vector<cl::Platform> platforms;
-	bool debugMode;
+	static bool debugMode;
 
 	static OpenCLManager * instance;
 };

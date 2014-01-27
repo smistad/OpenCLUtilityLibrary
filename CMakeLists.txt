@@ -5,10 +5,13 @@ project(OpenCLUtilityLibrary)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake)
 find_package( OpenCL REQUIRED )
 
+find_package( OpenGL REQUIRED )
+
 set(OpenCLUtilityLibrary_INCLUDE_DIRS
     .
     /CL
     ${OPENCL_INCLUDE_DIR}
+    ${OPENGL_INCLUDE_DIR}
 )
 
 include_directories(${OpenCLUtilityLibrary_INCLUDE_DIRS})
@@ -26,6 +29,7 @@ set(SOURCE_FILES
 
 set(OpenCLUtilityLibrary_LINK_LIBRARIES  
     ${OPENCL_LIBRARIES}
+    ${OPENGL_LIBRARIES}
 )
 
 add_library (OpenCLUtilityLibrary ${SOURCE_FILES})
