@@ -5,6 +5,12 @@
 #include <set>
 
 namespace oul {
+/**
+ * The purpose of the garbage collector object is to allow the explicit deletion
+ * of OpenCL memory objects such as buffers and images. This is useful when you
+ * want to delete an OpenCL memory object at a specific location in your code
+ * instead of waiting for the object to reach the end of its scope.
+ */
 class GarbageCollector {
     public:
         void addMemoryObject(cl::Memory *);
