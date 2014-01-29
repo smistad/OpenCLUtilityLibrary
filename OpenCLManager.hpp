@@ -33,6 +33,15 @@ private:
 
 	static bool debugMode;
 	static OpenCLManager * instance;
+
+    void sortDevicesAccordingToPreference(
+        int numberOfPlatforms,
+        int maxNumberOfDevices,
+        std::vector<cl::Device> * platformDevices,
+        DevicePreference preference,
+        std::vector<cl::Device> * sortedPlatformDevices,
+        int * platformScores
+    );
 };
 
 OpenCLManager* opencl(); //Shortcut for accessing the OpenCLManager

@@ -13,10 +13,13 @@ int main() {
     oul::OpenCLManager * manager = oul::OpenCLManager::getInstance();
     manager->setDebugMode(true);
     oul::DeviceCriteria criteria;
+
+    // Select 1 GPU that is PREFERABLY not connected to the screen
     criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
+    criteria.setDeviceCountCriteria(1);
+    criteria.setDevicePreference(oul::DEVICE_PREFERENCE_NOT_CONNECTED_TO_SCREEN);
     //criteria.setPlatformCriteria(oul::DEVICE_PLATFORM_INTEL);
     //criteria.setCapabilityCriteria(oul::DEVICE_CAPABILITY_OPENGL_INTEROP);
-    //criteria.setDeviceCountCriteria(1);
 
     oul::Context context = manager->createContext(criteria);
 

@@ -26,8 +26,9 @@ DeviceType DeviceCriteria::getTypeCriteria() const {
 oul::DeviceCriteria::DeviceCriteria() {
     typeCriteria = DEVICE_TYPE_ANY;
     deviceCountMin = 0;
-    deviceCountMax = -1;
+    deviceCountMax = 100;
     platformCriteria = DEVICE_PLATFORM_ANY;
+    devicePreference = DEVICE_PREFERENCE_NONE;
 }
 
 void oul::DeviceCriteria::setPlatformCriteria(DevicePlatform platform) {
@@ -45,6 +46,15 @@ void oul::DeviceCriteria::setTypeCriteria(DeviceType typeCriteria) {
 unsigned int oul::DeviceCriteria::getDeviceCountMinCriteria() const {
     return deviceCountMin;
 }
+
+void oul::DeviceCriteria::setDevicePreference(DevicePreference preference) {
+    this->devicePreference = preference;
+}
+
+DevicePreference oul::DeviceCriteria::getDevicePreference() const {
+    return devicePreference;
+}
+
 unsigned int oul::DeviceCriteria::getDeviceCountMaxCriteria() const {
     return deviceCountMax;
 }

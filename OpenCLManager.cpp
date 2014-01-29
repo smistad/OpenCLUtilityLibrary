@@ -1,6 +1,7 @@
 #include "OpenCLManager.hpp"
 #include "Context.hpp"
 #include <iostream>
+#include <algorithm>
 
 #if defined(__APPLE__) || defined(__MACOSX)
    #include <OpenCL/cl_gl.h>
@@ -153,6 +154,68 @@ bool OpenCLManager::devicePlatformMismatch(
     return platformVendor != deviceVendor;
 }
 
+typedef struct deviceAndScore {
+    int score;
+    cl::Device device;
+} deviceAndScore;
+bool compareScores (deviceAndScore a, deviceAndScore b) { return (a.score>b.score); };
+void OpenCLManager::sortDevicesAccordingToPreference(
+        int numberOfPlatforms,
+        int maxNumberOfDevices,
+        std::vector<cl::Device> * platformDevices,
+        DevicePreference preference,
+        std::vector<cl::Device> * sortedPlatformDevices,
+        int * platformScores
+        ) {
+    for(int i = 0; i < numberOfPlatforms; i++) {
+        if(platformDevices[i].size() == 0)
+            continue;
+        // Go through each device and give it a score based on the preference
+        std::vector<deviceAndScore> deviceScores;
+        for(int j = 0; j < platformDevices[i].size(); j++) {
+            cl::Device device = platformDevices[i][j];
+            deviceAndScore das;
+            das.device = device;
+            switch(preference) {
+            case DEVICE_PREFERENCE_NOT_CONNECTED_TO_SCREEN:
+                if(!deviceHasOpenGLInteropCapability(device)) {
+                    das.score = 1;
+                } else {
+                    das.score = 0;
+                }
+                break;
+            case DEVICE_PREFERENCE_COMPUTE_UNITS:
+                das.score = device.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>();
+                break;
+            case DEVICE_PREFERENCE_GLOBAL_MEMORY:
+                das.score = device.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>()/(1024*1024); // In MBs
+                break;
+            }
+            if(debugMode) {
+                std::cout << "The device " << device.getInfo<CL_DEVICE_NAME>() << " got a score of " << das.score << std::endl;
+            }
+            deviceScores.push_back(das);
+        }
+
+        // Sort devices according to the scores
+        std::sort(deviceScores.begin(), deviceScores.end(), compareScores);
+
+        // put devices back to vector and calculate scores
+        int platformScore = 0;
+        for(int j = 0; j < std::min(maxNumberOfDevices, (int)platformDevices[i].size()); j++) {
+            sortedPlatformDevices[i].push_back(deviceScores[j].device);
+            platformScore += deviceScores[j].score;
+        }
+        platformScores[i] = platformScore;
+
+        if(debugMode) {
+            cl::Platform platform = sortedPlatformDevices[i][0].getInfo<CL_DEVICE_PLATFORM>();
+            std::cout << "The platform " << platform.getInfo<CL_PLATFORM_NAME>()
+                    << " got a score of " << platformScore << std::endl;
+        }
+    }
+}
+
 std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria) {
 
     if(platforms.size() == 0)
@@ -161,7 +224,6 @@ std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria)
 	if(debugMode)
 	    std::cout << "Found " << platforms.size() << " OpenCL platforms." << std::endl;
 
-    std::vector<cl::Device> validDevices;
 
     // First, get all the platforms that fit the platform criteria
     std::vector<cl::Platform> validPlatforms;
@@ -243,9 +305,11 @@ std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria)
                 // TODO: DEVICE_PREFERENCE_NOT_CONNECTED_TO_SCREEN, PREFERENCE_COMPUTE_UNITS... MEMORY
                 // TODO: need to sort the device, use a score maybe? Just allow one type of preference?
                 // TODO: need to take max device count into acccount here
+                    /*
                 } else if(capabilityCriteria[k] == DEVICE_CAPABILITY_NOT_CONNECTED_TO_SCREEN) {
                     if(deviceHasOpenGLInteropCapability(devices[j]))
                         accepted = false;
+                        */
                 }
             }
             if(accepted) {
@@ -260,11 +324,22 @@ std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria)
             devicePlatformVendorMismatch[i] = devicePlatformMismatch(devices[j], validPlatforms[i]);
             if(debugMode && devicePlatformVendorMismatch[i])
                 std::cout << "A device-platform mismatch was detected." << std::endl;
-
-            // Watch the device count
-            if(deviceCriteria.getDeviceCountMaxCriteria() == platformDevices[i].size())
-                break;
         }
+    }
+
+    std::vector<cl::Device> * sortedPlatformDevices = new std::vector<cl::Device>[validPlatforms.size()];
+    int * platformScores = new int[validPlatforms.size()]();
+    if(deviceCriteria.getDevicePreference() == DEVICE_PREFERENCE_NONE) {
+        sortedPlatformDevices = platformDevices;
+    } else {
+        sortDevicesAccordingToPreference(
+                validPlatforms.size(),
+                deviceCriteria.getDeviceCountMaxCriteria(),
+                platformDevices,
+                deviceCriteria.getDevicePreference(),
+                sortedPlatformDevices,
+                platformScores
+        );
     }
 
     // Now, finally, select the best platform and its devices by inspecting the platformDevices list
@@ -278,20 +353,29 @@ std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria)
                 if(devicePlatformVendorMismatch[bestPlatform] == true &&
                         devicePlatformVendorMismatch[i] == false) {
                     bestPlatform = i;
-                } else if(platformDevices[i].size() > platformDevices[bestPlatform].size()) {
-                    // If more than one platform has not devicePlatformVendorMismatch. Select the one with most devices
+                // If there is not mismatch, choose the one with the best score
+                } else if(platformScores[i] > platformScores[bestPlatform]) {
                     bestPlatform = i;
                 }
             }
         }
     }
+    std::vector<cl::Device> validDevices;
     if(bestPlatform == -1) {
         throw NoValidPlatformsException();
-    } else if(debugMode) {
-        std::cout << "The platform " << validPlatforms[bestPlatform].getInfo<CL_PLATFORM_NAME>() << " was selected as the best platform." << std::endl;
-        std::cout << "A total of " << platformDevices[bestPlatform].size() << " devices were selected for the context from this platform." << std::endl;
+    } else {
+        // TODO: Select the devices from the bestPlatform
+        for(int i = 0; i < sortedPlatformDevices[bestPlatform].size(); i++) {
+            validDevices.push_back(sortedPlatformDevices[bestPlatform][i]);
+        }
+        if(debugMode) {
+            std::cout << "The platform " << validPlatforms[bestPlatform].getInfo<CL_PLATFORM_NAME>() << " was selected as the best platform." << std::endl;
+            std::cout << "A total of " << sortedPlatformDevices[bestPlatform].size() << " devices were selected for the context from this platform:" << std::endl;
+            for(int i = 0; i < validDevices.size(); i++) {
+                std::cout << "Device " << i << ": " << validDevices[i].getInfo<CL_DEVICE_NAME>() << std::endl;
+            }
+        }
     }
-    validDevices = platformDevices[bestPlatform];
 
     // Cleanup
     delete[] platformDevices;
