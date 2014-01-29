@@ -23,6 +23,8 @@ set(SOURCE_FILES
     DeviceCriteria.cpp
     Exceptions.hpp
     Exceptions.cpp
+    HelperFunctions.hpp
+    HelperFunctions.cpp
     OpenCLManager.hpp
     OpenCLManager.cpp
 )
