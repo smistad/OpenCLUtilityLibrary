@@ -1,8 +1,8 @@
 #ifndef OPENCLMANAGER_HPP_
 #define OPENCLMANAGER_HPP_
 
-#include <vector>
 #define __CL_ENABLE_EXCEPTIONS
+#include <vector>
 #include "CL/cl.hpp"
 #include "Context.hpp"
 #include "DeviceCriteria.hpp"

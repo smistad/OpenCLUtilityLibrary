@@ -220,7 +220,7 @@ std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria)
                 std::cout << "Looking for CPU devices only." << std::endl;
         }
         try {
-            platforms[i].getDevices(deviceType, &devices);
+            validPlatforms[i].getDevices(deviceType, &devices);
         } catch(cl::Error &error) {
             // Do nothing?
         }
@@ -238,6 +238,10 @@ std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria)
                     OpenGLInterop = true;
                     if(!deviceHasOpenGLInteropCapability(devices[j]))
                         accepted = false;
+                // TODO: not connected to the screen should be a preference and not a hard criteria
+                // TODO: DEVICE_PREFERENCE_NOT_CONNECTED_TO_SCREEN, PREFERENCE_COMPUTE_UNITS... MEMORY
+                // TODO: need to sort the device, use a score maybe? Just allow one type of preference?
+                // TODO: need to take max device count into acccount here
                 } else if(capabilityCriteria[k] == DEVICE_CAPABILITY_NOT_CONNECTED_TO_SCREEN) {
                     if(deviceHasOpenGLInteropCapability(devices[j]))
                         accepted = false;
