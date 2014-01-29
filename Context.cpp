@@ -37,7 +37,30 @@ void Context::createProgramFromSource(
     std::string sourceCode(
         std::istreambuf_iterator<char>(sourceFile),
         (std::istreambuf_iterator<char>()));
-    cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()+1));
+    cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
+
+    programs.push_back(buildSources(source, buildOptions));
+}
+
+void Context::createProgramFromSource(
+        std::vector<std::string> filenames,
+        std::string buildOptions) {
+    // TODO: finish
+}
+
+void Context::createProgramFromString(
+        std::string code,
+        std::string buildOptions) {
+    // Read source file
+    cl::Program::Sources source(1, std::make_pair(code.c_str(), code.length()));
+
+    programs.push_back(buildSources(source, buildOptions));
+}
+
+
+cl::Program Context::buildSources(
+        cl::Program::Sources source, 
+        std::string buildOptions) {
 
     // Make program of the source code in the context
     cl::Program program = cl::Program(context, source);
@@ -53,7 +76,9 @@ void Context::createProgramFromSource(
         }
         throw error;
     }
+    return program;
 }
+
 
 void Context::createProgramFromBinary(
         std::string filename,
