@@ -65,6 +65,25 @@ void Context::createProgramFromString(
     programs.push_back(buildSources(source, buildOptions));
 }
 
+cl::Program Context::getProgram(unsigned int i) {
+    return programs[i];
+}
+
+cl::CommandQueue Context::getQueue(unsigned int i) {
+    return queues[i];
+}
+
+cl::Device Context::getDevice(unsigned int i) {
+    return devices[i];
+}
+
+cl::Context Context::getContext() {
+    return context;
+}
+
+cl::Platform Context::getPlatform() {
+    return platform;
+}
 
 cl::Program Context::buildSources(
         cl::Program::Sources source, 

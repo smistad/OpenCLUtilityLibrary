@@ -15,6 +15,11 @@ class Context {
         void createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions = "");
         void createProgramFromString(std::string code, std::string buildOptions = "");
         void createProgramFromBinary(std::string filename, std::string buildOptions = "");
+        cl::Program getProgram(unsigned int i);
+        cl::CommandQueue getQueue(unsigned int i);
+        cl::Device getDevice(unsigned int i);
+        cl::Context getContext();
+        cl::Platform getPlatform();
     private:
         cl::Context context;
         std::vector<cl::CommandQueue> queues;
