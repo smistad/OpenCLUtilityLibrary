@@ -6,6 +6,7 @@
 namespace oul
 {
 Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled) {
+    this->garbageCollector = new GarbageCollector;
     this->devices = devices;
     // TODO: make sure that all devices have the same platform
     this->platform = devices[0].getInfo<CL_DEVICE_PLATFORM>();
@@ -84,6 +85,10 @@ cl::Context Context::getContext() {
 
 cl::Platform Context::getPlatform() {
     return platform;
+}
+
+GarbageCollector * Context::getGarbageCollector() {
+    return garbageCollector;
 }
 
 cl::Program Context::buildSources(

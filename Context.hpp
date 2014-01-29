@@ -4,6 +4,7 @@
 #include "CL/OpenCL.hpp"
 #include <vector>
 #include "Exceptions.hpp"
+#include "GarbageCollector.hpp"
 
 namespace oul {
 
@@ -19,6 +20,8 @@ class Context {
         cl::Device getDevice(unsigned int i);
         cl::Context getContext();
         cl::Platform getPlatform();
+        GarbageCollector * getGarbageCollector();
+        ~Context() { garbageCollector->deleteAllMemoryObjects(); };
     private:
         cl::Context context;
         std::vector<cl::CommandQueue> queues;
@@ -26,6 +29,7 @@ class Context {
         std::vector<cl::Device> devices;
         cl::Platform platform;
         cl::Program buildSources(cl::Program::Sources source, std::string buildOptions);
+        GarbageCollector * garbageCollector;
 };
 
 };
