@@ -152,28 +152,7 @@ bool OpenCLManager::devicePlatformMismatch(
     return platformVendor != deviceVendor;
 }
 
-OpenCLManager::OpenCLManager()
-{
-	debugMode = false;
-	cl::Platform::get(&platforms);
-}
-
-Context OpenCLManager::createContext(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled) {
-    return Context(devices, OpenGLInterop, profilingEnabled);
-}
-
-/**
- * This method parses program arguments into device criteria and returns a context
- */
-Context OpenCLManager::createContext(int argc, char** argv) {
-
-	//TODO
-}
-
-/**
- * This method finds a set of devices which satisfies the supplied device criteria and creates a context
- */
-Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
+std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria) {
 
     if(platforms.size() == 0)
         throw NoPlatformsInstalledException();
@@ -240,7 +219,11 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
             if(debugMode)
                 std::cout << "Looking for CPU devices only." << std::endl;
         }
-        platforms[i].getDevices(deviceType, &devices);
+        try {
+            platforms[i].getDevices(deviceType, &devices);
+        } catch(cl::Error &error) {
+            // Do nothing?
+        }
         if(debugMode)
             std::cout << devices.size() << " devices found for this platform." << std::endl;
 
@@ -309,7 +292,33 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
     delete[] platformDevices;
     delete[] devicePlatformVendorMismatch;
 
-    return oul::Context(validDevices, OpenGLInterop, false);
+    return validDevices;
+}
+
+OpenCLManager::OpenCLManager()
+{
+	debugMode = false;
+	cl::Platform::get(&platforms);
+}
+
+Context OpenCLManager::createContext(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled) {
+    return Context(devices, OpenGLInterop, profilingEnabled);
+}
+
+/**
+ * This method parses program arguments into device criteria and returns a context
+ */
+Context OpenCLManager::createContext(int argc, char** argv) {
+
+	//TODO
+}
+
+/**
+ * This method finds a set of devices which satisfies the supplied device criteria and creates a context
+ */
+Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
+
+    return oul::Context(getDevices(deviceCriteria), false, false);
 }
 
 void OpenCLManager::setDebugMode(bool mode) {
