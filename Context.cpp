@@ -42,10 +42,18 @@ void Context::createProgramFromSource(
     programs.push_back(buildSources(source, buildOptions));
 }
 
+/**
+ * Compile several source files together
+ */
 void Context::createProgramFromSource(
         std::vector<std::string> filenames,
         std::string buildOptions) {
-    // TODO: finish
+    cl::Program::Sources sources;
+    for(int i = 0; i < filenames.size(); i++) {
+        sources.push_back(std::make_pair(filenames[i].c_str(), filenames[i].length()));
+    }
+
+    programs.push_back(buildSources(sources, buildOptions));
 }
 
 void Context::createProgramFromString(
