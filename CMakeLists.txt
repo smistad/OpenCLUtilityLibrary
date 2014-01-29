@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(OpenCLUtilityLibrary)
 
+option(BUILD_TESTS "Build tests." ON)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake)
 find_package( OpenCL REQUIRED )
 
@@ -42,4 +44,7 @@ target_link_libraries(OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES
 add_executable (example example.cpp)
 target_link_libraries(example OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
 
-add_subdirectory(testing)
+
+if(BUILD_TESTS)
+    add_subdirectory(testing)
+endif(BUILD_TESTS)
