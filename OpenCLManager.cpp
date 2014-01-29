@@ -46,6 +46,7 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(cl::Device device) {
        (cl_context_properties)CGLGetShareGroup(CGLGetCurrentContext()),
        0};
 
+    return false;
     #else
     #ifdef _WIN32
     // Windows
@@ -59,6 +60,7 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(cl::Device device) {
           (cl_context_properties)(platforms[j])(),
           0
       };
+    return false;
     #else
     // Linux
     // Create a GL context using glX
@@ -90,8 +92,6 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(cl::Device device) {
     };
     if(debugMode)
         std::cout << "Current glX context is: " << cps[1] << std::endl;
-    #endif
-    #endif
 
     // check if any of these devices have the same cl_device_id as deviceID
     // Query which devices are associated with GL context
@@ -117,8 +117,9 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(cl::Device device) {
             break;
         }
     }
-
     return found;
+    #endif
+    #endif
 }
 
 bool OpenCLManager::devicePlatformMismatch(
