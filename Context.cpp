@@ -1,4 +1,5 @@
 #include "Context.hpp"
+#include "OpenCLManager.hpp"
 #include <iostream>
 #include <fstream>
 

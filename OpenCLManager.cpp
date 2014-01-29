@@ -1,4 +1,5 @@
 #include "OpenCLManager.hpp"
+#include "Context.hpp"
 #include <iostream>
 
 #if defined(__APPLE__) || defined(__MACOSX)
@@ -326,7 +327,11 @@ Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
 }
 
 void OpenCLManager::setDebugMode(bool mode) {
-    this->debugMode = mode;
+    debugMode = mode;
+}
+
+bool OpenCLManager::getDebugMode() {
+    return debugMode;
 }
 
 OpenCLManager* OpenCLManager::instance = NULL;

@@ -1,12 +1,12 @@
 #ifndef OPENCLMANAGER_HPP_
 #define OPENCLMANAGER_HPP_
 
-#define __CL_ENABLE_EXCEPTIONS
+#include "CL/OpenCL.hpp"
 #include <vector>
-#include "CL/cl.hpp"
 #include "Context.hpp"
 #include "DeviceCriteria.hpp"
 #include "Exceptions.hpp"
+
 
 namespace oul {
 
@@ -23,14 +23,15 @@ public:
 	Context createContext(int argc, char ** argv);
 	Context createContext(DeviceCriteria criteria);
 	std::vector<cl::Device> getDevices(DeviceCriteria criteria);
-	void setDebugMode(bool mode);
+	static void setDebugMode(bool mode);
+	static bool getDebugMode();
 	static bool deviceHasOpenGLInteropCapability(cl::Device device);
 	static bool devicePlatformMismatch(cl::Device device, cl::Platform platform);
-	static bool debugMode;
 private:
 	OpenCLManager();
 	std::vector<cl::Platform> platforms;
 
+	static bool debugMode;
 	static OpenCLManager * instance;
 };
 

@@ -1,8 +1,7 @@
 #ifndef CONTEXT_HPP_
 #define CONTEXT_HPP_
 
-#define __CL_ENABLE_EXCEPTIONS
-#include "CL/cl.hpp"
+#include "CL/OpenCL.hpp"
 #include <vector>
 #include "Exceptions.hpp"
 
