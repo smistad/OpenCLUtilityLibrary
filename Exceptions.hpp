@@ -18,7 +18,7 @@ class Exception : public std::exception {
         };
         Exception(int line, const char * file) {
             this->line = line;
-            this->message = message;
+            this->message = "";
             this->file = file;
         };
         Exception(const char * message, int line, const char * file) {
