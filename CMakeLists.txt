@@ -37,4 +37,7 @@ set(OpenCLUtilityLibrary_LINK_LIBRARIES
 add_library (OpenCLUtilityLibrary ${SOURCE_FILES})
 target_link_libraries(OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
 
+add_executable (example example.cpp)
+target_link_libraries(example OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
+
 add_subdirectory(testing)
