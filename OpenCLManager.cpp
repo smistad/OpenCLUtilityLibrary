@@ -33,7 +33,7 @@ void OpenCLManager::shutdown()
   instance = NULL;
 }
 
-bool OpenCLManager::deviceHasOpenGLInteropCapability(cl::Device device) {
+bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
     // Get the cl_device_id of the device
     cl_device_id deviceID = device();
     // Get the platform of device
@@ -125,8 +125,8 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(cl::Device device) {
 }
 
 bool OpenCLManager::devicePlatformMismatch(
-        cl::Device device,
-        cl::Platform platform) {
+        const cl::Device &device,
+        const cl::Platform &platform) {
     // First, find the type/vendor the of platform
     DevicePlatform platformVendor;
     std::string platformVendorStr = platform.getInfo<CL_PLATFORM_VENDOR>();
@@ -216,7 +216,7 @@ void OpenCLManager::sortDevicesAccordingToPreference(
     }
 }
 
-std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria) {
+std::vector<cl::Device> OpenCLManager::getDevices(const DeviceCriteria &deviceCriteria) {
 
     if(platforms.size() == 0)
         throw NoPlatformsInstalledException();
@@ -380,22 +380,79 @@ OpenCLManager::OpenCLManager()
 	cl::Platform::get(&platforms);
 }
 
-Context OpenCLManager::createContext(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled) {
+Context OpenCLManager::createContext(std::vector<cl::Device> &devices, bool OpenGLInterop, bool profilingEnabled) {
     return Context(devices, OpenGLInterop, profilingEnabled);
 }
 
 /**
- * This method parses program arguments into device criteria and returns a context
+ * This method parses program arguments into device criteria and returns a context.
+ * If some arguments are not used, the criteria supplied in the defaultCriteria object are used.
+ * Possible arguments are:
+ * --device any|gpu|cpu
+ * --platform any|amd|apple|intel|nvidia
+ * --capability opengl-interop
+ * --preference none|no-screen|compute-units|global-memory
+ * --device-min-count x
+ * --device-max-count x
  */
-Context OpenCLManager::createContext(int argc, char** argv) {
+Context OpenCLManager::createContext(int argc, char** argv, DeviceCriteria &defaultCriteria) {
 
-	//TODO
+    for(int i = 1; i < argc-1; i++) {
+        std::string token = argv[i];
+        std::string value = "";
+        if(i+1<argc)
+            value = argv[i+1];
+        if(token == "--device") {
+            if(value == "any") {
+                defaultCriteria.setTypeCriteria(DEVICE_TYPE_ANY);
+            } else if(value == "gpu") {
+                defaultCriteria.setTypeCriteria(DEVICE_TYPE_GPU);
+            } else if(value == "cpu") {
+                defaultCriteria.setTypeCriteria(DEVICE_TYPE_CPU);
+            }
+        } else if(token == "--platform") {
+            if(value == "any") {
+                defaultCriteria.setPlatformCriteria(DEVICE_PLATFORM_ANY);
+            } else if(value == "amd") {
+                defaultCriteria.setPlatformCriteria(DEVICE_PLATFORM_AMD);
+            } else if(value == "apple") {
+                defaultCriteria.setPlatformCriteria(DEVICE_PLATFORM_APPLE);
+            } else if(value == "intel") {
+                defaultCriteria.setPlatformCriteria(DEVICE_PLATFORM_INTEL);
+            } else if(value == "nvidia") {
+                defaultCriteria.setPlatformCriteria(DEVICE_PLATFORM_NVIDIA);
+            }
+        } else if(token == "--capability") {
+            if(value == "opengl-interop") {
+                defaultCriteria.setCapabilityCriteria(DEVICE_CAPABILITY_OPENGL_INTEROP);
+            }
+        } else if(token == "--preference") {
+            if(value == "none") {
+                defaultCriteria.setDevicePreference(DEVICE_PREFERENCE_NONE);
+            } else if(value == "no-screen") {
+                defaultCriteria.setDevicePreference(DEVICE_PREFERENCE_NOT_CONNECTED_TO_SCREEN);
+            } else if(value == "compute-units") {
+                defaultCriteria.setDevicePreference(DEVICE_PREFERENCE_COMPUTE_UNITS);
+            } else if(value == "global-memory") {
+                defaultCriteria.setDevicePreference(DEVICE_PREFERENCE_GLOBAL_MEMORY);
+            }
+        } else if(token == "--device-min-count") {
+            unsigned int count = atoi(value.c_str());
+            defaultCriteria.setDeviceCountCriteria(count, defaultCriteria.getDeviceCountMaxCriteria());
+        } else if(token == "--device-max-count") {
+            unsigned int count = atoi(value.c_str());
+            defaultCriteria.setDeviceCountCriteria(defaultCriteria.getDeviceCountMinCriteria(), count);
+        }
+    }
+
+    return createContext(defaultCriteria);
+
 }
 
 /**
  * This method finds a set of devices which satisfies the supplied device criteria and creates a context
  */
-Context OpenCLManager::createContext(DeviceCriteria deviceCriteria) {
+Context OpenCLManager::createContext(const DeviceCriteria &deviceCriteria) {
 
     return oul::Context(getDevices(deviceCriteria), false, false);
 }

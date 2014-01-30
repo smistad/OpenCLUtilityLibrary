@@ -19,14 +19,14 @@ public:
 	static OpenCLManager * getInstance();
 	static void shutdown();
 
-	Context createContext(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled);
-	Context createContext(int argc, char ** argv);
-	Context createContext(DeviceCriteria criteria);
-	std::vector<cl::Device> getDevices(DeviceCriteria criteria);
+	Context createContext(std::vector<cl::Device> &devices, bool OpenGLInterop, bool profilingEnabled);
+	Context createContext(int argc, char ** argv, DeviceCriteria &defaultCriteria);
+	Context createContext(const DeviceCriteria &criteria);
+	std::vector<cl::Device> getDevices(const DeviceCriteria &criteria);
 	static void setDebugMode(bool mode);
 	static bool getDebugMode();
-	static bool deviceHasOpenGLInteropCapability(cl::Device device);
-	static bool devicePlatformMismatch(cl::Device device, cl::Platform platform);
+	static bool deviceHasOpenGLInteropCapability(const cl::Device &device);
+	static bool devicePlatformMismatch(const cl::Device &device, const cl::Platform &platform);
 private:
 	OpenCLManager();
 	std::vector<cl::Platform> platforms;
