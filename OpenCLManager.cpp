@@ -190,9 +190,10 @@ void OpenCLManager::sortDevicesAccordingToPreference(
             case DEVICE_PREFERENCE_GLOBAL_MEMORY:
                 das.score = device.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>()/(1024*1024); // In MBs
                 break;
-            case DEVICE_PREFERENCE_NONE:
-                //TODO this was missing and thus generated a warning on the compiler, what to do?
-                throw Exception("Entered a case in a switch that was not handled.");
+            default:
+                // Do nothing
+                if(debugMode)
+                    std::cout << "No valid preference selected." << std::endl;
                 break;
             }
             if(debugMode) {
