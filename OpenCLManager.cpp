@@ -190,6 +190,10 @@ void OpenCLManager::sortDevicesAccordingToPreference(
             case DEVICE_PREFERENCE_GLOBAL_MEMORY:
                 das.score = device.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>()/(1024*1024); // In MBs
                 break;
+            case DEVICE_PREFERENCE_NONE:
+                //TODO this was missing and thus generated a warning on the compiler, what to do?
+                throw Exception("Entered a case in a switch that was not handled.");
+                break;
             }
             if(debugMode) {
                 std::cout << "The device " << device.getInfo<CL_DEVICE_NAME>() << " got a score of " << das.score << std::endl;
@@ -226,35 +230,8 @@ std::vector<cl::Device> OpenCLManager::getDevices(const DeviceCriteria &deviceCr
 
 
     // First, get all the platforms that fit the platform criteria
-    std::vector<cl::Platform> validPlatforms;
-    if(deviceCriteria.getPlatformCriteria() == DEVICE_PLATFORM_ANY) {
-        validPlatforms = this->platforms;
-    } else {
-        // Find the correct platform and add to validPlatforms
-        std::string find;
-        switch(deviceCriteria.getPlatformCriteria()) {
-            case DEVICE_PLATFORM_NVIDIA:
-                find = "NVIDIA";
-            break;
-            case DEVICE_PLATFORM_AMD:
-                find = "Advanced Micro Devices";
-            break;
-            case DEVICE_PLATFORM_INTEL:
-                find = "Intel";
-            break;
-            case DEVICE_PLATFORM_APPLE:
-                find = "Apple";
-            break;
-            case DEVICE_PLATFORM_ANY:
-            break;
-        }
-        for(int i = 0; i < platforms.size(); i++) {
-            if(platforms[i].getInfo<CL_PLATFORM_VENDOR>().find(find) != std::string::npos) {
-                validPlatforms.push_back(platforms[i]);
-                break;
-            }
-        }
-    }
+    std::vector<cl::Platform> validPlatforms = this->getPlatforms(deviceCriteria.getPlatformCriteria());
+
 	if(debugMode)
 	    std::cout << validPlatforms.size() << " platforms selected for inspection." << std::endl;
 
@@ -372,6 +349,40 @@ std::vector<cl::Device> OpenCLManager::getDevices(const DeviceCriteria &deviceCr
     delete[] devicePlatformVendorMismatch;
 
     return validDevices;
+}
+
+std::vector<cl::Platform> OpenCLManager::getPlatforms(oul::DevicePlatform platformCriteria){
+
+    std::vector<cl::Platform> retval;
+    if(platformCriteria == DEVICE_PLATFORM_ANY) {
+        retval = this->platforms;
+    } else {
+        // Find the correct platform and add to validPlatforms
+        std::string find;
+        switch(platformCriteria) {
+            case DEVICE_PLATFORM_NVIDIA:
+                find = "NVIDIA";
+            break;
+            case DEVICE_PLATFORM_AMD:
+                find = "Advanced Micro Devices";
+            break;
+            case DEVICE_PLATFORM_INTEL:
+                find = "Intel";
+            break;
+            case DEVICE_PLATFORM_APPLE:
+                find = "Apple";
+            break;
+            case DEVICE_PLATFORM_ANY:
+            break;
+        }
+        for(int i = 0; i < platforms.size(); i++) {
+            if(platforms[i].getInfo<CL_PLATFORM_VENDOR>().find(find) != std::string::npos) {
+                retval.push_back(platforms[i]);
+                break;
+            }
+        }
+    }
+    return retval;
 }
 
 OpenCLManager::OpenCLManager()
