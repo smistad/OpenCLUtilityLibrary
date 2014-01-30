@@ -16,12 +16,7 @@ set(OpenCLUtilityLibrary_INCLUDE_DIRS
     ${OPENGL_INCLUDE_DIR}
     PARENT_SCOPE
 )
-set(OpenCLUtilityLibrary_INCLUDE_DIRS2
-    .
-    /CL
-    ${OPENCL_INCLUDE_DIR}
-    ${OPENGL_INCLUDE_DIR}
-)
+
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
 include_directories(${OpenCLUtilityLibrary_INCLUDE_DIRS})
@@ -52,6 +47,6 @@ target_link_libraries(OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES
 add_executable (example example.cpp)
 target_link_libraries(example OpenCLUtilityLibrary)
 
-#if(BUILD_TESTS)
-#    add_subdirectory(testing)
-#endif(BUILD_TESTS)
+if(BUILD_TESTS)
+    add_subdirectory(testing)
+endif(BUILD_TESTS)

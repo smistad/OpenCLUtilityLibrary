@@ -1,6 +1,7 @@
 #include "TestFixture.hpp"
 
-#include "OpenCLManager.hpp"
+// TODO: a non elegant hack here to make this work:
+#include "../OpenCLManager.hpp"
 
 namespace oul
 {
