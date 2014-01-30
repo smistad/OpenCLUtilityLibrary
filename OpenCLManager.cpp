@@ -255,7 +255,6 @@ std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria)
             }
         }
     }
-    // TODO: Can only use one platform for a context. Need to select the best platform if multiple platforms are selected
 	if(debugMode)
 	    std::cout << validPlatforms.size() << " platforms selected for inspection." << std::endl;
 
@@ -301,15 +300,6 @@ std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria)
                     OpenGLInterop = true;
                     if(!deviceHasOpenGLInteropCapability(devices[j]))
                         accepted = false;
-                // TODO: not connected to the screen should be a preference and not a hard criteria
-                // TODO: DEVICE_PREFERENCE_NOT_CONNECTED_TO_SCREEN, PREFERENCE_COMPUTE_UNITS... MEMORY
-                // TODO: need to sort the device, use a score maybe? Just allow one type of preference?
-                // TODO: need to take max device count into acccount here
-                    /*
-                } else if(capabilityCriteria[k] == DEVICE_CAPABILITY_NOT_CONNECTED_TO_SCREEN) {
-                    if(deviceHasOpenGLInteropCapability(devices[j]))
-                        accepted = false;
-                        */
                 }
             }
             if(accepted) {
@@ -364,7 +354,7 @@ std::vector<cl::Device> OpenCLManager::getDevices(DeviceCriteria deviceCriteria)
     if(bestPlatform == -1) {
         throw NoValidPlatformsException();
     } else {
-        // TODO: Select the devices from the bestPlatform
+        // Select the devices from the bestPlatform
         for(int i = 0; i < sortedPlatformDevices[bestPlatform].size(); i++) {
             validDevices.push_back(sortedPlatformDevices[bestPlatform][i]);
         }
