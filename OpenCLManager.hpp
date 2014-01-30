@@ -23,6 +23,7 @@ public:
 	Context createContext(int argc, char ** argv, DeviceCriteria &defaultCriteria);
 	Context createContext(const DeviceCriteria &criteria);
 	std::vector<cl::Device> getDevices(const DeviceCriteria &criteria);
+	std::vector<cl::Platform> getPlatforms(oul::DevicePlatform platformCriteria);
 	static void setDebugMode(bool mode);
 	static bool getDebugMode();
 	static bool deviceHasOpenGLInteropCapability(const cl::Device &device);
