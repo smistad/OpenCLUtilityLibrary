@@ -2,8 +2,10 @@
 include_directories(${OpenCLUtilityLibrary_INCLUDE_DIRS})
 
 set(SOURCE_FILES
-    OulTestFixture.hpp
-    OulTestFixture.cpp
+    catch/catch.hpp
+    tests.cpp
+    TestFixture.hpp
+    TestFixture.cpp
 )
 
 set(OpenCLUtilityLibrary_LINK_LIBRARIES
@@ -11,5 +13,6 @@ set(OpenCLUtilityLibrary_LINK_LIBRARIES
 )
 
 
-add_library (OpenCLUtilityLibraryTesting ${SOURCE_FILES})
-target_link_libraries(OpenCLUtilityLibraryTesting OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
+add_executable (Catch ${SOURCE_FILES})
+target_link_libraries(Catch OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
+
