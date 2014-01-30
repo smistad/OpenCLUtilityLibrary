@@ -32,6 +32,8 @@ set(SOURCE_FILES
     GarbageCollector.cpp
     HelperFunctions.hpp
     HelperFunctions.cpp
+    HistogramPyramids.hpp
+    HistogramPyramids.cpp
     OpenCLManager.hpp
     OpenCLManager.cpp
 )
@@ -50,3 +52,20 @@ target_link_libraries(example OpenCLUtilityLibrary)
 if(BUILD_TESTS)
     add_subdirectory(testing)
 endif(BUILD_TESTS)
+
+#------------------------------------------------------------------------------
+# Configure file for find_package module 
+#------------------------------------------------------------------------------
+
+set( OpenCLUtilityLibrary_INCLUDE_DIRS
+    ${OpenCLUtilityLibrary_SOURCE_DIR}
+    ) 
+
+set(OpenCLUtilityLibrary_LIBRARY_DIRS
+    ${OpenCLUtilityLibrary_BINARY_DIR}
+    )    
+
+configure_file (
+    "${PROJECT_SOURCE_DIR}/CMake/OpenCLUtilityLibraryConfig.cmake.in"
+    "${PROJECT_BINARY_DIR}/OpenCLUtilityLibraryConfig.cmake"
+    )
