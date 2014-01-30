@@ -2,7 +2,8 @@
 #include "catch/catch.hpp"
 
 #include "TestFixture.hpp"
-#include "OpenCLManager.hpp"
+// TODO: a non elegant hack here to make this work:
+#include "../OpenCLManager.hpp"
 
 // TODO Make tests for:
 // OpenCL 1.1 device available
