@@ -1,9 +1,7 @@
-#define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch/catch.hpp"
 
 #include "TestFixture.hpp"
-// TODO: a non elegant hack here to make this work:
-#include "../OpenCLManager.hpp"
+#include "OpenCLManager.hpp"
 
 // TODO Make tests for:
 // OpenCL 1.1 device available
@@ -33,42 +31,42 @@ std::vector<cl::Device> getAllDevices(){
 }
 //------------------------------------------------------------------------------------------------
 //Tests
-TEST_CASE("Can create instance of the manager.","[OpenCLManager]"){
+TEST_CASE("Can create instance of the manager.","[oul][OpenCLManager]"){
     CHECK(oul::opencl() != NULL);
 }
 
-TEST_CASE("Can set debug mode.","[OpenCLManager]"){
+TEST_CASE("Can set debug mode.","[oul][OpenCLManager]"){
     CHECK(oul::opencl()->getDebugMode() == false);
     oul::opencl()->setDebugMode(true);
     CHECK(oul::opencl()->getDebugMode() == true);
 }
 
-TEST_CASE("Can create a oul::Context with defaul oul::DeviceCriteria.","[OpenCLManager]"){
+TEST_CASE("Can create a oul::Context with defaul oul::DeviceCriteria.","[oul][OpenCLManager]"){
     oul::DeviceCriteria criteria;
 
     CHECK_NOTHROW(oul::opencl()->createContext(criteria));
 }
 
-TEST_CASE("OpenCL platform(s) installed.","[OpenCLManager]"){
+TEST_CASE("OpenCL platform(s) installed.","[oul][OpenCLManager]"){
     oul::DeviceCriteria criteria;
 
     CHECK(oul::opencl()->getPlatforms(oul::DEVICE_PLATFORM_ANY).size() != 0);
 }
 
-TEST_CASE("OpenCL device(s) available.","[OpenCLManager]"){
+TEST_CASE("OpenCL device(s) available.","[oul][OpenCLManager]"){
     CHECK(getAllDevices().size() != 0);
 }
 
-TEST_CASE("OpenCL CPU device(s) available.","[OpenCLManager]"){
+TEST_CASE("OpenCL CPU device(s) available.","[oul][OpenCLManager]"){
     CHECK(getCPUDevices().size() != 0);
 }
 
-TEST_CASE("OpenCL GPU device(s) available.","[OpenCLManager]"){
+TEST_CASE("OpenCL GPU device(s) available.","[oul][OpenCLManager]"){
     CHECK(getGPUDevices().size() != 0);
 }
 
 //This test fails on Apple
-TEST_CASE("At least one OpenCL device has OpenGL interop capability.","[OpenCLManage][OpenGL]"){
+TEST_CASE("At least one OpenCL device has OpenGL interop capability.","[oul][OpenCLManage][OpenGL]"){
     bool foundOpenGLInteropCapableDevice  = false;
 
     std::vector<cl::Device> devices = getAllDevices();
@@ -79,7 +77,7 @@ TEST_CASE("At least one OpenCL device has OpenGL interop capability.","[OpenCLMa
     CHECK(foundOpenGLInteropCapableDevice);
 }
 
-TEST_CASE("Default construction gives expected values.","[DeviceCriteria]"){
+TEST_CASE("Default construction gives expected values.","[oul][DeviceCriteria]"){
     oul::DeviceCriteria criteria;
 
     CHECK(criteria.getTypeCriteria() == oul::DEVICE_TYPE_ANY);

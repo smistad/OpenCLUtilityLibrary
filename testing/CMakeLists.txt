@@ -3,6 +3,7 @@ include_directories(${OpenCLUtilityLibrary_INCLUDE_DIRS})
 
 set(SOURCE_FILES
     catch/catch.hpp
+    CatchMain.cpp
     tests.cpp
     TestFixture.hpp
     TestFixture.cpp

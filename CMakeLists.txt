@@ -14,7 +14,6 @@ set(OpenCLUtilityLibrary_INCLUDE_DIRS
     /CL
     ${OPENCL_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIR}
-    PARENT_SCOPE
 )
 
 
@@ -63,7 +62,7 @@ set( OpenCLUtilityLibrary_INCLUDE_DIRS
 
 set(OpenCLUtilityLibrary_LIBRARY_DIRS
     ${OpenCLUtilityLibrary_BINARY_DIR}
-    )    
+    )
 
 configure_file (
     "${PROJECT_SOURCE_DIR}/CMake/OpenCLUtilityLibraryConfig.cmake.in"
