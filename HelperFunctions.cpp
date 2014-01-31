@@ -19,7 +19,7 @@ cl::size_t<3> oul::createOrigoRegion() {
     return region;
 }
 
-std::string getCLErrorString(cl_int err) {
+std::string oul::getCLErrorString(cl_int err) {
     switch (err) {
         case CL_SUCCESS:                          return std::string( "Success!");
         case CL_DEVICE_NOT_FOUND:                 return std::string( "Device not found.");
