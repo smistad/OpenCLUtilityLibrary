@@ -24,10 +24,12 @@ public:
 	Context createContext(const DeviceCriteria &criteria);
 	std::vector<cl::Device> getDevices(const DeviceCriteria &criteria);
 	std::vector<cl::Platform> getPlatforms(oul::DevicePlatform platformCriteria);
+
 	static void setDebugMode(bool mode);
 	static bool getDebugMode();
 	static bool deviceHasOpenGLInteropCapability(const cl::Device &device);
 	static bool devicePlatformMismatch(const cl::Device &device, const cl::Platform &platform);
+
 private:
 	OpenCLManager();
 	std::vector<cl::Platform> platforms;
@@ -43,6 +45,8 @@ private:
         std::vector<cl::Device> * sortedPlatformDevices,
         int * platformScores
     );
+    static DevicePlatform getDevicePlatform(std::string platformVendor);
+    static std::string getDevicePlatform(DevicePlatform devicePlatform);
 };
 
 OpenCLManager* opencl(); //Shortcut for accessing the OpenCLManager

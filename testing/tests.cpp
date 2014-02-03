@@ -87,4 +87,12 @@ TEST_CASE("Default construction gives expected values.","[oul][DeviceCriteria]")
     CHECK(criteria.getDevicePreference() == oul::DEVICE_PREFERENCE_NONE);
 }
 
+TEST_CASE("Check for device platform mismatch","[oul][DeviceCriteria][OpenCLManager]"){
+    oul::DeviceCriteria criteria;
+    oul::Context context = oul::opencl()->createContext(criteria);
+
+    CHECK_FALSE(oul::OpenCLManager::devicePlatformMismatch(context.getDevice(0), context.getPlatform()));
+}
+
+
 }//namespace test
