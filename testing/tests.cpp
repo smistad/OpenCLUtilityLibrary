@@ -32,7 +32,7 @@ std::vector<cl::Device> getAllDevices(){
 //------------------------------------------------------------------------------------------------
 //Tests
 TEST_CASE("Can create instance of the manager.","[oul][OpenCLManager]"){
-    CHECK(oul::opencl() != NULL);
+    CHECK(oul::opencl());
 }
 
 TEST_CASE("Can set debug mode.","[oul][OpenCLManager]"){
