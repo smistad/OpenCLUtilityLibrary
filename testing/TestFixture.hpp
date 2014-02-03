@@ -1,6 +1,9 @@
 #ifndef TESTFIXTURE_HPP_
 #define TESTFIXTURE_HPP_
 
+#include "CL/OpenCL.hpp"
+#include "DeviceCriteria.hpp"
+
 namespace oul
 {
 /**
@@ -16,7 +19,10 @@ public:
 	TestFixture();
 	~TestFixture();
 
-	bool canBuildAndRunATestKernel();
+	std::vector<cl::Device> getDevices(oul::DeviceType type);
+	std::vector<cl::Device> getCPUDevices();
+	std::vector<cl::Device> getGPUDevices();
+	std::vector<cl::Device> getAllDevices();
 };
 
 } /* namespace oul */

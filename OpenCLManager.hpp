@@ -22,6 +22,7 @@ public:
 	Context createContext(std::vector<cl::Device> &devices, bool OpenGLInterop, bool profilingEnabled);
 	Context createContext(int argc, char ** argv, DeviceCriteria &defaultCriteria);
 	Context createContext(const DeviceCriteria &criteria);
+
 	std::vector<cl::Device> getDevices(const DeviceCriteria &criteria);
 	std::vector<cl::Platform> getPlatforms(oul::DevicePlatform platformCriteria);
 

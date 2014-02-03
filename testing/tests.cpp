@@ -3,34 +3,8 @@
 #include "TestFixture.hpp"
 #include "OpenCLManager.hpp"
 
-// TODO Make tests for:
-// OpenCL 1.1 device available
-
 namespace test
 {
-
-
-//Helper functions
-std::vector<cl::Device> getDevices(oul::DeviceType type){
-    oul::DeviceCriteria criteria;
-    criteria.setTypeCriteria(type);
-
-    return oul::opencl()->getDevices(criteria);
-}
-
-std::vector<cl::Device> getCPUDevices(){
-    return getDevices(oul::DEVICE_TYPE_CPU);
-}
-
-std::vector<cl::Device> getGPUDevices(){
-    return getDevices(oul::DEVICE_TYPE_GPU);
-}
-
-std::vector<cl::Device> getAllDevices(){
-    return getDevices(oul::DEVICE_TYPE_ANY);
-}
-//------------------------------------------------------------------------------------------------
-//Tests
 TEST_CASE("Can create instance of the manager.","[oul][OpenCLManager]"){
     CHECK(oul::opencl());
 }
@@ -54,22 +28,26 @@ TEST_CASE("OpenCL platform(s) installed.","[oul][OpenCLManager]"){
 }
 
 TEST_CASE("OpenCL device(s) available.","[oul][OpenCLManager]"){
-    CHECK(getAllDevices().size() != 0);
+    oul::TestFixture fixture;
+    CHECK(fixture.getAllDevices().size() != 0);
 }
 
 TEST_CASE("OpenCL CPU device(s) available.","[oul][OpenCLManager]"){
-    CHECK(getCPUDevices().size() != 0);
+    oul::TestFixture fixture;
+    CHECK(fixture.getCPUDevices().size() != 0);
 }
 
 TEST_CASE("OpenCL GPU device(s) available.","[oul][OpenCLManager]"){
-    CHECK(getGPUDevices().size() != 0);
+    oul::TestFixture fixture;
+    CHECK(fixture.getGPUDevices().size() != 0);
 }
 
 //This test fails on Apple
 TEST_CASE("At least one OpenCL device has OpenGL interop capability.","[oul][OpenCLManage][OpenGL]"){
+    oul::TestFixture fixture;
     bool foundOpenGLInteropCapableDevice  = false;
 
-    std::vector<cl::Device> devices = getAllDevices();
+    std::vector<cl::Device> devices = fixture.getAllDevices();
     for(unsigned int i=0; i< devices.size(); i++){
         foundOpenGLInteropCapableDevice = foundOpenGLInteropCapableDevice or oul::OpenCLManager::deviceHasOpenGLInteropCapability(devices[i]);
     }
@@ -92,6 +70,18 @@ TEST_CASE("Check for device platform mismatch","[oul][DeviceCriteria][OpenCLMana
     oul::Context context = oul::opencl()->createContext(criteria);
 
     CHECK_FALSE(oul::OpenCLManager::devicePlatformMismatch(context.getDevice(0), context.getPlatform()));
+}
+
+TEST_CASE("Can run simple kernel.","[oul][Context]"){
+    oul::DeviceCriteria criteria;
+    oul::Context context = oul::opencl()->createContext(criteria);
+    context.createProgramFromString("__kernel void test(void){size_t id = get_global_id(0);}");
+
+    cl::Kernel testKernel(context.getProgram(0), "test");
+    CHECK_NOTHROW(context.getQueue(0).enqueueTask(testKernel));
+    CHECK_NOTHROW(context.getQueue(0).enqueueNDRangeKernel(testKernel, cl::NullRange, cl::NDRange(4,1,1)));
+
+    CHECK_NOTHROW(context.getQueue(0).finish());
 }
 
 
