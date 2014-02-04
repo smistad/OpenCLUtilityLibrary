@@ -1,6 +1,10 @@
 #include "HelperFunctions.hpp"
 
-cl::size_t<3> oul::createRegion(
+#include <fstream>
+
+namespace oul{
+
+cl::size_t<3> createRegion(
         unsigned int x,
         unsigned int y,
         unsigned int z) {
@@ -11,7 +15,7 @@ cl::size_t<3> oul::createRegion(
     return region;
 }
 
-cl::size_t<3> oul::createOrigoRegion() {
+cl::size_t<3> createOrigoRegion() {
     cl::size_t<3> region;
     region[0] = 0;
     region[1] = 0;
@@ -19,7 +23,7 @@ cl::size_t<3> oul::createOrigoRegion() {
     return region;
 }
 
-std::string oul::getCLErrorString(cl_int err) {
+std::string getCLErrorString(cl_int err) {
     switch (err) {
         case CL_SUCCESS:                          return std::string( "Success!");
         case CL_DEVICE_NOT_FOUND:                 return std::string( "Device not found.");
@@ -70,3 +74,15 @@ std::string oul::getCLErrorString(cl_int err) {
         default:                                  return std::string( "Unknown");
     }
 }
+
+std::string readFile(std::string filename){
+    std::string retval = "";
+
+    std::ifstream sourceFile(filename.c_str());
+    if(sourceFile.fail())
+        throw Exception("Failed to open OpenCL source file.");
+    retval = std::string(std::istreambuf_iterator<char>(sourceFile), (std::istreambuf_iterator<char>()));
+
+    return retval;
+}
+} //namespace oul

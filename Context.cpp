@@ -1,10 +1,12 @@
 #include "Context.hpp"
-#include "OpenCLManager.hpp"
+
 #include <iostream>
-#include <fstream>
+#include "HelperFunctions.hpp"
+#include "OpenCLManager.hpp"
 
 namespace oul
 {
+
 Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled) {
     this->garbageCollector = new GarbageCollector;
     this->devices = devices;
@@ -29,42 +31,32 @@ Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop, bool profi
     }
 }
 
-void Context::createProgramFromSource(
-        std::string filename,
-        std::string buildOptions) {
-    // Read source file
-    std::ifstream sourceFile(filename.c_str());
-    if(sourceFile.fail())
-        throw Exception("Failed to open OpenCL source file.");
-    std::string sourceCode(
-        std::istreambuf_iterator<char>(sourceFile),
-        (std::istreambuf_iterator<char>()));
-    cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
+void Context::createProgramFromSource(std::string filename, std::string buildOptions) {
+    std::string sourceCode = readFile(filename);
 
-    programs.push_back(buildSources(source, buildOptions));
+    cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
+    cl::Program program = buildSources(source, buildOptions);
+    programs.push_back(program);
 }
 
 /**
  * Compile several source files together
  */
-void Context::createProgramFromSource(
-        std::vector<std::string> filenames,
-        std::string buildOptions) {
+void Context::createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions) {
     cl::Program::Sources sources;
     for(int i = 0; i < filenames.size(); i++) {
         sources.push_back(std::make_pair(filenames[i].c_str(), filenames[i].length()));
     }
 
-    programs.push_back(buildSources(sources, buildOptions));
+    cl::Program program = buildSources(sources, buildOptions);
+    programs.push_back(program);
 }
 
-void Context::createProgramFromString(
-        std::string code,
-        std::string buildOptions) {
-    // Read source file
+void Context::createProgramFromString(std::string code, std::string buildOptions) {
     cl::Program::Sources source(1, std::make_pair(code.c_str(), code.length()));
 
-    programs.push_back(buildSources(source, buildOptions));
+    cl::Program program = buildSources(source, buildOptions);
+    programs.push_back(program);
 }
 
 cl::Program Context::getProgram(unsigned int i) {
@@ -91,9 +83,7 @@ GarbageCollector * Context::getGarbageCollector() {
     return garbageCollector;
 }
 
-cl::Program Context::buildSources(
-        cl::Program::Sources source, 
-        std::string buildOptions) {
+cl::Program Context::buildSources(cl::Program::Sources source, std::string buildOptions) {
 
     // Make program of the source code in the context
     cl::Program program = cl::Program(context, source);
@@ -104,18 +94,20 @@ cl::Program Context::buildSources(
         programs.push_back(program);
     } catch(cl::Error &error) {
         if(error.err() == CL_BUILD_PROGRAM_FAILURE) {
-            // TODO: do this for all devices
-            std::cout << "Build log:" << std::endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[0]) << std::endl;
+            for(unsigned int i=0; i<devices.size(); i++){
+                std::cout << "Build log, device " << i <<":\n" << std::endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[i]) << std::endl;
+            }
         }
+        std::cout << "[ERROR] " << getCLErrorString(error.err()) << std::endl;
+
         throw error;
     }
     return program;
 }
 
 
-void Context::createProgramFromBinary(
-        std::string filename,
-        std::string buildOptions) {
+void Context::createProgramFromBinary(std::string filename, std::string buildOptions) {
+    //TODO todo
 }
 
 } //namespace oul

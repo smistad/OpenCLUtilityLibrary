@@ -111,8 +111,7 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
 #endif
 }
 
-bool OpenCLManager::devicePlatformMismatch(const cl::Device &device,
-        const cl::Platform &platform) {
+bool OpenCLManager::devicePlatformMismatch(const cl::Device &device, const cl::Platform &platform) {
     std::string platformVendorStr = platform.getInfo<CL_PLATFORM_VENDOR>();
     DevicePlatform platformVendor = getDevicePlatform(platformVendorStr);
 
@@ -495,10 +494,11 @@ bool OpenCLManager::getDebugMode() {
     return debugMode;
 }
 
-OpenCLManager* OpenCLManager::instance = NULL;
-bool OpenCLManager::debugMode = false;
 OpenCLManager* opencl() {
     return OpenCLManager::getInstance();
 }
+
+OpenCLManager* OpenCLManager::instance = NULL;
+bool OpenCLManager::debugMode = false;
 
 }                //namespace oul

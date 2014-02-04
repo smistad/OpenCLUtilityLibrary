@@ -14,6 +14,7 @@ set(OpenCLUtilityLibrary_INCLUDE_DIRS
     /CL
     ${OPENCL_INCLUDE_DIR}
     ${OPENGL_INCLUDE_DIR}
+    ${OpenCLUtilityLibrary_BINARY_DIR}
 )
 
 
@@ -68,3 +69,15 @@ configure_file (
     "${PROJECT_SOURCE_DIR}/CMake/OpenCLUtilityLibraryConfig.cmake.in"
     "${PROJECT_BINARY_DIR}/OpenCLUtilityLibraryConfig.cmake"
     )
+    
+
+#------------------------------------------------------------------------------
+# Configure file for settings, filepaths, parameters ...
+#------------------------------------------------------------------------------
+
+set(TEST_DIR ${PROJECT_SOURCE_DIR}/testing)
+
+configure_file(
+ "${PROJECT_SOURCE_DIR}/CMake/OulConfig.hpp.in"
+ "${PROJECT_BINARY_DIR}/OulConfig.hpp"
+)
