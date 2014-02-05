@@ -48,9 +48,11 @@ TEST_CASE("At least one OpenCL device has OpenGL interop capability.","[oul][Ope
     oul::TestFixture fixture;
     bool foundOpenGLInteropCapableDevice  = false;
 
-    std::vector<cl::Device> devices = fixture.getAllDevices();
+    std::vector<oul::PlatformDevices> devices = fixture.getAllDevices();
     for(unsigned int i=0; i< devices.size(); i++){
-        foundOpenGLInteropCapableDevice = foundOpenGLInteropCapableDevice or oul::OpenCLManager::deviceHasOpenGLInteropCapability(devices[i]);
+        for(int j = 0; j < devices[i].second.size(); j++) {
+            foundOpenGLInteropCapableDevice = foundOpenGLInteropCapableDevice or oul::OpenCLManager::deviceHasOpenGLInteropCapability(devices[i].second[j]);
+        }
     }
 
     CHECK(foundOpenGLInteropCapableDevice);
