@@ -1,6 +1,7 @@
 #ifndef TESTFIXTURE_HPP_
 #define TESTFIXTURE_HPP_
 
+#include "OpenCLManager.hpp"
 #include "CL/OpenCL.hpp"
 #include "DeviceCriteria.hpp"
 #include "Context.hpp"
@@ -23,10 +24,10 @@ public:
 	//will not throw exceptions
 	std::string getTestCode();
 
-	std::vector<cl::Device> getDevices(oul::DeviceType type);
-	std::vector<cl::Device> getCPUDevices();
-	std::vector<cl::Device> getGPUDevices();
-	std::vector<cl::Device> getAllDevices();
+	std::vector<oul::PlatformDevices> getDevices(oul::DeviceType type);
+	std::vector<oul::PlatformDevices> getCPUDevices();
+	std::vector<oul::PlatformDevices> getGPUDevices();
+	std::vector<oul::PlatformDevices> getAllDevices();
 
 	bool isCPUDeviceAvailable();
 	bool isGPUDeviceAvailable();

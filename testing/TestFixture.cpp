@@ -22,22 +22,22 @@ std::string TestFixture::getTestCode(){
     return "__kernel void test(void){size_t id = get_global_id(0);}";
 }
 
-std::vector<cl::Device> TestFixture::getDevices(oul::DeviceType type){
+std::vector<oul::PlatformDevices> TestFixture::getDevices(oul::DeviceType type){
     oul::DeviceCriteria criteria;
     criteria.setTypeCriteria(type);
 
     return oul::opencl()->getDevices(criteria);
 }
 
-std::vector<cl::Device> TestFixture::getCPUDevices(){
+std::vector<oul::PlatformDevices> TestFixture::getCPUDevices(){
     return getDevices(oul::DEVICE_TYPE_CPU);
 }
 
-std::vector<cl::Device> TestFixture::getGPUDevices(){
+std::vector<oul::PlatformDevices> TestFixture::getGPUDevices(){
     return getDevices(oul::DEVICE_TYPE_GPU);
 }
 
-std::vector<cl::Device> TestFixture::getAllDevices(){
+std::vector<oul::PlatformDevices> TestFixture::getAllDevices(){
     return getDevices(oul::DEVICE_TYPE_ANY);
 }
 
