@@ -240,16 +240,14 @@ std::vector<cl::Device> OpenCLManager::getDevicesForBestPlatform(
         std::vector<PlatformDevices> &platformDevices
         ) {
 
-    std::vector<cl::Platform> validPlatforms = this->getPlatforms(
-            deviceCriteria.getPlatformCriteria());
-    bool * devicePlatformVendorMismatch = new bool[validPlatforms.size()];
-    for (int i = 0; i < validPlatforms.size(); i++) {
+    bool * devicePlatformVendorMismatch = new bool[platformDevices.size()];
+    for (int i = 0; i < platformDevices.size(); i++) {
         for (int j = 0; j < platformDevices[i].second.size(); j++) {
             // Check for a device-platform mismatch.
             // This happens for instance if we try to use the AMD platform on a Intel CPU
             // In this case, the Intel platform would be preferred.
             devicePlatformVendorMismatch[i] = devicePlatformMismatch(
-                    platformDevices[i].second[j], validPlatforms[i]);
+                    platformDevices[i].second[j], platformDevices[i].first);
             if (debugMode && devicePlatformVendorMismatch[i])
                 std::cout << "A device-platform mismatch was detected."
                           << std::endl;
@@ -257,21 +255,21 @@ std::vector<cl::Device> OpenCLManager::getDevicesForBestPlatform(
     }
 
     std::vector<cl::Device>* sortedPlatformDevices =
-            new std::vector<cl::Device>[validPlatforms.size()];
-    int* platformScores = new int[validPlatforms.size()]();
+            new std::vector<cl::Device>[platformDevices.size()];
+    int* platformScores = new int[platformDevices.size()]();
     if (deviceCriteria.getDevicePreference() == DEVICE_PREFERENCE_NONE) {
-        for(int i = 0; i < validPlatforms.size(); i++) {
+        for(int i = 0; i < platformDevices.size(); i++) {
             sortedPlatformDevices[i] = platformDevices[i].second;
         }
     } else {
-        sortDevicesAccordingToPreference(validPlatforms.size(),
+        sortDevicesAccordingToPreference(platformDevices.size(),
                 deviceCriteria.getDeviceCountMaxCriteria(), platformDevices,
                 deviceCriteria.getDevicePreference(), sortedPlatformDevices,
                 platformScores);
     }
     // Now, finally, select the best platform and its devices by inspecting the platformDevices list
     int bestPlatform = -1;
-    for (int i = 0; i < validPlatforms.size(); i++) {
+    for (int i = 0; i < platformDevices.size(); i++) {
         if (platformDevices[i].second.size() > 0) {
             // Make sure the platform has some devices that has all criteria
             if (bestPlatform == -1) {
@@ -303,7 +301,7 @@ std::vector<cl::Device> OpenCLManager::getDevicesForBestPlatform(
         if (debugMode) {
             std::cout
                     << "The platform "
-                    << validPlatforms[bestPlatform].getInfo<CL_PLATFORM_NAME>()
+                    << platformDevices[bestPlatform].first.getInfo<CL_PLATFORM_NAME>()
                     << " was selected as the best platform." << std::endl;
             std::cout
                     << "A total of "
