@@ -33,11 +33,7 @@ int main() {
     GC->deleteMemoryObject(a);
 
     // Test run a kernel
-    context.createProgramFromString(
-            "__kernel void test() {\n"
-            "    printf(\"Hello world! %d\\n\", 4);\n"
-            "}\n"
-    );
+    context.createProgramFromString("__kernel void test(void){size_t id = get_global_id(0);}");
 
     Kernel testKernel(context.getProgram(0), "test");
     context.getQueue(0).enqueueTask(testKernel);
