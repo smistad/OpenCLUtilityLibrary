@@ -22,7 +22,5 @@ set (OpenCLUtilityLibrary_SOURCE_DIR "@OpenCLUtilityLibrary_SOURCE_DIR@")
 set (OpenCLUtilityLibrary_INCLUDE_DIRS "@OpenCLUtilityLibrary_INCLUDE_DIRS@")
 set (OpenCLUtilityLibrary_LIBRARY_DIRS "@OpenCLUtilityLibrary_LIBRARY_DIRS@")
 
-find_library(OpenCLUtilityLibrary_LIBRARY NAMES OpenCLUtilityLibrary HINTS "@OpenCLUtilityLibrary_LIBRARY_DIRS@")
-
 set (OpenCLUtilityLibrary_USE_FILE "@OpenCLUtilityLibrary_SOURCE_DIR@/CMake/OpenCLUtilityLibraryUse.cmake")
 

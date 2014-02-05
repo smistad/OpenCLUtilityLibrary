@@ -63,6 +63,7 @@ set( OpenCLUtilityLibrary_INCLUDE_DIRS
 
 set(OpenCLUtilityLibrary_LIBRARY_DIRS
     ${OpenCLUtilityLibrary_BINARY_DIR}
+    ${OpenCLUtilityLibrary_BINARY_DIR}/testing
     )
 
 configure_file (

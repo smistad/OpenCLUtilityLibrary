@@ -14,6 +14,9 @@ set(OpenCLUtilityLibrary_LINK_LIBRARIES
 )
 
 
+add_library (TestOpenCLUtilityLibrary ${SOURCE_FILES})
+target_link_libraries(TestOpenCLUtilityLibrary OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
+
 add_executable (Catch ${SOURCE_FILES})
 target_link_libraries(Catch OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
 
