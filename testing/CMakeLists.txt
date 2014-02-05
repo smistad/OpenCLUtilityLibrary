@@ -2,12 +2,12 @@
 include_directories(${OpenCLUtilityLibrary_INCLUDE_DIRS})
 
 set(SOURCE_FILES
-    catch/catch.hpp
     TestFixture.hpp
     TestFixture.cpp
 )
 
 set(EXECUTABLE_SOURCE_FILES
+    catch/catch.hpp
     CatchMain.cpp
     tests.cpp
 )
