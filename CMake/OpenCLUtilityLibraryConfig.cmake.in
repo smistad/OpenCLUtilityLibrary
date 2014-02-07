@@ -5,11 +5,11 @@
 # OpenCLUtilityLibrary_FOUND - set to 1 if found.
 #
 # Usage:
-# OpenCLUtilityLibrary (OpenCLUtilityLibrary)
+# OpenCLUtilityLibrary
 #----------
-# option(CX_USE_OpenCLUtilityLibrary "use OpenCLUtilityLibrary (OpenCLUtilityLibrary)" OFF)
-# if (CX_USE_OpenCLUtilityLibrary)
-#    ADD_DEFINITIONS(-DCX_USE_OpenCLUtilityLibrary)
+# option(USE_OpenCLUtilityLibrary "Use OpenCLUtilityLibrary" OFF)
+# if (USE_OpenCLUtilityLibrary)
+#    ADD_DEFINITIONS(-DUSE_OpenCLUtilityLibrary)
 #    find_package(OpenCLUtilityLibrary REQUIRED)
 #    include(${OpenCLUtilityLibrary_USE_FILE})
 # endif()
@@ -20,7 +20,10 @@ set (OpenCLUtilityLibrary_FOUND 1)
 set (OpenCLUtilityLibrary_SOURCE_DIR "@OpenCLUtilityLibrary_SOURCE_DIR@")
 
 set (OpenCLUtilityLibrary_INCLUDE_DIRS "@OpenCLUtilityLibrary_INCLUDE_DIRS@")
+
 set (OpenCLUtilityLibrary_LIBRARY_DIRS "@OpenCLUtilityLibrary_LIBRARY_DIRS@")
+set (OpenCLUtilityLibrary_LIBRARY "@OpenCLUtilityLibrary_LIBRARY@")
+set (TestOpenCLUtilityLibrary_LIBRARY "@TestOpenCLUtilityLibrary_LIBRARY@")
 
 set (OpenCLUtilityLibrary_USE_FILE "@OpenCLUtilityLibrary_SOURCE_DIR@/CMake/OpenCLUtilityLibraryUse.cmake")
 

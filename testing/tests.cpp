@@ -1,11 +1,11 @@
-#include "catch/catch.hpp"
+#include "catch.hpp"
 
 #include "TestFixture.hpp"
 #include "OpenCLManager.hpp"
 
 namespace test
 {
-TEST_CASE("Can create instance of the manager.","[oul][OpenCL]"){
+TEST_CASE("Can create instance of the manager","[oul][OpenCL]"){
     CHECK(oul::opencl());
 }
 
@@ -15,36 +15,36 @@ TEST_CASE("Can set debug mode.","[oul][OpenCL]"){
     CHECK(oul::opencl()->getDebugMode() == true);
 }
 
-TEST_CASE("Can create a oul::Context with defaul oul::DeviceCriteria.","[oul][OpenCL]"){
+TEST_CASE("Can create a Context with default DeviceCriteria","[oul][OpenCL]"){
     oul::DeviceCriteria criteria;
 
     CHECK_NOTHROW(oul::opencl()->createContext(criteria));
 }
 
-TEST_CASE("OpenCL platform(s) installed.","[oul][OpenCL]"){
+TEST_CASE("OpenCL platform(s) installed","[oul][OpenCL]"){
     oul::DeviceCriteria criteria;
 
     CHECK(oul::opencl()->getPlatforms(oul::DEVICE_PLATFORM_ANY).size() != 0);
 }
 
-TEST_CASE("OpenCL device(s) available.","[oul][OpenCL]"){
+TEST_CASE("OpenCL device(s) available","[oul][OpenCL]"){
     oul::TestFixture fixture;
     CHECK(fixture.isAnyDeviceAvailable());
 }
 
-TEST_CASE("OpenCL CPU device(s) available.","[oul][OpenCL]"){
+TEST_CASE("OpenCL CPU device(s) available","[oul][OpenCL]"){
     oul::TestFixture fixture;
     CHECK(fixture.isCPUDeviceAvailable());
 }
 
-TEST_CASE("OpenCL GPU device(s) available.","[oul][OpenCL]"){
+TEST_CASE("OpenCL GPU device(s) available","[oul][OpenCL]"){
     oul::TestFixture fixture;
     CHECK(fixture.isGPUDeviceAvailable());
 }
 
 //TODO This test fails on Apple
 //Apple functionality not implemented yet
-TEST_CASE("At least one OpenCL device has OpenGL interop capability.","[oul][OpenCL][OpenGL]"){
+TEST_CASE("At least one OpenCL device has OpenGL interop capability","[oul][OpenCL][OpenGL]"){
     oul::TestFixture fixture;
     bool foundOpenGLInteropCapableDevice  = false;
 
@@ -58,7 +58,7 @@ TEST_CASE("At least one OpenCL device has OpenGL interop capability.","[oul][Ope
     CHECK(foundOpenGLInteropCapableDevice);
 }
 
-TEST_CASE("Default construction gives expected values.","[oul][OpenCL]"){
+TEST_CASE("Default construction gives expected values","[oul][OpenCL]"){
     oul::TestFixture fixture;
     oul::DeviceCriteria criteria;
 
