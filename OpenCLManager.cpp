@@ -30,6 +30,42 @@ void OpenCLManager::shutdown() {
     instance = NULL;
 }
 
+cl_context_properties * OpenCLManager::createInteropContextProperties(const cl::Platform &platform, cl_context_properties OpenGLContext, cl_context_properties display) {
+#if defined(__APPLE__) || defined(__MACOSX)
+    // Apple (untested)
+    // TODO: create GL context for Apple
+    cl_context_properties cps[] = {
+        CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,
+        (cl_context_properties)CGLGetShareGroup(CGLGetCurrentContext()),
+        0};
+
+#else
+#ifdef _WIN32
+    // Windows
+    // TODO: create GL context for Windows
+    cl_context_properties cps[] = {
+        CL_GL_CONTEXT_KHR,
+        (cl_context_properties)wglGetCurrentContext(),
+        CL_WGL_HDC_KHR,
+        (cl_context_properties)wglGetCurrentDC(),
+        CL_CONTEXT_PLATFORM,
+        (cl_context_properties)(platforms[j])(),
+        0
+    };
+#else
+    cl_context_properties * cps = new cl_context_properties[7];
+    cps[0] = CL_GL_CONTEXT_KHR;
+    cps[1] = OpenGLContext;
+    cps[2] = CL_GLX_DISPLAY_KHR;
+    cps[3] = display;
+    cps[4] = CL_CONTEXT_PLATFORM;
+    cps[5] = (cl_context_properties)(platform)(),
+    cps[6] = 0;
+#endif
+#endif
+    return cps;
+}
+
 bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
     // Get the cl_device_id of the device
     cl_device_id deviceID = device();
@@ -63,9 +99,13 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
 #else
     // Linux
     // Create a GL context using glX
-    int sngBuf[] = { GLX_RGBA, GLX_RED_SIZE, 1, GLX_GREEN_SIZE, 1,
-    GLX_BLUE_SIZE,
-                     1, GLX_DEPTH_SIZE, 12, None };
+    int sngBuf[] = { GLX_RGBA,
+                     GLX_RED_SIZE, 1,
+                     GLX_GREEN_SIZE, 1,
+                     GLX_BLUE_SIZE, 1,
+                     GLX_DEPTH_SIZE, 12,
+                     None
+    };
 
     // TODO: should probably free this stuff
     Display * display = XOpenDisplay(0);
@@ -77,12 +117,7 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
                 "Could not create a GL 2.1 context, please check your graphics drivers");
     }
 
-    cl_context_properties cps[] = { CL_GL_CONTEXT_KHR,
-                                    (cl_context_properties) gl2Context,
-                                    CL_GLX_DISPLAY_KHR,
-                                    (cl_context_properties) display,
-                                    CL_CONTEXT_PLATFORM,
-                                    (cl_context_properties) (platform)(), 0 };
+    cl_context_properties * cps = OpenCLManager::createInteropContextProperties(platform, (cl_context_properties)gl2Context, (cl_context_properties)display);
     if (debugMode)
         std::cout << "Current glX context is: " << cps[1] << std::endl;
 
@@ -95,6 +130,7 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
                     "clGetGLContextInfoKHR");
     glGetGLContextInfo_func(cps, CL_DEVICES_FOR_GL_CONTEXT_KHR,
             32 * sizeof(cl_device_id), &cl_gl_device_ids, &returnSize);
+    delete[] cps;
 
     if (debugMode)
         std::cout << "There are " << returnSize / sizeof(cl_device_id)

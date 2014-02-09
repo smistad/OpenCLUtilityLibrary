@@ -44,6 +44,11 @@ class OpenCLManager {
         std::vector<cl::Device> getDevicesForBestPlatform(
                 const DeviceCriteria& deviceCriteria,
                std::vector<PlatformDevices> &platformDevices);
+
+        static cl_context_properties * createInteropContextProperties(
+                const cl::Platform &platform,
+                cl_context_properties OpenGLContext,
+                cl_context_properties display);
     private:
         OpenCLManager();
         std::vector<cl::Platform> platforms;

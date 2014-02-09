@@ -4,6 +4,16 @@
 #include "HelperFunctions.hpp"
 #include "OpenCLManager.hpp"
 
+#if defined(__APPLE__) || defined(__MACOSX)
+#include <OpenCL/cl_gl.h>
+#include <OpenGL/OpenGL.h>
+#else
+#if _WIN32
+#else
+#include <GL/glx.h>
+#include <CL/cl_gl.h>
+#endif
+#endif
 namespace oul
 {
 
@@ -14,12 +24,39 @@ Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop, bool profi
     this->platform = devices[0].getInfo<CL_DEVICE_PLATFORM>();
 
     // TODO: OpenGL interop properties
-    cl_context_properties properties[] = {
-          CL_CONTEXT_PLATFORM,
-          (cl_context_properties)(platform)(),
-          0
-    };
-    this->context = cl::Context(devices,properties);
+    // TODO: must check that a OpenGL context and display is available
+    // TODO: Use current context and display, or take this as input??
+    cl_context_properties * cps;
+    if(OpenGLInterop) {
+#if defined(__APPLE__) || defined(__MACOSX)
+        cps = OpenCLManager::createInteropContextProperties(
+                this->platform,
+                (cl_context_properties)CGLGetShareGroup(CGLGetCurrentContext()),
+                NULL
+        );
+#else
+#ifdef _WIN32
+        cps = OpenCLManager::createInteropContextProperties(
+                this->platform,
+                (cl_context_properties)wglGetCurrentContext(),
+                (cl_context_properties)wglGetCurrentDC()
+        );
+#else
+        cps = OpenCLManager::createInteropContextProperties(
+                this->platform,
+                (cl_context_properties)glXGetCurrentContext(),
+                (cl_context_properties)glXGetCurrentDisplay()
+        );
+#endif
+#endif
+    } else {
+        cps = new cl_context_properties[3];
+        cps[0] = CL_CONTEXT_PLATFORM;
+        cps[1] = (cl_context_properties)(platform)();
+        cps[2] = 0;
+    }
+    this->context = cl::Context(devices,cps);
+    delete[] cps;
 
     // Create a command queue for each device
     for(int i = 0; i < devices.size(); i++) {
