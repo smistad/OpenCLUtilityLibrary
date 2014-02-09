@@ -339,7 +339,6 @@ std::vector<PlatformDevices> OpenCLManager::getDevices(
 
     // Create a vector of devices for each platform
     std::vector<PlatformDevices> platformDevices;
-    bool OpenGLInterop = false;
     for (int i = 0; i < validPlatforms.size(); i++) {
         if (debugMode)
             std::cout << "Platform " << i << ": "
@@ -381,7 +380,6 @@ std::vector<PlatformDevices> OpenCLManager::getDevices(
             bool accepted = true;
             for (int k = 0; k < capabilityCriteria.size(); k++) {
                 if (capabilityCriteria[k] == DEVICE_CAPABILITY_OPENGL_INTEROP) {
-                    OpenGLInterop = true;
                     if (!deviceHasOpenGLInteropCapability(devices[j]))
                         accepted = false;
                 }
@@ -512,7 +510,7 @@ Context OpenCLManager::createContext(const DeviceCriteria &deviceCriteria) {
     std::vector<PlatformDevices> platformDevices = getDevices(deviceCriteria);
     std::vector<cl::Device> validDevices = getDevicesForBestPlatform(
             deviceCriteria, platformDevices);
-    return oul::Context(validDevices, false, false);
+    return oul::Context(validDevices, deviceCriteria.hasCapabilityCriteria(DEVICE_CAPABILITY_OPENGL_INTEROP), false);
 }
 
 void OpenCLManager::setDebugMode(bool mode) {
