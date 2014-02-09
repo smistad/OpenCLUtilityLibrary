@@ -58,3 +58,14 @@ DevicePreference oul::DeviceCriteria::getDevicePreference() const {
 unsigned int oul::DeviceCriteria::getDeviceCountMaxCriteria() const {
     return deviceCountMax;
 }
+
+bool oul::DeviceCriteria::hasCapabilityCriteria(DeviceCapability capability) const {
+    bool found = false;
+    for(int i = 0; i < capabilityCriteria.size(); i++) {
+        if(capabilityCriteria[i] == capability) {
+            found = true;
+            break;
+        }
+    }
+    return found;
+}

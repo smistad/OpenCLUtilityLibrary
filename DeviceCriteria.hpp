@@ -32,6 +32,7 @@ class DeviceCriteria {
         DevicePreference getDevicePreference() const;
         unsigned int getDeviceCountMinCriteria() const;
         unsigned int getDeviceCountMaxCriteria() const;
+        bool hasCapabilityCriteria(DeviceCapability capability) const;
     private:
         DevicePlatform platformCriteria;
         DeviceType typeCriteria; // Can only be one
