@@ -62,8 +62,4 @@ class HistogramPyramid3DBuffer : public HistogramPyramid {
         std::vector<cl::Buffer> HPlevels;
 };
 
-std::string insertHPOpenCLCode(std::string, int);
-
-}
-
 #endif /* HISTOGRAMPYRAMIDS_HPP_ */
