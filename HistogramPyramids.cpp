@@ -415,10 +415,3 @@ void HistogramPyramid3D::deleteHPlevels() {
 void HistogramPyramid3DBuffer::deleteHPlevels() {
     HPlevels.clear();
 }
-std::string insertHPOpenCLCode(std::string source, int size) {
-    return "";
-}
-
-
-
-
