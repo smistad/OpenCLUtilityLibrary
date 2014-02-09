@@ -31,18 +31,19 @@ Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop, bool profi
     }
 }
 
-void Context::createProgramFromSource(std::string filename, std::string buildOptions) {
+int Context::createProgramFromSource(std::string filename, std::string buildOptions) {
     std::string sourceCode = readFile(filename);
 
     cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
     cl::Program program = buildSources(source, buildOptions);
     programs.push_back(program);
+    return programs.size()-1;
 }
 
 /**
  * Compile several source files together
  */
-void Context::createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions) {
+int Context::createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions) {
     cl::Program::Sources sources;
     for(int i = 0; i < filenames.size(); i++) {
         sources.push_back(std::make_pair(filenames[i].c_str(), filenames[i].length()));
@@ -50,13 +51,15 @@ void Context::createProgramFromSource(std::vector<std::string> filenames, std::s
 
     cl::Program program = buildSources(sources, buildOptions);
     programs.push_back(program);
+    return programs.size()-1;
 }
 
-void Context::createProgramFromString(std::string code, std::string buildOptions) {
+int Context::createProgramFromString(std::string code, std::string buildOptions) {
     cl::Program::Sources source(1, std::make_pair(code.c_str(), code.length()));
 
     cl::Program program = buildSources(source, buildOptions);
     programs.push_back(program);
+    return programs.size()-1;
 }
 
 cl::Program Context::getProgram(unsigned int i) {
@@ -106,7 +109,7 @@ cl::Program Context::buildSources(cl::Program::Sources source, std::string build
 }
 
 
-void Context::createProgramFromBinary(std::string filename, std::string buildOptions) {
+int Context::createProgramFromBinary(std::string filename, std::string buildOptions) {
     //TODO todo
 }
 

@@ -11,10 +11,10 @@ namespace oul {
 class Context {
     public:
         Context(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled);
-        void createProgramFromSource(std::string filename, std::string buildOptions = "");
-        void createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions = "");
-        void createProgramFromString(std::string code, std::string buildOptions = "");
-        void createProgramFromBinary(std::string filename, std::string buildOptions = "");
+        int createProgramFromSource(std::string filename, std::string buildOptions = "");
+        int createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions = "");
+        int createProgramFromString(std::string code, std::string buildOptions = "");
+        int createProgramFromBinary(std::string filename, std::string buildOptions = "");
         cl::Program getProgram(unsigned int i);
         cl::CommandQueue getQueue(unsigned int i);
         cl::Device getDevice(unsigned int i);
