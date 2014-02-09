@@ -61,5 +61,6 @@ class HistogramPyramid3DBuffer : public HistogramPyramid {
         int sizeX,sizeY,sizeZ;
         std::vector<cl::Buffer> HPlevels;
 };
+} // end namespace
 
 #endif /* HISTOGRAMPYRAMIDS_HPP_ */
