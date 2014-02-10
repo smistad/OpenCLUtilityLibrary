@@ -10,6 +10,7 @@ namespace oul {
 
 class Context {
     public:
+        Context() {};
         Context(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled);
         int createProgramFromSource(std::string filename, std::string buildOptions = "");
         int createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions = "");
