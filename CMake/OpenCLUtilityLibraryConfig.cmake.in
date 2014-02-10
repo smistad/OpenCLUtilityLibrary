@@ -24,6 +24,7 @@ set (OpenCLUtilityLibrary_INCLUDE_DIRS "@OpenCLUtilityLibrary_INCLUDE_DIRS@")
 set (OpenCLUtilityLibrary_LIBRARY_DIRS "@OpenCLUtilityLibrary_LIBRARY_DIRS@")
 set (OpenCLUtilityLibrary_LIBRARY "@OpenCLUtilityLibrary_LIBRARY@")
 set (TestOpenCLUtilityLibrary_LIBRARY "@TestOpenCLUtilityLibrary_LIBRARY@")
+set (OPENCL_LIBRARIES "@OPENCL_LIBRARIES@")
 
 set (OpenCLUtilityLibrary_USE_FILE "@OpenCLUtilityLibrary_SOURCE_DIR@/CMake/OpenCLUtilityLibraryUse.cmake")
 
