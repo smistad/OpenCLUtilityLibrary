@@ -22,8 +22,7 @@ class OpenCLManager {
 
         Context createContext(
                 std::vector<cl::Device> &devices,
-                bool OpenGLInterop,
-                bool profilingEnabled);
+                bool OpenGLInterop);
         Context createContext(
                 int argc,
                 char ** argv,

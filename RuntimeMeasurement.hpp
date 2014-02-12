@@ -4,6 +4,7 @@
 #include <map>
 #include "CL/OpenCL.hpp"
 
+namespace oul {
 /**
  * A class for a runtime measurement
  */
@@ -29,6 +30,7 @@ class RuntimeMeasurementsManager {
     public:
         static void enable();
         static void disable();
+        static bool isEnabled();
         static RuntimeMeasurementsManager * getInstance();
         void startCLTimer(std::string name, cl::CommandQueue queue);
         void stopCLTimer(std::string name, cl::CommandQueue queue);
@@ -50,6 +52,7 @@ class RuntimeMeasurementsManager {
         std::map<std::string, cl::Event> startEvents;
 };
 
+}; // end namespace
 
 
 #endif /* TIMING_HPP_ */

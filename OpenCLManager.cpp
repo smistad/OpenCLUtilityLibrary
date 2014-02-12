@@ -460,9 +460,8 @@ OpenCLManager::OpenCLManager() {
 
 Context OpenCLManager::createContext(
         std::vector<cl::Device> &devices,
-        bool OpenGLInterop,
-        bool profilingEnabled) {
-    return Context(devices, OpenGLInterop, profilingEnabled);
+        bool OpenGLInterop) {
+    return Context(devices, OpenGLInterop);
 }
 
 /**
@@ -546,7 +545,9 @@ Context OpenCLManager::createContext(const DeviceCriteria &deviceCriteria) {
     std::vector<PlatformDevices> platformDevices = getDevices(deviceCriteria);
     std::vector<cl::Device> validDevices = getDevicesForBestPlatform(
             deviceCriteria, platformDevices);
-    return oul::Context(validDevices, deviceCriteria.hasCapabilityCriteria(DEVICE_CAPABILITY_OPENGL_INTEROP), false);
+    return oul::Context(
+            validDevices,
+            deviceCriteria.hasCapabilityCriteria(DEVICE_CAPABILITY_OPENGL_INTEROP));
 }
 
 void OpenCLManager::setDebugMode(bool mode) {

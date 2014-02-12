@@ -3,6 +3,7 @@
 #include <iostream>
 #include "HelperFunctions.hpp"
 #include "OpenCLManager.hpp"
+#include "RuntimeMeasurement.hpp"
 
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/cl_gl.h>
@@ -17,7 +18,7 @@
 namespace oul
 {
 
-Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop, bool profilingEnabled) {
+Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop) {
     this->garbageCollector = new GarbageCollector;
     this->devices = devices;
     // TODO: make sure that all devices have the same platform
@@ -60,7 +61,7 @@ Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop, bool profi
 
     // Create a command queue for each device
     for(int i = 0; i < devices.size(); i++) {
-        if(profilingEnabled) {
+        if(oul::RuntimeMeasurementsManager::isEnabled()) {
             this->queues.push_back(cl::CommandQueue(context, devices[i], CL_QUEUE_PROFILING_ENABLE));
         } else {
             this->queues.push_back(cl::CommandQueue(context, devices[i]));

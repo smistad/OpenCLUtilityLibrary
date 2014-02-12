@@ -2,8 +2,9 @@
 #include <iostream>
 #include "HelperFunctions.hpp"
 
+using namespace oul;
 RuntimeMeasurementsManager* RuntimeMeasurementsManager::instance = NULL;
-bool RuntimeMeasurementsManager::enabled = true;
+bool RuntimeMeasurementsManager::enabled = false;
 
 RuntimeMeasurement::RuntimeMeasurement(std::string name) {
     sum = 0.0f;
@@ -52,6 +53,10 @@ void RuntimeMeasurementsManager::startCLTimer(
         cl::CommandQueue queue) {
     if(!enabled)
         return;
+
+    if(queue.getInfo<CL_QUEUE_PROPERTIES>() != CL_QUEUE_PROFILING_ENABLE) {
+        throw oul::Exception("Failed to get profiling info. Make sure that RuntimeMeasurementManager::enable() is called before the OpenCL context is created.", __LINE__, __FILE__);
+    }
     cl::Event startEvent;
     queue.enqueueMarker(&startEvent);
     queue.finish();
@@ -64,7 +69,11 @@ void RuntimeMeasurementsManager::stopCLTimer(
     if(!enabled)
         return;
 
-    // TODO: check that the startEvent actually exist
+    if(queue.getInfo<CL_QUEUE_PROPERTIES>() != CL_QUEUE_PROFILING_ENABLE) {
+        throw oul::Exception("Failed to get profiling info. Make sure that RuntimeMeasurementManager::enable() is called before the OpenCL context is created.", __LINE__, __FILE__);
+    }
+
+    // check that the startEvent actually exist
     if(startEvents.count(name) == 0) {
         throw oul::Exception("Unknown CL timer");
     }
@@ -160,4 +169,8 @@ double RuntimeMeasurement::getAverage() const {
 
 double RuntimeMeasurement::getStdDeviation() const {
     // TODO: implement
+}
+
+bool RuntimeMeasurementsManager::isEnabled() {
+    return enabled;
 }
