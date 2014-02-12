@@ -156,7 +156,6 @@ void RuntimeMeasurementsManager::printAll() {
 }
 
 RuntimeMeasurementsManager::RuntimeMeasurementsManager() {
-    enabled = true;
 }
 
 double RuntimeMeasurement::getSum() const {
