@@ -37,6 +37,8 @@ set(SOURCE_FILES
     HistogramPyramids.cpp
     OpenCLManager.hpp
     OpenCLManager.cpp
+    RuntimeMeasurement.hpp
+    RuntimeMeasurement.cpp
 )
 
 set(OpenCLUtilityLibrary_LINK_LIBRARIES
