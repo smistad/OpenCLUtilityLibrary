@@ -58,7 +58,12 @@ void RuntimeMeasurementsManager::startCLTimer(
         throw oul::Exception("Failed to get profiling info. Make sure that RuntimeMeasurementManager::enable() is called before the OpenCL context is created.", __LINE__, __FILE__);
     }
     cl::Event startEvent;
+#if !defined(CL_VERSION_1_2) || defined(CL_USE_DEPRECATED_OPENCL_1_1_APIS)
+    // Use deprecated API
     queue.enqueueMarker(&startEvent);
+#else
+    queue.enqueueMarkerWithWaitList(NULL, &startEvent)
+#endif
     queue.finish();
     startEvents.insert(std::make_pair(name, startEvent));
 }
@@ -79,7 +84,12 @@ void RuntimeMeasurementsManager::stopCLTimer(
     }
     cl_ulong start, end;
     cl::Event endEvent;
+#if !defined(CL_VERSION_1_2) || defined(CL_USE_DEPRECATED_OPENCL_1_1_APIS)
+    // Use deprecated API
     queue.enqueueMarker(&endEvent);
+#else
+    queue.enqueueMarkerWithWaitList(NULL, &endEvent);
+#endif
     queue.finish();
     cl::Event startEvent = startEvents[name];
     startEvent.getProfilingInfo<cl_ulong>(CL_PROFILING_COMMAND_START, &start);
