@@ -1,0 +1,51 @@
+#ifndef HISTOGRAM_PYRAMIDS_CLH
+#define HISTOGRAM_PYRAMIDS_CLH
+int4 traverseHP3D(
+    int target,
+    int HP_SIZE,
+    image3d_t hp0,
+    image3d_t hp1,
+    image3d_t hp2,
+    image3d_t hp3,
+    image3d_t hp4,
+    image3d_t hp5,
+    image3d_t hp6,
+    image3d_t hp7,
+    image3d_t hp8,
+    image3d_t hp9
+    );
+int2 traverseHP2D(
+    int target,
+    int HP_SIZE,
+    image2d_t hp0,
+    image2d_t hp1,
+    image2d_t hp2,
+    image2d_t hp3,
+    image2d_t hp4,
+    image2d_t hp5,
+    image2d_t hp6,
+    image2d_t hp7,
+    image2d_t hp8,
+    image2d_t hp9,
+    image2d_t hp10,
+    image2d_t hp11,
+    image2d_t hp12,
+    image2d_t hp13
+    );
+
+int4 traverseHP3DBuffer(
+	uint3 size,
+    int target,
+    int HP_SIZE,
+    __global uchar * hp0,
+    __global uchar * hp1,
+    __global ushort * hp2,
+    __global ushort * hp3,
+    __global ushort * hp4,
+    __global int * hp5,
+    __global int * hp6,
+    __global int * hp7,
+    __global int * hp8,
+    __global int * hp9
+    );
+#endif

@@ -19,31 +19,26 @@ TEST_CASE("Histogram Pyramid OpenCL code compiles") {
     CHECK_NOTHROW(compileCode(context));
 }
 
-/*
 TEST_CASE("3D Histogram Pyramid Buffer create") {
     oul::DeviceCriteria criteria;
     criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
     oul::Context context = oul::opencl()->createContext(criteria);
     compileCode(context);
-    const int size = 32*32*32;
-    char * data = new char[size]();
+    int sizeX = 64;
+    int sizeY = 64;
+    int sizeZ = 64;
+    const int size = sizeX*sizeY*sizeZ;
+    unsigned char * data = new unsigned char[size]();
     cl::Buffer buffer = cl::Buffer(
             context.getContext(),
             CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
             sizeof(char)*size,
             data
     );
-    // TODO refactor this
-    OpenCL ocl;
-    ocl.context = context.getContext();
-    ocl.device = context.getDevice(0);
-    ocl.program = context.getProgram(0);
-    ocl.queue = context.getQueue(0);
-    oul::HistogramPyramid3DBuffer hp(ocl);
-    CHECK_NOTHROW(hp.create(buffer, 32, 32, 32));
     delete[] data;
+    oul::HistogramPyramid3DBuffer hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
+    CHECK_NOTHROW(hp.create(buffer, sizeX, sizeY, sizeZ));
 }
-*/
 
 TEST_CASE("2D Histogram Pyramid create") {
     oul::DeviceCriteria criteria;
@@ -82,9 +77,9 @@ TEST_CASE("3D Histogram Pyramid create") {
             0, 0,
             data
     );
+    delete[] data;
     oul::HistogramPyramid3D hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
     CHECK_NOTHROW(hp.create(image, sizeX, sizeY, sizeZ));
-    delete[] data;
 }
 
 unsigned char * createRandomData(unsigned int size, unsigned int * sum) {
@@ -102,6 +97,31 @@ unsigned char * createRandomData(unsigned int size, unsigned int * sum) {
 
     return data;
 }
+
+TEST_CASE("3D Histogram Pyramid Buffer Sum") {
+    oul::DeviceCriteria criteria;
+    criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
+    oul::Context context = oul::opencl()->createContext(criteria);
+    compileCode(context);
+    unsigned int sizeX = 64;
+    unsigned int sizeY = 64;
+    unsigned int sizeZ = 64;
+    unsigned int size = sizeX*sizeY*sizeZ;
+    unsigned int correctSum = 0;
+    unsigned char * data = createRandomData(size, &correctSum);
+    cl::Buffer buffer = cl::Buffer(
+            context.getContext(),
+            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+            sizeof(char)*size,
+            data
+    );
+    delete[] data;
+    oul::HistogramPyramid3DBuffer hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
+    hp.create(buffer, sizeX, sizeY, sizeZ);
+
+    CHECK(hp.getSum() == correctSum);
+}
+
 
 TEST_CASE("2D Histogram Pyramid Sum") {
     oul::DeviceCriteria criteria;

@@ -1,6 +1,48 @@
-#pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
-
 __constant sampler_t hpSampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP | CLK_FILTER_NEAREST;
+
+#define NLPOS(pos) ((pos).x) + ((pos).y)*size.x + ((pos).z)*size.x*size.y
+
+/* Morton Code Functions - Kudos to http://fgiesen.wordpress.com/2009/12/13/decoding-morton-codes/ */
+
+// "Insert" two 0 bits after each of the 10 low bits of x
+uint Part1By2(uint x) {
+  x &= 0x000003ff; // x = ---- ---- ---- ---- ---- --98 7654 3210
+  x = (x ^ (x << 16)) & 0xff0000ff; // x = ---- --98 ---- ---- ---- ---- 7654 3210
+  x = (x ^ (x << 8)) & 0x0300f00f; // x = ---- --98 ---- ---- 7654 ---- ---- 3210
+  x = (x ^ (x << 4)) & 0x030c30c3; // x = ---- --98 ---- 76-- --54 ---- 32-- --10
+  x = (x ^ (x << 2)) & 0x09249249; // x = ---- 9--8 --7- -6-- 5--4 --3- -2-- 1--0
+  return x;
+}
+
+uint EncodeMorton3(uint x, uint y, uint z) {
+  return (Part1By2(z) << 2) + (Part1By2(y) << 1) + Part1By2(x);
+}
+
+uint EncodeMorton(int4 v) {
+    return EncodeMorton3(v.x,v.y,v.z);
+}
+
+// Inverse of Part1By2 - "delete" all bits not at positions divisible by 3
+uint Compact1By2(uint x) {
+  x &= 0x09249249; // x = ---- 9--8 --7- -6-- 5--4 --3- -2-- 1--0
+  x = (x ^ (x >> 2)) & 0x030c30c3; // x = ---- --98 ---- 76-- --54 ---- 32-- --10
+  x = (x ^ (x >> 4)) & 0x0300f00f; // x = ---- --98 ---- ---- 7654 ---- ---- 3210
+  x = (x ^ (x >> 8)) & 0xff0000ff; // x = ---- --98 ---- ---- ---- ---- 7654 3210
+  x = (x ^ (x >> 16)) & 0x000003ff; // x = ---- ---- ---- ---- ---- --98 7654 3210
+  return x;
+}
+
+uint DecodeMorton3X(uint code) {
+  return Compact1By2(code >> 0);
+}
+
+uint DecodeMorton3Y(uint code) {
+  return Compact1By2(code >> 1);
+}
+
+uint DecodeMorton3Z(uint code) {
+  return Compact1By2(code >> 2);
+}
 
 __constant int4 cubeOffsets2D[4] = {
     {0, 0, 0, 0},
@@ -20,6 +62,7 @@ __constant int4 cubeOffsets[8] = {
     {1, 1, 1, 0},
 };
 
+#ifdef cl_khr_3d_image_writes
 __kernel void constructHPLevel3D(
     __read_only image3d_t readHistoPyramid,
     __write_only image3d_t writeHistoPyramid
@@ -38,6 +81,7 @@ __kernel void constructHPLevel3D(
 
     write_imagei(writeHistoPyramid, writePos, writeValue);
 }
+#endif
 
 __kernel void constructHPLevel2D(
     __read_only image2d_t readHistoPyramid,
@@ -264,4 +308,364 @@ __kernel void createPositions2D(
         target = 0;
     int2 pos = traverseHP2D(target,HP_SIZE,hp0,hp1,hp2,hp3,hp4,hp5,hp6,hp7,hp8,hp9,hp10,hp11,hp12,hp13);
     vstore2(pos, target, positions);
+}
+
+
+__kernel void constructHPLevelCharChar(
+        __global uchar * readHistoPyramid,
+        __global uchar * writeHistoPyramid,
+        __private int sizeX,
+        __private int sizeY,
+        __private int sizeZ
+    ) {
+	uint3 size = {sizeX,sizeY,sizeZ};
+
+    uint writePos = EncodeMorton3(get_global_id(0), get_global_id(1), get_global_id(2));
+    int4 readPos = (int4)(get_global_id(0)*2, get_global_id(1)*2, get_global_id(2)*2,0);
+    uchar writeValue;
+    if(readPos.x >= size.x || readPos.y >= size.y || readPos.z >= size.z) {
+    	writeValue = 0;
+    } else {
+		writeValue = readHistoPyramid[NLPOS(readPos)] +
+                    readHistoPyramid[NLPOS(readPos+cubeOffsets[1])] +
+                    readHistoPyramid[NLPOS(readPos+cubeOffsets[2])] +
+                    readHistoPyramid[NLPOS(readPos+cubeOffsets[3])] +
+                    readHistoPyramid[NLPOS(readPos+cubeOffsets[4])] +
+                    readHistoPyramid[NLPOS(readPos+cubeOffsets[5])] +
+                    readHistoPyramid[NLPOS(readPos+cubeOffsets[6])] +
+                    readHistoPyramid[NLPOS(readPos+cubeOffsets[7])];
+    }
+
+    writeHistoPyramid[writePos] = writeValue;
+}
+
+__kernel void constructHPLevelCharShort(
+        __global uchar * readHistoPyramid,
+        __global ushort * writeHistoPyramid
+    ) {
+
+    uint writePos = EncodeMorton3(get_global_id(0), get_global_id(1), get_global_id(2));
+    uint readPos = EncodeMorton3(get_global_id(0)*2, get_global_id(1)*2, get_global_id(2)*2);
+    ushort writeValue = readHistoPyramid[readPos] +
+                    readHistoPyramid[readPos + 1] +
+                    readHistoPyramid[readPos + 2] +
+                    readHistoPyramid[readPos + 3] +
+                    readHistoPyramid[readPos + 4] +
+                    readHistoPyramid[readPos + 5] +
+                    readHistoPyramid[readPos + 6] +
+                    readHistoPyramid[readPos + 7];
+
+    writeHistoPyramid[writePos] = writeValue;
+}
+__kernel void constructHPLevelShortShort(
+        __global ushort * readHistoPyramid,
+        __global ushort * writeHistoPyramid
+    ) {
+
+    uint writePos = EncodeMorton3(get_global_id(0), get_global_id(1), get_global_id(2));
+    uint readPos = EncodeMorton3(get_global_id(0)*2, get_global_id(1)*2, get_global_id(2)*2);
+    ushort writeValue = readHistoPyramid[readPos] +
+                    readHistoPyramid[readPos + 1] +
+                    readHistoPyramid[readPos + 2] +
+                    readHistoPyramid[readPos + 3] +
+                    readHistoPyramid[readPos + 4] +
+                    readHistoPyramid[readPos + 5] +
+                    readHistoPyramid[readPos + 6] +
+                    readHistoPyramid[readPos + 7];
+
+    writeHistoPyramid[writePos] = writeValue;
+}
+
+__kernel void constructHPLevelShortInt(
+        __global ushort * readHistoPyramid,
+        __global int * writeHistoPyramid
+    ) {
+
+    uint writePos = EncodeMorton3(get_global_id(0), get_global_id(1), get_global_id(2));
+    uint readPos = EncodeMorton3(get_global_id(0)*2, get_global_id(1)*2, get_global_id(2)*2);
+    int writeValue = readHistoPyramid[readPos] +
+                    readHistoPyramid[readPos + 1] +
+                    readHistoPyramid[readPos + 2] +
+                    readHistoPyramid[readPos + 3] +
+                    readHistoPyramid[readPos + 4] +
+                    readHistoPyramid[readPos + 5] +
+                    readHistoPyramid[readPos + 6] +
+                    readHistoPyramid[readPos + 7];
+
+    writeHistoPyramid[writePos] = writeValue;
+}
+
+__kernel void constructHPLevelBuffer(
+        __global int * readHistoPyramid,
+        __global int * writeHistoPyramid
+    ) {
+
+    uint writePos = EncodeMorton3(get_global_id(0), get_global_id(1), get_global_id(2));
+    uint readPos = EncodeMorton3(get_global_id(0)*2, get_global_id(1)*2, get_global_id(2)*2);
+    int writeValue = readHistoPyramid[readPos] +
+                    readHistoPyramid[readPos + 1] +
+                    readHistoPyramid[readPos + 2] +
+                    readHistoPyramid[readPos + 3] +
+                    readHistoPyramid[readPos + 4] +
+                    readHistoPyramid[readPos + 5] +
+                    readHistoPyramid[readPos + 6] +
+                    readHistoPyramid[readPos + 7];
+
+    writeHistoPyramid[writePos] = writeValue;
+}
+
+int4 scanHPLevelShort(int target, __global ushort * hp, int4 current) {
+
+    int8 neighbors = {
+        hp[EncodeMorton(current)],
+        hp[EncodeMorton(current + cubeOffsets[1])],
+        hp[EncodeMorton(current + cubeOffsets[2])],
+        hp[EncodeMorton(current + cubeOffsets[3])],
+        hp[EncodeMorton(current + cubeOffsets[4])],
+        hp[EncodeMorton(current + cubeOffsets[5])],
+        hp[EncodeMorton(current + cubeOffsets[6])],
+        hp[EncodeMorton(current + cubeOffsets[7])],
+    };
+
+    int acc = current.s3 + neighbors.s0;
+    int8 cmp;
+    cmp.s0 = acc <= target;
+    acc += neighbors.s1;
+    cmp.s1 = acc <= target;
+    acc += neighbors.s2;
+    cmp.s2 = acc <= target;
+    acc += neighbors.s3;
+    cmp.s3 = acc <= target;
+    acc += neighbors.s4;
+    cmp.s4 = acc <= target;
+    acc += neighbors.s5;
+    cmp.s5 = acc <= target;
+    acc += neighbors.s6;
+    cmp.s6 = acc <= target;
+    cmp.s7 = 0;
+
+
+    current += cubeOffsets[(cmp.s0+cmp.s1+cmp.s2+cmp.s3+cmp.s4+cmp.s5+cmp.s6+cmp.s7)];
+    current.s0 = current.s0*2;
+    current.s1 = current.s1*2;
+    current.s2 = current.s2*2;
+    current.s3 = current.s3 +
+    cmp.s0*neighbors.s0 +
+    cmp.s1*neighbors.s1 +
+    cmp.s2*neighbors.s2 +
+    cmp.s3*neighbors.s3 +
+    cmp.s4*neighbors.s4 +
+    cmp.s5*neighbors.s5 +
+    cmp.s6*neighbors.s6 +
+    cmp.s7*neighbors.s7;
+    return current;
+
+}
+
+int4 scanHPLevelChar(int target, __global uchar * hp, int4 current) {
+
+	int8 neighbors = {
+        hp[EncodeMorton(current)],
+        hp[EncodeMorton(current + cubeOffsets[1])],
+        hp[EncodeMorton(current + cubeOffsets[2])],
+        hp[EncodeMorton(current + cubeOffsets[3])],
+        hp[EncodeMorton(current + cubeOffsets[4])],
+        hp[EncodeMorton(current + cubeOffsets[5])],
+        hp[EncodeMorton(current + cubeOffsets[6])],
+        hp[EncodeMorton(current + cubeOffsets[7])],
+	};
+
+    int acc = current.s3 + neighbors.s0;
+    int8 cmp;
+    cmp.s0 = acc <= target;
+    acc += neighbors.s1;
+    cmp.s1 = acc <= target;
+    acc += neighbors.s2;
+    cmp.s2 = acc <= target;
+    acc += neighbors.s3;
+    cmp.s3 = acc <= target;
+    acc += neighbors.s4;
+    cmp.s4 = acc <= target;
+    acc += neighbors.s5;
+    cmp.s5 = acc <= target;
+    acc += neighbors.s6;
+    cmp.s6 = acc <= target;
+    cmp.s7 = 0;
+
+
+    current += cubeOffsets[(cmp.s0+cmp.s1+cmp.s2+cmp.s3+cmp.s4+cmp.s5+cmp.s6+cmp.s7)];
+    current.s0 = current.s0*2;
+    current.s1 = current.s1*2;
+    current.s2 = current.s2*2;
+    current.s3 = current.s3 +
+    cmp.s0*neighbors.s0 +
+    cmp.s1*neighbors.s1 +
+    cmp.s2*neighbors.s2 +
+    cmp.s3*neighbors.s3 +
+    cmp.s4*neighbors.s4 +
+    cmp.s5*neighbors.s5 +
+    cmp.s6*neighbors.s6 +
+    cmp.s7*neighbors.s7;
+    return current;
+
+}
+int4 scanHPLevelCharNoMorton(int target, __global uchar * hp, int4 current, uint3 size) {
+
+	int8 neighbors = {
+        hp[NLPOS(current)],
+        hp[NLPOS(current + cubeOffsets[1])],
+        hp[NLPOS(current + cubeOffsets[2])],
+        hp[NLPOS(current + cubeOffsets[3])],
+        hp[NLPOS(current + cubeOffsets[4])],
+        hp[NLPOS(current + cubeOffsets[5])],
+        hp[NLPOS(current + cubeOffsets[6])],
+        hp[NLPOS(current + cubeOffsets[7])],
+    };
+
+    int acc = current.s3 + neighbors.s0;
+    int8 cmp;
+    cmp.s0 = acc <= target;
+    acc += neighbors.s1;
+    cmp.s1 = acc <= target;
+    acc += neighbors.s2;
+    cmp.s2 = acc <= target;
+    acc += neighbors.s3;
+    cmp.s3 = acc <= target;
+    acc += neighbors.s4;
+    cmp.s4 = acc <= target;
+    acc += neighbors.s5;
+    cmp.s5 = acc <= target;
+    acc += neighbors.s6;
+    cmp.s6 = acc <= target;
+    cmp.s7 = 0;
+
+
+    current += cubeOffsets[(cmp.s0+cmp.s1+cmp.s2+cmp.s3+cmp.s4+cmp.s5+cmp.s6+cmp.s7)];
+    current.s0 = current.s0*2;
+    current.s1 = current.s1*2;
+    current.s2 = current.s2*2;
+    current.s3 = current.s3 +
+    cmp.s0*neighbors.s0 +
+    cmp.s1*neighbors.s1 +
+    cmp.s2*neighbors.s2 +
+    cmp.s3*neighbors.s3 +
+    cmp.s4*neighbors.s4 +
+    cmp.s5*neighbors.s5 +
+    cmp.s6*neighbors.s6 +
+    cmp.s7*neighbors.s7;
+    return current;
+
+}
+
+int4 scanHPLevel(int target, __global int * hp, int4 current) {
+
+    int8 neighbors = {
+        hp[EncodeMorton(current)],
+        hp[EncodeMorton(current + cubeOffsets[1])],
+        hp[EncodeMorton(current + cubeOffsets[2])],
+        hp[EncodeMorton(current + cubeOffsets[3])],
+        hp[EncodeMorton(current + cubeOffsets[4])],
+        hp[EncodeMorton(current + cubeOffsets[5])],
+        hp[EncodeMorton(current + cubeOffsets[6])],
+        hp[EncodeMorton(current + cubeOffsets[7])],
+    };
+
+    int acc = current.s3 + neighbors.s0;
+    int8 cmp;
+    cmp.s0 = acc <= target;
+    acc += neighbors.s1;
+    cmp.s1 = acc <= target;
+    acc += neighbors.s2;
+    cmp.s2 = acc <= target;
+    acc += neighbors.s3;
+    cmp.s3 = acc <= target;
+    acc += neighbors.s4;
+    cmp.s4 = acc <= target;
+    acc += neighbors.s5;
+    cmp.s5 = acc <= target;
+    acc += neighbors.s6;
+    cmp.s6 = acc <= target;
+    cmp.s7 = 0;
+
+
+    current += cubeOffsets[(cmp.s0+cmp.s1+cmp.s2+cmp.s3+cmp.s4+cmp.s5+cmp.s6+cmp.s7)];
+    current.s0 = current.s0*2;
+    current.s1 = current.s1*2;
+    current.s2 = current.s2*2;
+    current.s3 = current.s3 +
+    cmp.s0*neighbors.s0 +
+    cmp.s1*neighbors.s1 +
+    cmp.s2*neighbors.s2 +
+    cmp.s3*neighbors.s3 +
+    cmp.s4*neighbors.s4 +
+    cmp.s5*neighbors.s5 +
+    cmp.s6*neighbors.s6 +
+    cmp.s7*neighbors.s7;
+    return current;
+
+}
+
+int4 traverseHP3DBuffer(
+	uint3 size,
+    int target,
+    int HP_SIZE,
+    __global uchar * hp0,
+    __global uchar * hp1,
+    __global ushort * hp2,
+    __global ushort * hp3,
+    __global ushort * hp4,
+    __global int * hp5,
+    __global int * hp6,
+    __global int * hp7,
+    __global int * hp8,
+    __global int * hp9
+    ) {
+    int4 position = {0,0,0,0}; // x,y,z,sum
+    if(HP_SIZE > 512)
+    position = scanHPLevel(target, hp9, position);
+    if(HP_SIZE > 256)
+    position = scanHPLevel(target, hp8, position);
+    if(HP_SIZE > 128)
+    position = scanHPLevel(target, hp7, position);
+    if(HP_SIZE > 64)
+    position = scanHPLevel(target, hp6, position);
+    if(HP_SIZE > 32)
+    position = scanHPLevel(target, hp5, position);
+    if(HP_SIZE > 16)
+    position = scanHPLevelShort(target, hp4, position);
+    if(HP_SIZE > 8)
+    position = scanHPLevelShort(target, hp3, position);
+    position = scanHPLevelShort(target, hp2, position);
+    position = scanHPLevelChar(target, hp1, position);
+    position = scanHPLevelCharNoMorton(target, hp0, position,size);
+    position.x = position.x / 2;
+    position.y = position.y / 2;
+    position.z = position.z / 2;
+    return position;
+}
+
+__kernel void createPositions3DBuffer(
+		__private int sizeX,
+        __private int sizeY,
+        __private int sizeZ,
+        __global int * positions,
+        __private int HP_SIZE,
+        __private int sum,
+        __global uchar * hp0, // Largest HP
+        __global uchar * hp1,
+        __global ushort * hp2,
+        __global ushort * hp3,
+        __global ushort * hp4,
+        __global int * hp5,
+        __global int * hp6,
+        __global int * hp7,
+        __global int * hp8,
+        __global int * hp9
+    ) {
+    int target = get_global_id(0);
+    if(target >= sum)
+        target = 0;
+    uint3 size = {sizeX,sizeY,sizeZ};
+    int4 pos = traverseHP3DBuffer(size,target,HP_SIZE,hp0,hp1,hp2,hp3,hp4,hp5,hp6,hp7,hp8,hp9);
+    vstore3(pos.xyz, target, positions);
 }

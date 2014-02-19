@@ -20,6 +20,7 @@ HistogramPyramid2D::HistogramPyramid2D(oul::Context &context, std::string pathTo
     this->context = context;
 }
 HistogramPyramid3D::HistogramPyramid3D(oul::Context &context, std::string pathToKernelFile) {
+    // TODO : check if device in context support writing to 3D images
     compileCode(context, pathToKernelFile);
     this->context = context;
 }
