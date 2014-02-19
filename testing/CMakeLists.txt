@@ -16,6 +16,7 @@ set(SOURCE_FILES
 set(EXECUTABLE_SOURCE_FILES
     catch/catch.hpp
     CatchMain.cpp
+    histogramPyramidTests.cpp
     tests.cpp
 )
 
