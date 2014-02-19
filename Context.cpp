@@ -82,9 +82,12 @@ int Context::createProgramFromSource(std::string filename, std::string buildOpti
  * Compile several source files together
  */
 int Context::createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions) {
-    cl::Program::Sources sources;
-    for(int i = 0; i < filenames.size(); i++) {
-        sources.push_back(std::make_pair(filenames[i].c_str(), filenames[i].length()));
+    // Do this in a weird way, because the the logical way does not work.
+    std::string sourceCode = readFile(filenames[0]);
+    cl::Program::Sources sources(filenames.size(), std::make_pair(sourceCode.c_str(), sourceCode.length()));
+    for(int i = 1; i < filenames.size(); i++) {
+        std::string sourceCode2 = readFile(filenames[i]);
+        sources[i] = std::make_pair(sourceCode2.c_str(), sourceCode2.length());
     }
 
     cl::Program program = buildSources(sources, buildOptions);

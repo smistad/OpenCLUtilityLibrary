@@ -1,6 +1,7 @@
 #include "HelperFunctions.hpp"
 
 #include <fstream>
+#include <sstream>
 
 namespace oul{
 
@@ -78,10 +79,22 @@ std::string getCLErrorString(cl_int err) {
 std::string readFile(std::string filename){
     std::string retval = "";
 
-    std::ifstream sourceFile(filename.c_str());
+    std::ifstream sourceFile(filename.c_str(), std::fstream::in);
     if(sourceFile.fail())
         throw Exception("Failed to open OpenCL source file.");
-    retval = std::string(std::istreambuf_iterator<char>(sourceFile), (std::istreambuf_iterator<char>()));
+
+
+    std::stringstream stringStream;
+
+    stringStream.str("");
+
+    stringStream << sourceFile.rdbuf();
+
+    std::string sourceCode = stringStream.str();
+
+
+    retval  = sourceCode;
+    //retval = std::string(std::istreambuf_iterator<char>(sourceFile), (std::istreambuf_iterator<char>()));
 
     return retval;
 }

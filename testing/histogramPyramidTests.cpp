@@ -9,7 +9,7 @@ namespace test
 {
 
 void compileCode(oul::Context &context) {
-    context.createProgramFromSource(std::string(OUL_DIR)+"/HistogramPyramids.cl");
+    context.createProgramFromSource(std::string(OUL_DIR)+"/HistogramPyramids.cl", "-I " + std::string(OUL_DIR));
 }
 
 TEST_CASE("Histogram Pyramid OpenCL code compiles") {
@@ -35,7 +35,7 @@ TEST_CASE("3D Histogram Pyramid Buffer create") {
             data
     );
     delete[] data;
-    oul::HistogramPyramid3DBuffer hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
+    oul::HistogramPyramid3DBuffer hp(context);
     CHECK_NOTHROW(hp.create(buffer, sizeX, sizeY, sizeZ));
 }
 
@@ -54,7 +54,7 @@ TEST_CASE("2D Histogram Pyramid create") {
             0,
             data
     );
-    oul::HistogramPyramid2D hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
+    oul::HistogramPyramid2D hp(context);
     CHECK_NOTHROW(hp.create(image, sizeX, sizeY));
     delete[] data;
 }
@@ -77,7 +77,7 @@ TEST_CASE("3D Histogram Pyramid create") {
             data
     );
     delete[] data;
-    oul::HistogramPyramid3D hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
+    oul::HistogramPyramid3D hp(context);
     CHECK_NOTHROW(hp.create(image, sizeX, sizeY, sizeZ));
 }
 
@@ -114,7 +114,7 @@ TEST_CASE("3D Histogram Pyramid Buffer Sum") {
             data
     );
     delete[] data;
-    oul::HistogramPyramid3DBuffer hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
+    oul::HistogramPyramid3DBuffer hp(context);
     hp.create(buffer, sizeX, sizeY, sizeZ);
 
     CHECK(hp.getSum() == correctSum);
@@ -139,7 +139,7 @@ TEST_CASE("2D Histogram Pyramid Sum") {
             data
     );
     delete[] data;
-    oul::HistogramPyramid2D hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
+    oul::HistogramPyramid2D hp(context);
     hp.create(image, sizeX, sizeY);
 
     CHECK(hp.getSum() == correctSum);
@@ -165,7 +165,7 @@ TEST_CASE("3D Histogram Pyramid Sum") {
             data
     );
     delete[] data;
-    oul::HistogramPyramid3D hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
+    oul::HistogramPyramid3D hp(context);
     hp.create(image, sizeX, sizeY, sizeZ);
 
     CHECK(hp.getSum() == correctSum);

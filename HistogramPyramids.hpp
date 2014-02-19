@@ -8,7 +8,7 @@ namespace oul {
 
 class HistogramPyramid {
     public:
-        static void compileCode(oul::Context &context, std::string pathToKernelFile);
+        static void compileCode(oul::Context &context);
         int getSum();
         virtual cl::Buffer createPositionBuffer() = 0;
         virtual void deleteHPlevels() = 0;
@@ -20,7 +20,7 @@ class HistogramPyramid {
 
 class HistogramPyramid2D : public HistogramPyramid {
     public:
-        HistogramPyramid2D(oul::Context &context, std::string pathToKernelFile);
+        HistogramPyramid2D(oul::Context &context);
         void create(cl::Image2D &image, int, int);
         cl::Buffer createPositionBuffer();
         void deleteHPlevels();
@@ -31,7 +31,7 @@ class HistogramPyramid2D : public HistogramPyramid {
 
 class HistogramPyramid3D : public HistogramPyramid {
     public:
-        HistogramPyramid3D(oul::Context &context, std::string pathToKernelFile);
+        HistogramPyramid3D(oul::Context &context);
         void create(cl::Image3D &image, int, int, int);
         cl::Buffer createPositionBuffer();
         void deleteHPlevels();
@@ -42,7 +42,7 @@ class HistogramPyramid3D : public HistogramPyramid {
 
 class HistogramPyramid3DBuffer : public HistogramPyramid {
     public:
-        HistogramPyramid3DBuffer(oul::Context &context, std::string pathToKernelFile);
+        HistogramPyramid3DBuffer(oul::Context &context);
         void create(cl::Buffer &buffer, int, int, int);
         cl::Buffer createPositionBuffer();
         void deleteHPlevels();
