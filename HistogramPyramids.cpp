@@ -12,7 +12,7 @@ using namespace oul;
 void HistogramPyramid::compileCode(oul::Context &context) {
     // Check if context has the program, if not compile it
     if(!context.hasProgram("oul::HistogramPyramids")) {
-        context.createProgramFromSourceWithName("oul::HistogramPyramids", std::string(OUL_DIR)+"/HistogramPyramids.cl", "-I " + std::string(OUL_DIR));
+        context.createProgramFromSourceWithName("oul::HistogramPyramids", std::string(OUL_DIR)+"/HistogramPyramids.cl", "-I \"" + std::string(OUL_DIR) + "\"");
     }
 }
 
