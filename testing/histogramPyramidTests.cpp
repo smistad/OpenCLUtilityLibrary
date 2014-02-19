@@ -23,7 +23,6 @@ TEST_CASE("3D Histogram Pyramid Buffer create") {
     oul::DeviceCriteria criteria;
     criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
     oul::Context context = oul::opencl()->createContext(criteria);
-    compileCode(context);
     int sizeX = 64;
     int sizeY = 64;
     int sizeZ = 64;
@@ -102,7 +101,6 @@ TEST_CASE("3D Histogram Pyramid Buffer Sum") {
     oul::DeviceCriteria criteria;
     criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
     oul::Context context = oul::opencl()->createContext(criteria);
-    compileCode(context);
     unsigned int sizeX = 64;
     unsigned int sizeY = 64;
     unsigned int sizeZ = 64;
