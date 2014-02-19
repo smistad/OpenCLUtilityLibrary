@@ -184,7 +184,16 @@ int Context::createProgramFromBinaryWithName(
 }
 
 cl::Program Context::getProgram(std::string name) {
+    if(programNames.count(name) == 0) {
+        std::string msg ="Could not find OpenCL program with the name" + name;
+        throw Exception(msg.c_str(), __LINE__, __FILE__);
+    }
+
     return programs[programNames[name]];
+}
+
+bool Context::hasProgram(std::string name) {
+    return programNames.count(name) > 0;
 }
 
 } //namespace oul

@@ -23,6 +23,7 @@ class Context {
         int createProgramFromBinaryWithName(std::string programName, std::string filename, std::string buildOptions = "");
         cl::Program getProgram(unsigned int i);
         cl::Program getProgram(std::string name);
+        bool hasProgram(std::string name);
         cl::CommandQueue getQueue(unsigned int i);
         cl::Device getDevice(unsigned int i);
         cl::Context getContext();
