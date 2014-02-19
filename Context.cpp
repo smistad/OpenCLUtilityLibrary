@@ -151,4 +151,41 @@ int Context::createProgramFromBinary(std::string filename, std::string buildOpti
     //TODO todo
 }
 
+int Context::createProgramFromSourceWithName(
+        std::string programName,
+        std::string filename,
+        std::string buildOptions) {
+    programNames[programName] = createProgramFromSource(filename,buildOptions);
+    return programNames[programName];
+}
+
+int Context::createProgramFromSourceWithName(
+        std::string programName,
+        std::vector<std::string> filenames,
+        std::string buildOptions) {
+    programNames[programName] = createProgramFromSource(filenames,buildOptions);
+    return programNames[programName];
+}
+
+int Context::createProgramFromStringWithName(
+        std::string programName,
+        std::string code,
+        std::string buildOptions) {
+    programNames[programName] = createProgramFromString(code,buildOptions);
+    return programNames[programName];
+}
+
+int Context::createProgramFromBinaryWithName(
+        std::string programName,
+        std::string filename,
+        std::string buildOptions) {
+    programNames[programName] = createProgramFromBinary(filename,buildOptions);
+    return programNames[programName];
+}
+
+cl::Program Context::getProgram(std::string name) {
+    return programs[programNames[name]];
+}
+
 } //namespace oul
+
