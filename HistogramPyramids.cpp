@@ -8,14 +8,24 @@ using namespace oul;
 #undef min
 #undef max
 
-HistogramPyramid2D::HistogramPyramid2D(OpenCL &ocl) {
-    this->ocl = ocl;
+void HistogramPyramid::compileCode(oul::Context &context, std::string pathToKernelFile) {
+    // Check if context has the program, if not compile it
+    if(!context.hasProgram("oul::HistogramPyramids")) {
+        context.createProgramFromSourceWithName("oul::HistogramPyramids", pathToKernelFile);
+    }
 }
-HistogramPyramid3D::HistogramPyramid3D(OpenCL &ocl) {
-    this->ocl = ocl;
+
+HistogramPyramid2D::HistogramPyramid2D(oul::Context &context, std::string pathToKernelFile) {
+    compileCode(context, pathToKernelFile);
+    this->context = context;
 }
-HistogramPyramid3DBuffer::HistogramPyramid3DBuffer(OpenCL &ocl) {
-    this->ocl = ocl;
+HistogramPyramid3D::HistogramPyramid3D(oul::Context &context, std::string pathToKernelFile) {
+    compileCode(context, pathToKernelFile);
+    this->context = context;
+}
+HistogramPyramid3DBuffer::HistogramPyramid3DBuffer(oul::Context &context, std::string pathToKernelFile) {
+    compileCode(context, pathToKernelFile);
+    this->context = context;
 }
 
 int HistogramPyramid::getSum() {
@@ -40,14 +50,14 @@ void HistogramPyramid3D::create(Image3D &baseLevel, int sizeX, int sizeY, int si
     HPlevels.push_back(baseLevel);
     int levelSize = size / 2;
     HPlevels.push_back(Image3D(
-                ocl.context,
+                context.getContext(),
                 CL_MEM_READ_WRITE,
                 ImageFormat(CL_R, CL_UNSIGNED_INT8),
                 levelSize, levelSize, levelSize
     ));
     levelSize /= 2;
     HPlevels.push_back(Image3D(
-                ocl.context,
+                context.getContext(),
                 CL_MEM_READ_WRITE,
                 ImageFormat(CL_R, CL_UNSIGNED_INT8),
                 levelSize, levelSize, levelSize
@@ -55,14 +65,14 @@ void HistogramPyramid3D::create(Image3D &baseLevel, int sizeX, int sizeY, int si
     levelSize /= 2;
     // 16 bit
     HPlevels.push_back(Image3D(
-                ocl.context,
+                context.getContext(),
                 CL_MEM_READ_WRITE,
                 ImageFormat(CL_R, CL_UNSIGNED_INT16),
                 levelSize, levelSize, levelSize
     ));
     levelSize /= 2;
     HPlevels.push_back(Image3D(
-                ocl.context,
+                context.getContext(),
                 CL_MEM_READ_WRITE,
                 ImageFormat(CL_R, CL_UNSIGNED_INT16),
                 levelSize, levelSize, levelSize
@@ -72,7 +82,7 @@ void HistogramPyramid3D::create(Image3D &baseLevel, int sizeX, int sizeY, int si
     // The rest will use 32 bit
     for(int i = 5; i < log2(size); i++) {
         HPlevels.push_back(Image3D(
-                    ocl.context,
+                    context.getContext(),
                     CL_MEM_READ_WRITE,
                     ImageFormat(CL_R, CL_UNSIGNED_INT32),
                     levelSize, levelSize, levelSize
@@ -81,13 +91,15 @@ void HistogramPyramid3D::create(Image3D &baseLevel, int sizeX, int sizeY, int si
     }
 
     // Do construction iterations
-    Kernel constructHPLevelKernel(ocl.program, "constructHPLevel3D");
+    cl::Program program = context.getProgram("oul::HistogramPyramids");
+    cl::CommandQueue queue = context.getQueue(0);
+    Kernel constructHPLevelKernel(program, "constructHPLevel3D");
     levelSize = size;
     for(int i = 0; i < log2((float)size)-1; i++) {
         constructHPLevelKernel.setArg(0, HPlevels[i]);
         constructHPLevelKernel.setArg(1, HPlevels[i+1]);
         levelSize /= 2;
-        ocl.queue.enqueueNDRangeKernel(
+        queue.enqueueNDRangeKernel(
             constructHPLevelKernel,
             NullRange,
             NDRange(levelSize, levelSize, levelSize),
@@ -105,7 +117,7 @@ void HistogramPyramid3D::create(Image3D &baseLevel, int sizeX, int sizeY, int si
     region[0] = 2;
     region[1] = 2;
     region[2] = 2;
-    ocl.queue.enqueueReadImage(HPlevels[HPlevels.size()-1], CL_TRUE, offset, region, 0, 0, sum);
+    queue.enqueueReadImage(HPlevels[HPlevels.size()-1], CL_TRUE, offset, region, 0, 0, sum);
     //for(int i = 0; i < 8; i++)
     //std::cout << sum[i] << std::endl;
     this->sum = sum[0] + sum[1] + sum[2] + sum[3] + sum[4] + sum[5] + sum[6] + sum[7];
@@ -132,23 +144,24 @@ void HistogramPyramid3DBuffer::create(Buffer &baseLevel, int sizeX, int sizeY, i
     // Create all levels
     HPlevels.push_back(baseLevel);
     int levelSize = size*size*size / 8;
-    HPlevels.push_back(Buffer(ocl.context, CL_MEM_READ_WRITE, sizeof(char)*levelSize));
+    HPlevels.push_back(Buffer(context.getContext(), CL_MEM_READ_WRITE, sizeof(char)*levelSize));
     levelSize /= 8;
-    HPlevels.push_back(Buffer(ocl.context, CL_MEM_READ_WRITE, sizeof(short)*levelSize));
+    HPlevels.push_back(Buffer(context.getContext(), CL_MEM_READ_WRITE, sizeof(short)*levelSize));
     levelSize /= 8;
-    HPlevels.push_back(Buffer(ocl.context, CL_MEM_READ_WRITE, sizeof(short)*levelSize));
+    HPlevels.push_back(Buffer(context.getContext(), CL_MEM_READ_WRITE, sizeof(short)*levelSize));
     levelSize /= 8;
-    HPlevels.push_back(Buffer(ocl.context, CL_MEM_READ_WRITE, sizeof(short)*levelSize));
+    HPlevels.push_back(Buffer(context.getContext(), CL_MEM_READ_WRITE, sizeof(short)*levelSize));
     levelSize /= 8;
     for(int i = 5; i < (log2((float)size)); i ++) {
-        HPlevels.push_back(Buffer(ocl.context, CL_MEM_READ_WRITE, sizeof(int)*levelSize));
+        HPlevels.push_back(Buffer(context.getContext(), CL_MEM_READ_WRITE, sizeof(int)*levelSize));
         levelSize /= 8;
     }
-    Kernel constructHPLevelCharCharKernel = Kernel(ocl.program, "constructHPLevelCharChar");
-    Kernel constructHPLevelCharShortKernel = Kernel(ocl.program, "constructHPLevelCharShort");
-    Kernel constructHPLevelShortShortKernel = Kernel(ocl.program, "constructHPLevelShortShort");
-    Kernel constructHPLevelShortIntKernel = Kernel(ocl.program, "constructHPLevelShortInt");
-    Kernel constructHPLevelKernel = Kernel(ocl.program, "constructHPLevelBuffer");
+    cl::Program program = context.getProgram("oul::HistogramPyramids");
+    Kernel constructHPLevelCharCharKernel = Kernel(program, "constructHPLevelCharChar");
+    Kernel constructHPLevelCharShortKernel = Kernel(program, "constructHPLevelCharShort");
+    Kernel constructHPLevelShortShortKernel = Kernel(program, "constructHPLevelShortShort");
+    Kernel constructHPLevelShortIntKernel = Kernel(program, "constructHPLevelShortInt");
+    Kernel constructHPLevelKernel = Kernel(program, "constructHPLevelBuffer");
 
     // Run base to first level
     constructHPLevelCharCharKernel.setArg(0, HPlevels[0]);
@@ -157,7 +170,8 @@ void HistogramPyramid3DBuffer::create(Buffer &baseLevel, int sizeX, int sizeY, i
     constructHPLevelCharCharKernel.setArg(3, sizeY);
     constructHPLevelCharCharKernel.setArg(4, sizeZ);
 
-    ocl.queue.enqueueNDRangeKernel(
+    cl::CommandQueue queue = context.getQueue(0);
+    queue.enqueueNDRangeKernel(
         constructHPLevelCharCharKernel,
         NullRange,
         NDRange(size/2, size/2, size/2),
@@ -169,7 +183,7 @@ void HistogramPyramid3DBuffer::create(Buffer &baseLevel, int sizeX, int sizeY, i
     constructHPLevelCharShortKernel.setArg(0, HPlevels[1]);
     constructHPLevelCharShortKernel.setArg(1, HPlevels[2]);
 
-    ocl.queue.enqueueNDRangeKernel(
+    queue.enqueueNDRangeKernel(
         constructHPLevelCharShortKernel,
         NullRange,
         NDRange(previous/2, previous/2, previous/2),
@@ -181,7 +195,7 @@ void HistogramPyramid3DBuffer::create(Buffer &baseLevel, int sizeX, int sizeY, i
     constructHPLevelShortShortKernel.setArg(0, HPlevels[2]);
     constructHPLevelShortShortKernel.setArg(1, HPlevels[3]);
 
-    ocl.queue.enqueueNDRangeKernel(
+    queue.enqueueNDRangeKernel(
         constructHPLevelShortShortKernel,
         NullRange,
         NDRange(previous/2, previous/2, previous/2),
@@ -193,7 +207,7 @@ void HistogramPyramid3DBuffer::create(Buffer &baseLevel, int sizeX, int sizeY, i
     constructHPLevelShortShortKernel.setArg(0, HPlevels[3]);
     constructHPLevelShortShortKernel.setArg(1, HPlevels[4]);
 
-    ocl.queue.enqueueNDRangeKernel(
+    queue.enqueueNDRangeKernel(
         constructHPLevelShortShortKernel,
         NullRange,
         NDRange(previous/2, previous/2, previous/2),
@@ -205,7 +219,7 @@ void HistogramPyramid3DBuffer::create(Buffer &baseLevel, int sizeX, int sizeY, i
     constructHPLevelShortIntKernel.setArg(0, HPlevels[4]);
     constructHPLevelShortIntKernel.setArg(1, HPlevels[5]);
 
-    ocl.queue.enqueueNDRangeKernel(
+    queue.enqueueNDRangeKernel(
         constructHPLevelShortIntKernel,
         NullRange,
         NDRange(previous/2, previous/2, previous/2),
@@ -219,7 +233,7 @@ void HistogramPyramid3DBuffer::create(Buffer &baseLevel, int sizeX, int sizeY, i
         constructHPLevelKernel.setArg(0, HPlevels[i]);
         constructHPLevelKernel.setArg(1, HPlevels[i+1]);
         previous /= 2;
-        ocl.queue.enqueueNDRangeKernel(
+        queue.enqueueNDRangeKernel(
             constructHPLevelKernel,
             NullRange,
             NDRange(previous, previous, previous),
@@ -228,7 +242,7 @@ void HistogramPyramid3DBuffer::create(Buffer &baseLevel, int sizeX, int sizeY, i
     }
 
     int * sum = new int[8];
-    ocl.queue.enqueueReadBuffer(HPlevels[HPlevels.size()-1], CL_TRUE, 0, sizeof(int)*8, sum);
+    queue.enqueueReadBuffer(HPlevels[HPlevels.size()-1], CL_TRUE, 0, sizeof(int)*8, sum);
     this->sum = sum[0] + sum[1] + sum[2] + sum[3] + sum[4] + sum[5] + sum[6] + sum[7];
 }
 
@@ -250,14 +264,14 @@ void HistogramPyramid2D::create(Image2D &baseLevel, int sizeX, int sizeY) {
     HPlevels.push_back(baseLevel);
     int levelSize = size / 2;
     HPlevels.push_back(Image2D(
-                ocl.context,
+                context.getContext(),
                 CL_MEM_READ_WRITE,
                 ImageFormat(CL_R, CL_UNSIGNED_INT8),
                 levelSize, levelSize
     ));
     levelSize /= 2;
     HPlevels.push_back(Image2D(
-                ocl.context,
+                context.getContext(),
                 CL_MEM_READ_WRITE,
                 ImageFormat(CL_R, CL_UNSIGNED_INT8),
                 levelSize, levelSize
@@ -265,14 +279,14 @@ void HistogramPyramid2D::create(Image2D &baseLevel, int sizeX, int sizeY) {
     levelSize /= 2;
     // 16 bit
     HPlevels.push_back(Image2D(
-                ocl.context,
+                context.getContext(),
                 CL_MEM_READ_WRITE,
                 ImageFormat(CL_R, CL_UNSIGNED_INT16),
                 levelSize, levelSize
     ));
     levelSize /= 2;
     HPlevels.push_back(Image2D(
-                ocl.context,
+                context.getContext(),
                 CL_MEM_READ_WRITE,
                 ImageFormat(CL_R, CL_UNSIGNED_INT16),
                 levelSize, levelSize
@@ -282,7 +296,7 @@ void HistogramPyramid2D::create(Image2D &baseLevel, int sizeX, int sizeY) {
     // The rest will use 32 bit
     for(int i = 5; i < log2(size); i++) {
         HPlevels.push_back(Image2D(
-                    ocl.context,
+                    context.getContext(),
                     CL_MEM_READ_WRITE,
                     ImageFormat(CL_R, CL_UNSIGNED_INT32),
                     levelSize, levelSize
@@ -291,13 +305,15 @@ void HistogramPyramid2D::create(Image2D &baseLevel, int sizeX, int sizeY) {
     }
 
     // Do construction iterations
-    Kernel constructHPLevelKernel(ocl.program, "constructHPLevel2D");
+    cl::Program program = context.getProgram("oul::HistogramPyramids");
+    cl::CommandQueue queue = context.getQueue(0);
+    Kernel constructHPLevelKernel(program, "constructHPLevel2D");
     levelSize = size;
     for(int i = 0; i < log2((float)size)-1; i++) {
         constructHPLevelKernel.setArg(0, HPlevels[i]);
         constructHPLevelKernel.setArg(1, HPlevels[i+1]);
         levelSize /= 2;
-        ocl.queue.enqueueNDRangeKernel(
+        queue.enqueueNDRangeKernel(
             constructHPLevelKernel,
             NullRange,
             NDRange(levelSize, levelSize),
@@ -315,7 +331,7 @@ void HistogramPyramid2D::create(Image2D &baseLevel, int sizeX, int sizeY) {
     region[0] = 2;
     region[1] = 2;
     region[2] = 1;
-    ocl.queue.enqueueReadImage(HPlevels[HPlevels.size()-1], CL_TRUE, offset, region, 0, 0, sum);
+    queue.enqueueReadImage(HPlevels[HPlevels.size()-1], CL_TRUE, offset, region, 0, 0, sum);
     this->sum = sum[0] + sum[1] + sum[2] + sum[3];
 }
 
@@ -329,7 +345,7 @@ void HistogramPyramid2D::traverse(Kernel &kernel, int arguments) {
     }
 
     int global_work_size = sum + 64 - (sum - 64*(sum / 64));
-    ocl.queue.enqueueNDRangeKernel(kernel, NullRange, NDRange(global_work_size), NDRange(64));
+    context.getQueue(0).enqueueNDRangeKernel(kernel, NullRange, NDRange(global_work_size), NDRange(64));
 }
 
 void HistogramPyramid3D::traverse(Kernel &kernel, int arguments) {
@@ -344,7 +360,7 @@ void HistogramPyramid3D::traverse(Kernel &kernel, int arguments) {
     }
 
     int global_work_size = sum + 64 - (sum - 64*(sum / 64));
-    ocl.queue.enqueueNDRangeKernel(kernel, NullRange, NDRange(global_work_size), NDRange(64));
+    context.getQueue(0).enqueueNDRangeKernel(kernel, NullRange, NDRange(global_work_size), NDRange(64));
 }
 
 void HistogramPyramid3DBuffer::traverse(Kernel &kernel, int arguments) {
@@ -359,17 +375,17 @@ void HistogramPyramid3DBuffer::traverse(Kernel &kernel, int arguments) {
     }
 
     int global_work_size = sum + 64 - (sum - 64*(sum / 64));
-    ocl.queue.enqueueNDRangeKernel(kernel, NullRange, NDRange(global_work_size), NDRange(64));
+    context.getQueue(0).enqueueNDRangeKernel(kernel, NullRange, NDRange(global_work_size), NDRange(64));
 }
 
 
 Buffer HistogramPyramid2D::createPositionBuffer() {
     Buffer * positions = new Buffer(
-            ocl.context,
+            context.getContext(),
             CL_MEM_READ_WRITE,
             2*sizeof(int)*sum
     );
-    Kernel kernel(ocl.program, "createPositions2D");
+    Kernel kernel(context.getProgram("oul::HistogramPyramids"), "createPositions2D");
     kernel.setArg(0, (*positions));
     kernel.setArg(1, this->size);
     kernel.setArg(2, this->sum);
@@ -379,11 +395,11 @@ Buffer HistogramPyramid2D::createPositionBuffer() {
 
 Buffer HistogramPyramid3D::createPositionBuffer() {
     Buffer * positions = new Buffer(
-            ocl.context,
+            context.getContext(),
             CL_MEM_READ_WRITE,
             3*sizeof(int)*sum
     );
-    Kernel kernel(ocl.program, "createPositions3D");
+    Kernel kernel(context.getProgram("oul::HistogramPyramids"), "createPositions3D");
     kernel.setArg(0, (*positions));
     this->traverse(kernel, 1);
     return *positions;
@@ -391,11 +407,11 @@ Buffer HistogramPyramid3D::createPositionBuffer() {
 
 Buffer HistogramPyramid3DBuffer::createPositionBuffer() {
     Buffer * positions = new Buffer(
-            ocl.context,
+            context.getContext(),
             CL_MEM_READ_WRITE,
             3*sizeof(int)*sum
     );
-    Kernel kernel(ocl.program, "createPositions3DBuffer");
+    Kernel kernel(context.getProgram("oul::HistogramPyramids"), "createPositions3DBuffer");
     kernel.setArg(0, sizeX);
     kernel.setArg(1, sizeY);
     kernel.setArg(2, sizeZ);

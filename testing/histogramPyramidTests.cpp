@@ -49,7 +49,6 @@ TEST_CASE("2D Histogram Pyramid create") {
     oul::DeviceCriteria criteria;
     criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
     oul::Context context = oul::opencl()->createContext(criteria);
-    compileCode(context);
     int sizeX = 32;
     int sizeY = 32;
     unsigned char * data = new unsigned char[sizeX*sizeY]();
@@ -61,13 +60,7 @@ TEST_CASE("2D Histogram Pyramid create") {
             0,
             data
     );
-    // TODO refactor this
-    OpenCL ocl;
-    ocl.context = context.getContext();
-    ocl.device = context.getDevice(0);
-    ocl.program = context.getProgram(0);
-    ocl.queue = context.getQueue(0);
-    oul::HistogramPyramid2D hp(ocl);
+    oul::HistogramPyramid2D hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
     CHECK_NOTHROW(hp.create(image, sizeX, sizeY));
     delete[] data;
 }
@@ -77,7 +70,6 @@ TEST_CASE("3D Histogram Pyramid create") {
     oul::DeviceCriteria criteria;
     criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
     oul::Context context = oul::opencl()->createContext(criteria);
-    compileCode(context);
     int sizeX = 32;
     int sizeY = 32;
     int sizeZ = 32;
@@ -90,13 +82,7 @@ TEST_CASE("3D Histogram Pyramid create") {
             0, 0,
             data
     );
-    // TODO refactor this
-    OpenCL ocl;
-    ocl.context = context.getContext();
-    ocl.device = context.getDevice(0);
-    ocl.program = context.getProgram(0);
-    ocl.queue = context.getQueue(0);
-    oul::HistogramPyramid3D hp(ocl);
+    oul::HistogramPyramid3D hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
     CHECK_NOTHROW(hp.create(image, sizeX, sizeY, sizeZ));
     delete[] data;
 }
@@ -121,7 +107,6 @@ TEST_CASE("2D Histogram Pyramid Sum") {
     oul::DeviceCriteria criteria;
     criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
     oul::Context context = oul::opencl()->createContext(criteria);
-    compileCode(context);
     int sizeX = 64;
     int sizeY = 64;
     unsigned int correctSum = 0;
@@ -136,13 +121,7 @@ TEST_CASE("2D Histogram Pyramid Sum") {
             data
     );
     delete[] data;
-    // TODO refactor this
-    OpenCL ocl;
-    ocl.context = context.getContext();
-    ocl.device = context.getDevice(0);
-    ocl.program = context.getProgram(0);
-    ocl.queue = context.getQueue(0);
-    oul::HistogramPyramid2D hp(ocl);
+    oul::HistogramPyramid2D hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
     hp.create(image, sizeX, sizeY);
 
     CHECK(hp.getSum() == correctSum);
@@ -153,7 +132,6 @@ TEST_CASE("3D Histogram Pyramid Sum") {
     oul::DeviceCriteria criteria;
     criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
     oul::Context context = oul::opencl()->createContext(criteria);
-    compileCode(context);
     int sizeX = 64;
     int sizeY = 64;
     int sizeZ = 64;
@@ -169,13 +147,7 @@ TEST_CASE("3D Histogram Pyramid Sum") {
             data
     );
     delete[] data;
-    // TODO refactor this
-    OpenCL ocl;
-    ocl.context = context.getContext();
-    ocl.device = context.getDevice(0);
-    ocl.program = context.getProgram(0);
-    ocl.queue = context.getQueue(0);
-    oul::HistogramPyramid3D hp(ocl);
+    oul::HistogramPyramid3D hp(context, std::string(OUL_DIR)+"/HistogramPyramids.cl");
     hp.create(image, sizeX, sizeY, sizeZ);
 
     CHECK(hp.getSum() == correctSum);

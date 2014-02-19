@@ -4,33 +4,23 @@
 #include "OpenCLManager.hpp"
 #include <vector>
 
-// TODO Quickfix before I refactor this
-#ifndef COMMONS_H
-typedef struct OpenCL {
-    cl::Context context;
-    cl::CommandQueue queue;
-    cl::Program program;
-    cl::Device device;
-    cl::Platform platform;
-    oul::GarbageCollector * GC;
-} OpenCL;
-#endif
 namespace oul {
 
 class HistogramPyramid {
     public:
+        static void compileCode(oul::Context &context, std::string pathToKernelFile);
         int getSum();
         virtual cl::Buffer createPositionBuffer() = 0;
         virtual void deleteHPlevels() = 0;
     protected:
-        OpenCL ocl;
+        oul::Context context;
         int size;
         int sum;
 };
 
 class HistogramPyramid2D : public HistogramPyramid {
     public:
-        HistogramPyramid2D(OpenCL & ocl);
+        HistogramPyramid2D(oul::Context &context, std::string pathToKernelFile);
         void create(cl::Image2D &image, int, int);
         cl::Buffer createPositionBuffer();
         void deleteHPlevels();
@@ -41,7 +31,7 @@ class HistogramPyramid2D : public HistogramPyramid {
 
 class HistogramPyramid3D : public HistogramPyramid {
     public:
-        HistogramPyramid3D(OpenCL &ocl);
+        HistogramPyramid3D(oul::Context &context, std::string pathToKernelFile);
         void create(cl::Image3D &image, int, int, int);
         cl::Buffer createPositionBuffer();
         void deleteHPlevels();
@@ -52,7 +42,7 @@ class HistogramPyramid3D : public HistogramPyramid {
 
 class HistogramPyramid3DBuffer : public HistogramPyramid {
     public:
-        HistogramPyramid3DBuffer(OpenCL &ocl);
+        HistogramPyramid3DBuffer(oul::Context &context, std::string pathToKernelFile);
         void create(cl::Buffer &buffer, int, int, int);
         cl::Buffer createPositionBuffer();
         void deleteHPlevels();
