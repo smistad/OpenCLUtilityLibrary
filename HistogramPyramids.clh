@@ -1,5 +1,5 @@
-#ifndef ASD
-#define ASD
+#ifndef HISTOGRAM_PYRAMIDS_CL_H
+#define HISTOGRAM_PYRAMIDS_CL_H
 
 #define NLPOS(pos) ((pos).x) + ((pos).y)*size.x + ((pos).z)*size.x*size.y
 __constant sampler_t hpSampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP | CLK_FILTER_NEAREST;
@@ -456,4 +456,4 @@ int4 traverseHP3DBuffer(
     return position;
 }
 
-#endif
+#endif // end HISTOGRAM_PYRAMIDS_CL_H
