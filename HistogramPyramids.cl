@@ -12,16 +12,16 @@ __kernel void constructHPLevel3D(
 
     int4 writePos = {get_global_id(0), get_global_id(1), get_global_id(2), 0};
     int4 readPos = writePos*2;
-    int writeValue = read_imagei(readHistoPyramid, hpSampler, readPos).x + // 0
-    read_imagei(readHistoPyramid, hpSampler, readPos+cubeOffsets[1]).x + // 1
-    read_imagei(readHistoPyramid, hpSampler, readPos+cubeOffsets[2]).x + // 2
-    read_imagei(readHistoPyramid, hpSampler, readPos+cubeOffsets[3]).x + // 3
-    read_imagei(readHistoPyramid, hpSampler, readPos+cubeOffsets[4]).x + // 4
-    read_imagei(readHistoPyramid, hpSampler, readPos+cubeOffsets[5]).x + // 5
-    read_imagei(readHistoPyramid, hpSampler, readPos+cubeOffsets[6]).x + // 6
-    read_imagei(readHistoPyramid, hpSampler, readPos+cubeOffsets[7]).x; // 7
+    int writeValue = read_imageui(readHistoPyramid, hpSampler, readPos).x + // 0
+    read_imageui(readHistoPyramid, hpSampler, readPos+cubeOffsets[1]).x + // 1
+    read_imageui(readHistoPyramid, hpSampler, readPos+cubeOffsets[2]).x + // 2
+    read_imageui(readHistoPyramid, hpSampler, readPos+cubeOffsets[3]).x + // 3
+    read_imageui(readHistoPyramid, hpSampler, readPos+cubeOffsets[4]).x + // 4
+    read_imageui(readHistoPyramid, hpSampler, readPos+cubeOffsets[5]).x + // 5
+    read_imageui(readHistoPyramid, hpSampler, readPos+cubeOffsets[6]).x + // 6
+    read_imageui(readHistoPyramid, hpSampler, readPos+cubeOffsets[7]).x; // 7
 
-    write_imagei(writeHistoPyramid, writePos, writeValue);
+    write_imageui(writeHistoPyramid, writePos, writeValue);
 }
 #endif
 
@@ -33,12 +33,12 @@ __kernel void constructHPLevel2D(
     int2 writePos = {get_global_id(0), get_global_id(1)};
     int2 readPos = writePos*2;
     int writeValue =
-        read_imagei(readHistoPyramid, hpSampler, readPos).x +
-        read_imagei(readHistoPyramid, hpSampler, readPos+(int2)(1,0)).x +
-        read_imagei(readHistoPyramid, hpSampler, readPos+(int2)(0,1)).x +
-        read_imagei(readHistoPyramid, hpSampler, readPos+(int2)(1,1)).x;
+        read_imageui(readHistoPyramid, hpSampler, readPos).x +
+        read_imageui(readHistoPyramid, hpSampler, readPos+(int2)(1,0)).x +
+        read_imageui(readHistoPyramid, hpSampler, readPos+(int2)(0,1)).x +
+        read_imageui(readHistoPyramid, hpSampler, readPos+(int2)(1,1)).x;
 
-    write_imagei(writeHistoPyramid, writePos, writeValue);
+    write_imageui(writeHistoPyramid, writePos, writeValue);
 }
 
 
