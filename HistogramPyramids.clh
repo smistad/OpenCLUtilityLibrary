@@ -67,9 +67,9 @@ __constant int4 cubeOffsets[8] = {
 int3 scanHPLevel2D(int target, __read_only image2d_t hp, int3 current) {
 
     int4 neighbors = {
-        read_imagei(hp, hpSampler, current.xy).x,
-        read_imagei(hp, hpSampler, current.xy + (int2)(0,1)).x,
-        read_imagei(hp, hpSampler, current.xy + (int2)(1,0)).x,
+        read_imageui(hp, hpSampler, current.xy).x,
+        read_imageui(hp, hpSampler, current.xy + (int2)(0,1)).x,
+        read_imageui(hp, hpSampler, current.xy + (int2)(1,0)).x,
         0
     };
 
@@ -96,13 +96,13 @@ int3 scanHPLevel2D(int target, __read_only image2d_t hp, int3 current) {
 int4 scanHPLevel3D(int target, __read_only image3d_t hp, int4 current) {
 
     int8 neighbors = {
-        read_imagei(hp, hpSampler, current).x,
-        read_imagei(hp, hpSampler, current + cubeOffsets[1]).x,
-        read_imagei(hp, hpSampler, current + cubeOffsets[2]).x,
-        read_imagei(hp, hpSampler, current + cubeOffsets[3]).x,
-        read_imagei(hp, hpSampler, current + cubeOffsets[4]).x,
-        read_imagei(hp, hpSampler, current + cubeOffsets[5]).x,
-        read_imagei(hp, hpSampler, current + cubeOffsets[6]).x,
+        read_imageui(hp, hpSampler, current).x,
+        read_imageui(hp, hpSampler, current + cubeOffsets[1]).x,
+        read_imageui(hp, hpSampler, current + cubeOffsets[2]).x,
+        read_imageui(hp, hpSampler, current + cubeOffsets[3]).x,
+        read_imageui(hp, hpSampler, current + cubeOffsets[4]).x,
+        read_imageui(hp, hpSampler, current + cubeOffsets[5]).x,
+        read_imageui(hp, hpSampler, current + cubeOffsets[6]).x,
         0
     };
 
