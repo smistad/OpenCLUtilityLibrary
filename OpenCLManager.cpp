@@ -565,4 +565,11 @@ OpenCLManager* opencl() {
 OpenCLManager* OpenCLManager::instance = NULL;
 bool OpenCLManager::debugMode = false;
 
+
+Context OpenCLManager::createContext(cl::Device device, bool OpenGLInterop) {
+    std::vector<cl::Device> deviceVector;
+    deviceVector.push_back(device);
+    return this->createContext(deviceVector, OpenGLInterop);
+}
+
 }                //namespace oul

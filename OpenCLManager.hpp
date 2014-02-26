@@ -24,6 +24,9 @@ class OpenCLManager {
                 std::vector<cl::Device> &devices,
                 bool OpenGLInterop);
         Context createContext(
+                cl::Device device,
+                bool OpenGLInterop);
+        Context createContext(
                 int argc,
                 char ** argv,
                 DeviceCriteria &defaultCriteria);
