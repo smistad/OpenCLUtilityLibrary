@@ -13,72 +13,106 @@ void compileCode(oul::Context &context) {
 }
 
 TEST_CASE("Histogram Pyramid OpenCL code compiles") {
-    oul::DeviceCriteria criteria;
-    criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
-    oul::Context context = oul::opencl()->createContext(criteria);
-    CHECK_NOTHROW(compileCode(context));
+    oul::TestFixture fixture;
+    std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
+    // For every platform
+    for(int i = 0; i < platformDevices.size(); i++) {
+        oul::Context context = oul::opencl()->createContext(platformDevices[i].second, false);
+        INFO("Platform: " << platformDevices[i].first.getInfo<CL_PLATFORM_NAME>())
+        CHECK_NOTHROW(compileCode(context));
+    }
 }
 
 TEST_CASE("3D Histogram Pyramid Buffer create") {
-    oul::DeviceCriteria criteria;
-    criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
-    oul::Context context = oul::opencl()->createContext(criteria);
-    int sizeX = 64;
-    int sizeY = 64;
-    int sizeZ = 64;
-    const int size = sizeX*sizeY*sizeZ;
-    unsigned char * data = new unsigned char[size]();
-    cl::Buffer buffer = cl::Buffer(
-            context.getContext(),
-            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-            sizeof(char)*size,
-            data
-    );
-    delete[] data;
-    oul::HistogramPyramid3DBuffer hp(context);
-    CHECK_NOTHROW(hp.create(buffer, sizeX, sizeY, sizeZ));
+    oul::TestFixture fixture;
+    std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
+    // For every platform and every device:
+    for(int i = 0; i < platformDevices.size(); i++) {
+        for(int j = 0; j < platformDevices[i].second.size(); j++) {
+            cl::Device device = platformDevices[i].second[j];
+            oul::Context context = oul::opencl()->createContext(device, false);
+            int sizeX = 64;
+            int sizeY = 64;
+            int sizeZ = 64;
+            const int size = sizeX*sizeY*sizeZ;
+            unsigned char * data = new unsigned char[size]();
+            cl::Buffer buffer = cl::Buffer(
+                    context.getContext(),
+                    CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                    sizeof(char)*size,
+                    data
+            );
+            delete[] data;
+            oul::HistogramPyramid3DBuffer hp(context);
+            INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
+            INFO("Platform: " << platformDevices[i].first.getInfo<CL_PLATFORM_NAME>());
+            CHECK_NOTHROW(hp.create(buffer, sizeX, sizeY, sizeZ));
+        }
+    }
 }
 
 TEST_CASE("2D Histogram Pyramid create") {
-    oul::DeviceCriteria criteria;
-    criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
-    oul::Context context = oul::opencl()->createContext(criteria);
-    int sizeX = 32;
-    int sizeY = 32;
-    unsigned char * data = new unsigned char[sizeX*sizeY]();
-    cl::Image2D image = cl::Image2D(
-            context.getContext(),
-            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-            cl::ImageFormat(CL_R, CL_UNSIGNED_INT8),
-            sizeX, sizeY,
-            0,
-            data
-    );
-    oul::HistogramPyramid2D hp(context);
-    CHECK_NOTHROW(hp.create(image, sizeX, sizeY));
-    delete[] data;
+    oul::TestFixture fixture;
+    std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
+    // For every platform and every device:
+    for(int i = 0; i < platformDevices.size(); i++) {
+        for(int j = 0; j < platformDevices[i].second.size(); j++) {
+            cl::Device device = platformDevices[i].second[j];
+            oul::Context context = oul::opencl()->createContext(device, false);
+
+            int sizeX = 32;
+            int sizeY = 32;
+            unsigned char * data = new unsigned char[sizeX*sizeY]();
+            cl::Image2D image = cl::Image2D(
+                    context.getContext(),
+                    CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                    cl::ImageFormat(CL_R, CL_UNSIGNED_INT8),
+                    sizeX, sizeY,
+                    0,
+                    data
+            );
+            oul::HistogramPyramid2D hp(context);
+            INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
+            INFO("Platform: " << platformDevices[i].first.getInfo<CL_PLATFORM_NAME>());
+            CHECK_NOTHROW(hp.create(image, sizeX, sizeY));
+            delete[] data;
+        }
+    }
 }
 
 
 TEST_CASE("3D Histogram Pyramid create") {
-    oul::DeviceCriteria criteria;
-    criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
-    oul::Context context = oul::opencl()->createContext(criteria);
-    int sizeX = 32;
-    int sizeY = 32;
-    int sizeZ = 32;
-    unsigned char * data = new unsigned char[sizeX*sizeY*sizeZ]();
-    cl::Image3D image = cl::Image3D(
-            context.getContext(),
-            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-            cl::ImageFormat(CL_R, CL_UNSIGNED_INT8),
-            sizeX, sizeY, sizeZ,
-            0, 0,
-            data
-    );
-    delete[] data;
-    oul::HistogramPyramid3D hp(context);
-    CHECK_NOTHROW(hp.create(image, sizeX, sizeY, sizeZ));
+    oul::TestFixture fixture;
+    std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
+    // For every platform and every device:
+    for(int i = 0; i < platformDevices.size(); i++) {
+        for(int j = 0; j < platformDevices[i].second.size(); j++) {
+            cl::Device device = platformDevices[i].second[j];
+            oul::Context context = oul::opencl()->createContext(device, false);
+
+            // Check to see if the device has 3D texture writing capabilities
+            if(device.getInfo<CL_DEVICE_EXTENSIONS>().find("cl_khr_3d_image_writes") == std::string::npos)
+                continue;
+
+            int sizeX = 32;
+            int sizeY = 32;
+            int sizeZ = 32;
+            unsigned char * data = new unsigned char[sizeX*sizeY*sizeZ]();
+            cl::Image3D image = cl::Image3D(
+                    context.getContext(),
+                    CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                    cl::ImageFormat(CL_R, CL_UNSIGNED_INT8),
+                    sizeX, sizeY, sizeZ,
+                    0, 0,
+                    data
+            );
+            delete[] data;
+            oul::HistogramPyramid3D hp(context);
+            INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
+            INFO("Platform: " << platformDevices[i].first.getInfo<CL_PLATFORM_NAME>());
+            CHECK_NOTHROW(hp.create(image, sizeX, sizeY, sizeZ));
+        }
+    }
 }
 
 unsigned char * createRandomData(unsigned int size, unsigned int * sum) {
@@ -98,77 +132,109 @@ unsigned char * createRandomData(unsigned int size, unsigned int * sum) {
 }
 
 TEST_CASE("3D Histogram Pyramid Buffer Sum") {
-    oul::DeviceCriteria criteria;
-    criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
-    oul::Context context = oul::opencl()->createContext(criteria);
-    unsigned int sizeX = 64;
-    unsigned int sizeY = 64;
-    unsigned int sizeZ = 64;
-    unsigned int size = sizeX*sizeY*sizeZ;
-    unsigned int correctSum = 0;
-    unsigned char * data = createRandomData(size, &correctSum);
-    cl::Buffer buffer = cl::Buffer(
-            context.getContext(),
-            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-            sizeof(char)*size,
-            data
-    );
-    delete[] data;
-    oul::HistogramPyramid3DBuffer hp(context);
-    hp.create(buffer, sizeX, sizeY, sizeZ);
+    oul::TestFixture fixture;
+    std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
+    // For every platform and every device:
+    for(int i = 0; i < platformDevices.size(); i++) {
+        for(int j = 0; j < platformDevices[i].second.size(); j++) {
+            cl::Device device = platformDevices[i].second[j];
+            oul::Context context = oul::opencl()->createContext(device, false);
 
-    CHECK(hp.getSum() == correctSum);
+            unsigned int sizeX = 64;
+            unsigned int sizeY = 64;
+            unsigned int sizeZ = 64;
+            unsigned int size = sizeX*sizeY*sizeZ;
+            unsigned int correctSum = 0;
+            unsigned char * data = createRandomData(size, &correctSum);
+            cl::Buffer buffer = cl::Buffer(
+                    context.getContext(),
+                    CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                    sizeof(char)*size,
+                    data
+            );
+            delete[] data;
+            oul::HistogramPyramid3DBuffer hp(context);
+            hp.create(buffer, sizeX, sizeY, sizeZ);
+
+            INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
+            INFO("Platform: " << platformDevices[i].first.getInfo<CL_PLATFORM_NAME>());
+            CHECK(hp.getSum() == correctSum);
+        }
+    }
 }
 
 
 TEST_CASE("2D Histogram Pyramid Sum") {
-    oul::DeviceCriteria criteria;
-    criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
-    oul::Context context = oul::opencl()->createContext(criteria);
-    int sizeX = 64;
-    int sizeY = 64;
-    unsigned int correctSum = 0;
-    unsigned char * data = createRandomData(sizeX*sizeY, &correctSum);
+    oul::TestFixture fixture;
+    std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
+    // For every platform and every device:
+    for(int i = 0; i < platformDevices.size(); i++) {
+        for(int j = 0; j < platformDevices[i].second.size(); j++) {
+            cl::Device device = platformDevices[i].second[j];
+            oul::Context context = oul::opencl()->createContext(device, false);
 
-    cl::Image2D image = cl::Image2D(
-            context.getContext(),
-            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-            cl::ImageFormat(CL_R, CL_UNSIGNED_INT8),
-            sizeX, sizeY,
-            0,
-            data
-    );
-    delete[] data;
-    oul::HistogramPyramid2D hp(context);
-    hp.create(image, sizeX, sizeY);
+            int sizeX = 64;
+            int sizeY = 64;
+            unsigned int correctSum = 0;
+            unsigned char * data = createRandomData(sizeX*sizeY, &correctSum);
 
-    CHECK(hp.getSum() == correctSum);
+            cl::Image2D image = cl::Image2D(
+                    context.getContext(),
+                    CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                    cl::ImageFormat(CL_R, CL_UNSIGNED_INT8),
+                    sizeX, sizeY,
+                    0,
+                    data
+            );
+            delete[] data;
+            oul::HistogramPyramid2D hp(context);
+            hp.create(image, sizeX, sizeY);
+
+            INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
+            INFO("Platform: " << platformDevices[i].first.getInfo<CL_PLATFORM_NAME>());
+            CHECK(hp.getSum() == correctSum);
+        }
+    }
 }
 
 
 TEST_CASE("3D Histogram Pyramid Sum") {
-    oul::DeviceCriteria criteria;
-    criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
-    oul::Context context = oul::opencl()->createContext(criteria);
-    int sizeX = 64;
-    int sizeY = 64;
-    int sizeZ = 64;
-    unsigned int correctSum = 0;
-    unsigned char * data = createRandomData(sizeX*sizeY*sizeZ, &correctSum);
+    oul::TestFixture fixture;
+    std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
+    // For every platform and every device:
+    for(int i = 0; i < platformDevices.size(); i++) {
+        for(int j = 0; j < platformDevices[i].second.size(); j++) {
+            cl::Device device = platformDevices[i].second[j];
+            oul::Context context = oul::opencl()->createContext(device, false);
 
-    cl::Image3D image = cl::Image3D(
-            context.getContext(),
-            CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
-            cl::ImageFormat(CL_R, CL_UNSIGNED_INT8),
-            sizeX, sizeY, sizeZ,
-            0, 0,
-            data
-    );
-    delete[] data;
-    oul::HistogramPyramid3D hp(context);
-    hp.create(image, sizeX, sizeY, sizeZ);
+            // Check to see if the device has 3D texture writing capabilities
+            if(device.getInfo<CL_DEVICE_EXTENSIONS>().find("cl_khr_3d_image_writes") == std::string::npos)
+                continue;
 
-    CHECK(hp.getSum() == correctSum);
+
+            int sizeX = 64;
+            int sizeY = 64;
+            int sizeZ = 64;
+            unsigned int correctSum = 0;
+            unsigned char * data = createRandomData(sizeX*sizeY*sizeZ, &correctSum);
+
+            cl::Image3D image = cl::Image3D(
+                    context.getContext(),
+                    CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR,
+                    cl::ImageFormat(CL_R, CL_UNSIGNED_INT8),
+                    sizeX, sizeY, sizeZ,
+                    0, 0,
+                    data
+            );
+            delete[] data;
+            oul::HistogramPyramid3D hp(context);
+            hp.create(image, sizeX, sizeY, sizeZ);
+
+            INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
+            INFO("Platform: " << platformDevices[i].first.getInfo<CL_PLATFORM_NAME>());
+            CHECK(hp.getSum() == correctSum);
+        }
+    }
 }
 
 } // end namespace
