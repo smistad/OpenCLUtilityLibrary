@@ -49,7 +49,7 @@ cl_context_properties * OpenCLManager::createInteropContextProperties(const cl::
         CL_WGL_HDC_KHR,
         (cl_context_properties)wglGetCurrentDC(),
         CL_CONTEXT_PLATFORM,
-        (cl_context_properties)(platforms[j])(),
+        (cl_context_properties)(platform)(),
         0
     };
 #else
@@ -92,7 +92,7 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
         CL_WGL_HDC_KHR,
         (cl_context_properties)wglGetCurrentDC(),
         CL_CONTEXT_PLATFORM,
-        (cl_context_properties)(platforms[j])(),
+        (cl_context_properties)(platform)(),
         0
     };
     return false;
