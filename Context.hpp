@@ -12,7 +12,7 @@ namespace oul {
 class Context {
     public:
         Context() {garbageCollector = NULL;};
-        Context(std::vector<cl::Device> devices, bool OpenGLInterop);
+        Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext = NULL);
         int createProgramFromSource(std::string filename, std::string buildOptions = "");
         int createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions = "");
         int createProgramFromString(std::string code, std::string buildOptions = "");

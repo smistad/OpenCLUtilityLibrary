@@ -460,8 +460,9 @@ OpenCLManager::OpenCLManager() {
 
 Context OpenCLManager::createContext(
         std::vector<cl::Device> &devices,
-        bool OpenGLInterop) {
-    return Context(devices, OpenGLInterop);
+        unsigned long * OpenGLContext
+        ) {
+    return Context(devices, OpenGLContext);
 }
 
 /**
@@ -541,13 +542,11 @@ Context OpenCLManager::createContext(
 /**
  * This method finds a set of devices which satisfies the supplied device criteria and creates a context
  */
-Context OpenCLManager::createContext(const DeviceCriteria &deviceCriteria) {
+Context OpenCLManager::createContext(const DeviceCriteria &deviceCriteria, unsigned long * OpenGLContext) {
     std::vector<PlatformDevices> platformDevices = getDevices(deviceCriteria);
     std::vector<cl::Device> validDevices = getDevicesForBestPlatform(
             deviceCriteria, platformDevices);
-    return oul::Context(
-            validDevices,
-            deviceCriteria.hasCapabilityCriteria(DEVICE_CAPABILITY_OPENGL_INTEROP));
+    return oul::Context(validDevices,OpenGLContext);
 }
 
 void OpenCLManager::setDebugMode(bool mode) {
@@ -566,10 +565,10 @@ OpenCLManager* OpenCLManager::instance = NULL;
 bool OpenCLManager::debugMode = false;
 
 
-Context OpenCLManager::createContext(cl::Device device, bool OpenGLInterop) {
+Context OpenCLManager::createContext(cl::Device device, unsigned long * OpenGLContext) {
     std::vector<cl::Device> deviceVector;
     deviceVector.push_back(device);
-    return this->createContext(deviceVector, OpenGLInterop);
+    return this->createContext(deviceVector, OpenGLContext);
 }
 
 }                //namespace oul
