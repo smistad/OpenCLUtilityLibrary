@@ -17,7 +17,7 @@
 namespace oul
 {
 
-Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop) {
+Context::Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext) {
     this->garbageCollector = new GarbageCollector;
     this->devices = devices;
     // TODO: make sure that all devices have the same platform
@@ -27,7 +27,7 @@ Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop) {
     // TODO: must check that a OpenGL context and display is available
     // TODO: Use current context and display, or take this as input??
     cl_context_properties * cps;
-    if(OpenGLInterop) {
+    if(OpenGLContext != NULL) {
 #if defined(__APPLE__) || defined(__MACOSX)
         cps = createInteropContextProperties(
                 this->platform,
@@ -42,10 +42,13 @@ Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop) {
                 (cl_context_properties)wglGetCurrentDC()
         );
 #else
+        std::cout << "current glX context is " << OpenGLContext << std::endl;
+        Display * display = XOpenDisplay(0);
+        std::cout << "current display is " << display << std::endl;
         cps = createInteropContextProperties(
                 this->platform,
-                (cl_context_properties)glXGetCurrentContext(),
-                (cl_context_properties)glXGetCurrentDisplay()
+                (cl_context_properties)OpenGLContext,
+                (cl_context_properties)display
         );
 #endif
 #endif

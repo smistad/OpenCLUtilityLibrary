@@ -24,15 +24,15 @@ class OpenCLManager {
 
         Context createContext(
                 std::vector<cl::Device> &devices,
-                bool OpenGLInterop);
+                unsigned long * OpenGLContext = NULL);
         Context createContext(
                 cl::Device device,
-                bool OpenGLInterop);
+                unsigned long * OpenGLContext = NULL);
         Context createContext(
                 int argc,
                 char ** argv,
                 DeviceCriteria &defaultCriteria);
-        Context createContext(const DeviceCriteria &criteria);
+        Context createContext(const DeviceCriteria &criteria, unsigned long * OpenGLContext = NULL);
 
         std::vector<PlatformDevices> getDevices(const DeviceCriteria &criteria);
         std::vector<cl::Platform> getPlatforms(
