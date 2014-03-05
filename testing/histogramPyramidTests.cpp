@@ -17,7 +17,7 @@ TEST_CASE("Histogram Pyramid OpenCL code compiles") {
     std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
     // For every platform
     for(int i = 0; i < platformDevices.size(); i++) {
-        oul::Context context = oul::opencl()->createContext(platformDevices[i].second, false);
+        oul::Context context = oul::opencl()->createContext(platformDevices[i].second);
         INFO("Platform: " << platformDevices[i].first.getInfo<CL_PLATFORM_NAME>())
         CHECK_NOTHROW(compileCode(context));
     }
@@ -30,7 +30,7 @@ TEST_CASE("3D Histogram Pyramid Buffer create") {
     for(int i = 0; i < platformDevices.size(); i++) {
         for(int j = 0; j < platformDevices[i].second.size(); j++) {
             cl::Device device = platformDevices[i].second[j];
-            oul::Context context = oul::opencl()->createContext(device, false);
+            oul::Context context = oul::opencl()->createContext(device);
             int sizeX = 64;
             int sizeY = 64;
             int sizeZ = 64;
@@ -58,7 +58,7 @@ TEST_CASE("2D Histogram Pyramid create") {
     for(int i = 0; i < platformDevices.size(); i++) {
         for(int j = 0; j < platformDevices[i].second.size(); j++) {
             cl::Device device = platformDevices[i].second[j];
-            oul::Context context = oul::opencl()->createContext(device, false);
+            oul::Context context = oul::opencl()->createContext(device);
 
             int sizeX = 32;
             int sizeY = 32;
@@ -88,7 +88,7 @@ TEST_CASE("3D Histogram Pyramid create") {
     for(int i = 0; i < platformDevices.size(); i++) {
         for(int j = 0; j < platformDevices[i].second.size(); j++) {
             cl::Device device = platformDevices[i].second[j];
-            oul::Context context = oul::opencl()->createContext(device, false);
+            oul::Context context = oul::opencl()->createContext(device);
 
             // Check to see if the device has 3D texture writing capabilities
             if(device.getInfo<CL_DEVICE_EXTENSIONS>().find("cl_khr_3d_image_writes") == std::string::npos)
@@ -138,7 +138,7 @@ TEST_CASE("3D Histogram Pyramid Buffer Sum") {
     for(int i = 0; i < platformDevices.size(); i++) {
         for(int j = 0; j < platformDevices[i].second.size(); j++) {
             cl::Device device = platformDevices[i].second[j];
-            oul::Context context = oul::opencl()->createContext(device, false);
+            oul::Context context = oul::opencl()->createContext(device);
 
             unsigned int sizeX = 64;
             unsigned int sizeY = 64;
@@ -171,7 +171,7 @@ TEST_CASE("2D Histogram Pyramid Sum") {
     for(int i = 0; i < platformDevices.size(); i++) {
         for(int j = 0; j < platformDevices[i].second.size(); j++) {
             cl::Device device = platformDevices[i].second[j];
-            oul::Context context = oul::opencl()->createContext(device, false);
+            oul::Context context = oul::opencl()->createContext(device);
 
             int sizeX = 64;
             int sizeY = 64;
@@ -205,7 +205,7 @@ TEST_CASE("3D Histogram Pyramid Sum") {
     for(int i = 0; i < platformDevices.size(); i++) {
         for(int j = 0; j < platformDevices[i].second.size(); j++) {
             cl::Device device = platformDevices[i].second[j];
-            oul::Context context = oul::opencl()->createContext(device, false);
+            oul::Context context = oul::opencl()->createContext(device);
 
             // Check to see if the device has 3D texture writing capabilities
             if(device.getInfo<CL_DEVICE_EXTENSIONS>().find("cl_khr_3d_image_writes") == std::string::npos)
@@ -244,7 +244,7 @@ TEST_CASE("2D Histogram Pyramid create positions") {
     for(int i = 0; i < platformDevices.size(); i++) {
         for(int j = 0; j < platformDevices[i].second.size(); j++) {
             cl::Device device = platformDevices[i].second[j];
-            oul::Context context = oul::opencl()->createContext(device, false);
+            oul::Context context = oul::opencl()->createContext(device);
 
             int sizeX = 64;
             int sizeY = 64;
@@ -308,7 +308,7 @@ TEST_CASE("3D Histogram Pyramid create positions") {
     for(int i = 0; i < platformDevices.size(); i++) {
         for(int j = 0; j < platformDevices[i].second.size(); j++) {
             cl::Device device = platformDevices[i].second[j];
-            oul::Context context = oul::opencl()->createContext(device, false);
+            oul::Context context = oul::opencl()->createContext(device);
 
             // Check to see if the device has 3D texture writing capabilities
             if(device.getInfo<CL_DEVICE_EXTENSIONS>().find("cl_khr_3d_image_writes") == std::string::npos)
@@ -378,7 +378,7 @@ TEST_CASE("3D Histogram Pyramid Buffer create positions") {
     for(int i = 0; i < platformDevices.size(); i++) {
         for(int j = 0; j < platformDevices[i].second.size(); j++) {
             cl::Device device = platformDevices[i].second[j];
-            oul::Context context = oul::opencl()->createContext(device, false);
+            oul::Context context = oul::opencl()->createContext(device);
 
             int sizeX = 64;
             int sizeY = 64;
