@@ -4,6 +4,9 @@
 #include <string>
 #include "CL/OpenCL.hpp"
 
+/*
+ * A set of useful functions that are not dependent on any of the other objects
+ */
 namespace oul{
 
 cl::size_t<3> createRegion(unsigned int x, unsigned int y, unsigned int z);

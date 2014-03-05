@@ -1,11 +1,14 @@
 #ifndef HISTOGRAMPYRAMIDS_HPP_
 #define HISTOGRAMPYRAMIDS_HPP_
 
-#include "OpenCLManager.hpp"
+#include "Context.hpp"
 #include <vector>
 
 namespace oul {
 
+/**
+ * Abstract class for all HistogramPyramids
+ */
 class HistogramPyramid {
     public:
         static void compileCode(oul::Context &context);
@@ -18,6 +21,9 @@ class HistogramPyramid {
         int sum;
 };
 
+/**
+ * 2D Histogram pyramid
+ */
 class HistogramPyramid2D : public HistogramPyramid {
     public:
         HistogramPyramid2D(oul::Context &context);
@@ -29,6 +35,9 @@ class HistogramPyramid2D : public HistogramPyramid {
         std::vector<cl::Image2D> HPlevels;
 };
 
+/**
+ * 3D Histogram pyramid (that uses 3D textures)
+ */
 class HistogramPyramid3D : public HistogramPyramid {
     public:
         HistogramPyramid3D(oul::Context &context);
@@ -40,6 +49,9 @@ class HistogramPyramid3D : public HistogramPyramid {
         std::vector<cl::Image3D> HPlevels;
 };
 
+/**
+ * 3D Histogram pyramid (which uses buffers instead of textures)
+ */
 class HistogramPyramid3DBuffer : public HistogramPyramid {
     public:
         HistogramPyramid3DBuffer(oul::Context &context);

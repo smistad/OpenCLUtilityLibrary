@@ -24,7 +24,7 @@ class RuntimeMeasurement {
 };
 
 /**
- * Singleton class to keep track of different runtime measurements
+ * Singleton class to keep track of different runtime measurements.
  */
 class RuntimeMeasurementsManager {
     public:
