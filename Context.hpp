@@ -34,7 +34,6 @@ class Context {
         cl::Context getContext();
         cl::Platform getPlatform();
         GarbageCollector * getGarbageCollector();
-        ~Context() { if(garbageCollector != NULL) garbageCollector->deleteAllMemoryObjects(); };
     private:
         cl::Context context;
         std::vector<cl::CommandQueue> queues;
