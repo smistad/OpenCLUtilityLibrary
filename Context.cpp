@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include "HelperFunctions.hpp"
-#include "OpenCLManager.hpp"
 #include "RuntimeMeasurement.hpp"
 
 #if defined(__APPLE__) || defined(__MACOSX)
@@ -30,20 +29,20 @@ Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop) {
     cl_context_properties * cps;
     if(OpenGLInterop) {
 #if defined(__APPLE__) || defined(__MACOSX)
-        cps = OpenCLManager::createInteropContextProperties(
+        cps = createInteropContextProperties(
                 this->platform,
                 (cl_context_properties)CGLGetShareGroup(CGLGetCurrentContext()),
                 NULL
         );
 #else
 #ifdef _WIN32
-        cps = OpenCLManager::createInteropContextProperties(
+        cps = createInteropContextProperties(
                 this->platform,
                 (cl_context_properties)wglGetCurrentContext(),
                 (cl_context_properties)wglGetCurrentDC()
         );
 #else
-        cps = OpenCLManager::createInteropContextProperties(
+        cps = createInteropContextProperties(
                 this->platform,
                 (cl_context_properties)glXGetCurrentContext(),
                 (cl_context_properties)glXGetCurrentDisplay()

@@ -9,6 +9,11 @@
 
 namespace oul {
 
+/**
+ * This class holds an OpenCL context, with all of its queues and devices.
+ * Its main purpose is to be a class that can't be sent between different 
+ * functions and objects that does OpenCL processing.
+ */
 class Context {
     public:
         Context() {garbageCollector = NULL;};

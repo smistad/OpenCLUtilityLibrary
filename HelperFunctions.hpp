@@ -2,7 +2,7 @@
 #define HELPER_FUNCTIONS_HPP
 
 #include <string>
-#include "OpenCLManager.hpp"
+#include "CL/OpenCL.hpp"
 
 namespace oul{
 
@@ -12,6 +12,12 @@ cl::size_t<3> createOrigoRegion();
 std::string getCLErrorString(cl_int err);
 
 std::string readFile(std::string filename);
+
+cl_context_properties * createInteropContextProperties(
+        const cl::Platform &platform,
+        cl_context_properties OpenGLContext,
+        cl_context_properties display);
+
 
 }; // End namespace oul
 

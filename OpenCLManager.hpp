@@ -14,6 +14,8 @@ typedef std::pair<cl::Platform, std::vector<cl::Device> > PlatformDevices;
 
 /**
  * Singleton class which is used mainly for creating OpenCL contexts in an easy way
+ * In the long run this object will contain the state of OpenCL in an application.
+ * E.g. which devices are currently in use, how much memory is used etc.
  */
 class OpenCLManager {
     public:
@@ -47,10 +49,6 @@ class OpenCLManager {
                 const DeviceCriteria& deviceCriteria,
                std::vector<PlatformDevices> &platformDevices);
 
-        static cl_context_properties * createInteropContextProperties(
-                const cl::Platform &platform,
-                cl_context_properties OpenGLContext,
-                cl_context_properties display);
     private:
         OpenCLManager();
         std::vector<cl::Platform> platforms;

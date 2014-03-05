@@ -1,6 +1,7 @@
 #include "RuntimeMeasurement.hpp"
 #include <iostream>
 #include "HelperFunctions.hpp"
+#include "Exceptions.hpp"
 
 using namespace oul;
 RuntimeMeasurementsManager* RuntimeMeasurementsManager::instance = NULL;
