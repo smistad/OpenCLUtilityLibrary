@@ -11,7 +11,6 @@ void notify(cl_mem *, void * user_data) {
 
 int main() {
     oul::OpenCLManager * manager = oul::OpenCLManager::getInstance();
-    manager->setDebugMode(true);
     oul::DeviceCriteria criteria;
 
     // Select 1 GPU that is PREFERABLY not connected to the screen

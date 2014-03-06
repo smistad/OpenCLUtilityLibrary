@@ -23,6 +23,8 @@ include_directories(${OpenCLUtilityLibrary_INCLUDE_DIRS})
 set(SOURCE_FILES
     CL/cl.hpp
     CL/OpenCL.hpp
+    Reporter.hpp
+    Reporter.cpp
     Context.hpp
     Context.cpp
     DeviceCriteria.hpp

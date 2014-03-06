@@ -6,6 +6,7 @@
 #include "Context.hpp"
 #include "DeviceCriteria.hpp"
 #include "Exceptions.hpp"
+#include "Reporter.hpp"
 #include <utility>
 
 namespace oul {
@@ -38,10 +39,8 @@ class OpenCLManager {
         std::vector<cl::Platform> getPlatforms(
                 oul::DevicePlatform platformCriteria);
 
-        static void setDebugMode(bool mode);
-        static bool getDebugMode();
-        static bool deviceHasOpenGLInteropCapability(const cl::Device &device);
-        static bool devicePlatformMismatch(
+        bool deviceHasOpenGLInteropCapability(const cl::Device &device);
+        bool devicePlatformMismatch(
                 const cl::Device &device,
                 const cl::Platform &platform);
 
@@ -51,10 +50,6 @@ class OpenCLManager {
 
     private:
         OpenCLManager();
-        std::vector<cl::Platform> platforms;
-
-        static bool debugMode;
-        static OpenCLManager * instance;
 
         void sortDevicesAccordingToPreference(
                 int numberOfPlatforms,
@@ -63,9 +58,13 @@ class OpenCLManager {
                 DevicePreference preference,
                 std::vector<cl::Device> * sortedPlatformDevices,
                 int * platformScores);
-        static DevicePlatform getDevicePlatform(std::string platformVendor);
-        static std::string getDevicePlatform(DevicePlatform devicePlatform);
+        DevicePlatform getDevicePlatform(std::string platformVendor);
+        std::string getDevicePlatform(DevicePlatform devicePlatform);
 
+        std::vector<cl::Platform> platforms;
+        Reporter reporter;
+
+        static OpenCLManager * instance;
 };
 
 OpenCLManager* opencl(); //Shortcut for accessing the OpenCLManager
