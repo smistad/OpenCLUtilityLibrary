@@ -9,7 +9,7 @@ namespace test
 {
 
 void compileCode(oul::Context &context) {
-    context.createProgramFromSource(std::string(OUL_DIR)+"/HistogramPyramids.cl", "-I \"" + std::string(OUL_DIR) + "\"");
+	context.createProgramFromSource(std::string(OUL_DIR)+"/HistogramPyramids.cl", "-I " + std::string(OUL_DIR) + "");
 }
 
 TEST_CASE("Histogram Pyramid OpenCL code compiles") {
