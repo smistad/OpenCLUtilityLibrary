@@ -1,5 +1,7 @@
 #include "OpenCLManager.hpp"
+
 #include "Context.hpp"
+#include "HelperFunctions.hpp"
 #include <iostream>
 #include <algorithm>
 #include "HelperFunctions.hpp"
@@ -83,24 +85,16 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
     }
 
     cl_context_properties * cps = createInteropContextProperties(platform, (cl_context_properties)gl2Context, (cl_context_properties)display);
-    if (debugMode)
-        std::cout << "Current glX context is: " << cps[1] << std::endl;
 
     // check if any of these devices have the same cl_device_id as deviceID
     // Query which devices are associated with GL context
     cl_device_id cl_gl_device_ids[32];
     size_t returnSize = 0;
-    clGetGLContextInfoKHR_fn glGetGLContextInfo_func =
-            (clGetGLContextInfoKHR_fn) clGetExtensionFunctionAddress(
-                    "clGetGLContextInfoKHR");
-    glGetGLContextInfo_func(cps, CL_DEVICES_FOR_GL_CONTEXT_KHR,
-            32 * sizeof(cl_device_id), &cl_gl_device_ids, &returnSize);
+    clGetGLContextInfoKHR_fn glGetGLContextInfo_func = (clGetGLContextInfoKHR_fn) clGetExtensionFunctionAddress("clGetGLContextInfoKHR");
+    glGetGLContextInfo_func(cps, CL_DEVICES_FOR_GL_CONTEXT_KHR, 32 * sizeof(cl_device_id), &cl_gl_device_ids, &returnSize);
     delete[] cps;
 
-    if (debugMode)
-        std::cout << "There are " << returnSize / sizeof(cl_device_id)
-                  << " devices that can be associated with the GL context"
-                  << std::endl;
+    reporter.report("There are " + oul::number(returnSize / sizeof(cl_device_id)) + " devices that can be associated with the GL context", oul::INFO);
 
     bool found = false;
     for (int i = 0; i < returnSize / sizeof(cl_device_id); i++) {
@@ -168,14 +162,10 @@ void OpenCLManager::sortDevicesAccordingToPreference(
                 break;
             default:
                 // Do nothing
-                if (debugMode)
-                    std::cout << "No valid preference selected." << std::endl;
+                reporter.report("No valid preference selected.", oul::INFO);
                 break;
             }
-            if (debugMode) {
-                std::cout << "The device " << device.getInfo<CL_DEVICE_NAME>()
-                          << " got a score of " << das.score << std::endl;
-            }
+            reporter.report("The device "  +  device.getInfo<CL_DEVICE_NAME>() + " got a score of " + oul::number(das.score), oul::INFO);
             deviceScores.push_back(das);
         }
 
@@ -184,20 +174,14 @@ void OpenCLManager::sortDevicesAccordingToPreference(
 
         // put devices back to vector and calculate scores
         int platformScore = 0;
-        for (int j = 0;
-                j < std::min(maxNumberOfDevices,
-                        (int) platformDevices[i].second.size()); j++) {
+        for (int j = 0; j < std::min(maxNumberOfDevices, (int) platformDevices[i].second.size()); j++) {
             sortedPlatformDevices[i].push_back(deviceScores[j].device);
             platformScore += deviceScores[j].score;
         }
         platformScores[i] = platformScore;
 
-        if (debugMode) {
-            cl::Platform platform = sortedPlatformDevices[i][0].getInfo<
-            CL_DEVICE_PLATFORM>();
-            std::cout << "The platform " << platform.getInfo<CL_PLATFORM_NAME>()
-                      << " got a score of " << platformScore << std::endl;
-        }
+		cl::Platform platform = sortedPlatformDevices[i][0].getInfo<CL_DEVICE_PLATFORM>();
+		reporter.report("The platform " + platform.getInfo<CL_PLATFORM_NAME>() + " got a score of " + oul::number(platformScore), oul::INFO);
     }
 }
 
@@ -249,14 +233,12 @@ std::vector<cl::Device> OpenCLManager::getDevicesForBestPlatform(
             // In this case, the Intel platform would be preferred.
             devicePlatformVendorMismatch[i] = devicePlatformMismatch(
                     platformDevices[i].second[j], platformDevices[i].first);
-            if (debugMode && devicePlatformVendorMismatch[i])
-                std::cout << "A device-platform mismatch was detected."
-                          << std::endl;
+            if (devicePlatformVendorMismatch[i])
+            	reporter.report("A device-platform mismatch was detected.", oul::INFO);
         }
     }
 
-    std::vector<cl::Device>* sortedPlatformDevices =
-            new std::vector<cl::Device>[platformDevices.size()];
+    std::vector<cl::Device>* sortedPlatformDevices = new std::vector<cl::Device>[platformDevices.size()];
     int* platformScores = new int[platformDevices.size()]();
     if (deviceCriteria.getDevicePreference() == DEVICE_PREFERENCE_NONE) {
         for(int i = 0; i < platformDevices.size(); i++) {
@@ -299,22 +281,12 @@ std::vector<cl::Device> OpenCLManager::getDevicesForBestPlatform(
         for (int i = 0; i < sortedPlatformDevices[bestPlatform].size(); i++) {
             validDevices.push_back(sortedPlatformDevices[bestPlatform][i]);
         }
-        if (debugMode) {
-            std::cout
-                    << "The platform "
-                    << platformDevices[bestPlatform].first.getInfo<CL_PLATFORM_NAME>()
-                    << " was selected as the best platform." << std::endl;
-            std::cout
-                    << "A total of "
-                    << sortedPlatformDevices[bestPlatform].size()
-                    << " devices were selected for the context from this platform:"
-                    << std::endl;
-            for (int i = 0; i < validDevices.size(); i++) {
-                std::cout << "Device " << i << ": "
-                          << validDevices[i].getInfo<CL_DEVICE_NAME>()
-                          << std::endl;
-            }
-        }
+		reporter.report("The platform " + platformDevices[bestPlatform].first.getInfo<CL_PLATFORM_NAME>() + " was selected as the best platform.", oul::INFO);
+		reporter.report("A total of " + oul::number(sortedPlatformDevices[bestPlatform].size()) + " devices were selected for the context from this platform:", oul::INFO);
+
+		for (int i = 0; i < validDevices.size(); i++) {
+			reporter.report("Device " + oul::number(i) + ": " + validDevices[i].getInfo<CL_DEVICE_NAME>(), oul::INFO);
+		}
     }
     delete[] sortedPlatformDevices;
     return validDevices;
@@ -326,58 +298,42 @@ std::vector<PlatformDevices> OpenCLManager::getDevices(
     if (platforms.size() == 0)
         throw NoPlatformsInstalledException();
 
-    if (debugMode)
-        std::cout << "Found " << platforms.size() << " OpenCL platforms."
-                  << std::endl;
+    reporter.report("Found " + oul::number(platforms.size()) + " OpenCL platforms.", oul::INFO);
 
     // First, get all the platforms that fit the platform criteria
-    std::vector<cl::Platform> validPlatforms = this->getPlatforms(
-            deviceCriteria.getPlatformCriteria());
-
-    if (debugMode)
-        std::cout << validPlatforms.size()
-                  << " platforms selected for inspection." << std::endl;
+    std::vector<cl::Platform> validPlatforms = this->getPlatforms(deviceCriteria.getPlatformCriteria());
+    reporter.report(oul::number(validPlatforms.size()) + " platforms selected for inspection.", oul::INFO);
 
     // Create a vector of devices for each platform
     std::vector<PlatformDevices> platformDevices;
     for (int i = 0; i < validPlatforms.size(); i++) {
-        if (debugMode)
-            std::cout << "Platform " << i << ": "
-                      << validPlatforms[i].getInfo<CL_PLATFORM_VENDOR>()
-                      << std::endl;
+    	reporter.report("Platform " + oul::number(i) + ": " +  validPlatforms[i].getInfo<CL_PLATFORM_VENDOR>(), oul::INFO);
+
         // Next, get all devices of correct type for each of those platforms
         std::vector<cl::Device> devices;
         cl_device_type deviceType;
         if (deviceCriteria.getTypeCriteria() == DEVICE_TYPE_ANY) {
             deviceType = CL_DEVICE_TYPE_ALL;
-            if (debugMode)
-                std::cout << "Looking for all types of devices." << std::endl;
+            reporter.report("Looking for all types of devices.", oul::INFO);
         } else if (deviceCriteria.getTypeCriteria() == DEVICE_TYPE_GPU) {
             deviceType = CL_DEVICE_TYPE_GPU;
-            if (debugMode)
-                std::cout << "Looking for GPU devices only." << std::endl;
+            reporter.report("Looking for GPU devices only.", oul::INFO);
         } else if (deviceCriteria.getTypeCriteria() == DEVICE_TYPE_CPU) {
             deviceType = CL_DEVICE_TYPE_CPU;
-            if (debugMode)
-                std::cout << "Looking for CPU devices only." << std::endl;
+            reporter.report("Looking for CPU devices only.", oul::INFO);
         }
         try {
             validPlatforms[i].getDevices(deviceType, &devices);
         } catch (cl::Error &error) {
             // Do nothing?
         }
-        if (debugMode)
-            std::cout << devices.size() << " devices found for this platform."
-                      << std::endl;
+        reporter.report(oul::number(devices.size()) + " devices found for this platform.", oul::INFO);
 
         // Go through each device and see if they have the correct capabilities (if any)
         std::vector<cl::Device> acceptedDevices;
         for (int j = 0; j < devices.size(); j++) {
-            if (debugMode)
-                std::cout << "Inspecting device " << j << " with the name "
-                          << devices[j].getInfo<CL_DEVICE_NAME>() << std::endl;
-            std::vector<DeviceCapability> capabilityCriteria =
-                    deviceCriteria.getCapabilityCriteria();
+        	reporter.report("Inspecting device " + oul::number(j) + " with the name " + devices[j].getInfo<CL_DEVICE_NAME>(), oul::INFO);
+            std::vector<DeviceCapability> capabilityCriteria = deviceCriteria.getCapabilityCriteria();
             bool accepted = true;
             for (int k = 0; k < capabilityCriteria.size(); k++) {
                 if (capabilityCriteria[k] == DEVICE_CAPABILITY_OPENGL_INTEROP) {
@@ -386,15 +342,13 @@ std::vector<PlatformDevices> OpenCLManager::getDevices(
                 }
             }
             if (accepted) {
-                if (debugMode)
-                    std::cout << "The device was accepted." << std::endl;
+            	reporter.report("The device was accepted.", oul::INFO);
                 acceptedDevices.push_back(devices[j]);
             }
         }
         if(acceptedDevices.size() > 0)
             platformDevices.push_back(std::make_pair(validPlatforms[i], acceptedDevices));
     }
-
 
     return platformDevices;
 }
@@ -419,13 +373,10 @@ std::vector<cl::Platform> OpenCLManager::getPlatforms(
 }
 
 OpenCLManager::OpenCLManager() {
-    debugMode = false;
     cl::Platform::get(&platforms);
 }
 
-Context OpenCLManager::createContext(
-        std::vector<cl::Device> &devices,
-        bool OpenGLInterop) {
+Context OpenCLManager::createContext(std::vector<cl::Device> &devices, bool OpenGLInterop) {
     return Context(devices, OpenGLInterop);
 }
 
@@ -515,20 +466,11 @@ Context OpenCLManager::createContext(const DeviceCriteria &deviceCriteria) {
             deviceCriteria.hasCapabilityCriteria(DEVICE_CAPABILITY_OPENGL_INTEROP));
 }
 
-void OpenCLManager::setDebugMode(bool mode) {
-    debugMode = mode;
-}
-
-bool OpenCLManager::getDebugMode() {
-    return debugMode;
-}
-
 OpenCLManager* opencl() {
     return OpenCLManager::getInstance();
 }
 
 OpenCLManager* OpenCLManager::instance = NULL;
-bool OpenCLManager::debugMode = false;
 
 
 Context OpenCLManager::createContext(cl::Device device, bool OpenGLInterop) {

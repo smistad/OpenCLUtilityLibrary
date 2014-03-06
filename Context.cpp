@@ -17,8 +17,24 @@
 namespace oul
 {
 
+void CL_CALLBACK memoryDestructorCallback(cl_mem memobj, void* user_data)
+{
+	std::string* data_pointer = static_cast<std::string*>(user_data);
+	std::string data = *data_pointer;
+	Reporter r;
+	r.report("Memory destructor callback: " + data, oul::INFO);
+}
+
+void CL_CALLBACK contextCallback(const char *errinfo, const void *private_info, size_t cb, void *user_data)
+{
+	Reporter r;
+	r.report("Context callback:\n " + std::string(errinfo), oul::ERROR);
+}
+
+
 Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop) {
-    this->garbageCollector = new GarbageCollector;
+	this->garbageCollector = new GarbageCollector;
+
     this->devices = devices;
     // TODO: make sure that all devices have the same platform
     this->platform = devices[0].getInfo<CL_DEVICE_PLATFORM>();
@@ -55,7 +71,7 @@ Context::Context(std::vector<cl::Device> devices, bool OpenGLInterop) {
         cps[1] = (cl_context_properties)(platform)();
         cps[2] = 0;
     }
-    this->context = cl::Context(devices,cps);
+    this->context = cl::Context(devices,cps,contextCallback);
     delete[] cps;
 
     // Create a command queue for each device
@@ -127,7 +143,6 @@ GarbageCollector * Context::getGarbageCollector() {
 }
 
 cl::Program Context::buildSources(cl::Program::Sources source, std::string buildOptions) {
-
     // Make program of the source code in the context
     cl::Program program = cl::Program(context, source);
 
@@ -196,6 +211,68 @@ cl::Program Context::getProgram(std::string name) {
 
 bool Context::hasProgram(std::string name) {
     return programNames.count(name) > 0;
+}
+
+cl::Kernel Context::createKernel(cl::Program program, std::string kernel_name)
+{
+	cl::Kernel kernel;
+
+	try
+	{
+		kernel = cl::Kernel(program, kernel_name.c_str(), NULL);
+		reporter.report("Created kernel with name "+std::string(kernel_name), oul::INFO);
+	}
+	catch(cl::Error &error)
+	{
+		reporter.report("Could not create kernel. Reason:"+std::string(error.what()), oul::ERROR);
+		reporter.report(getCLErrorString(error.err()), oul::ERROR);
+	}
+
+	return kernel;
+}
+
+void Context::executeKernel(cl::CommandQueue queue, cl::Kernel kernel, size_t global_work_size, size_t local_work_size)
+{
+	reporter.report("Executing kernel", oul::INFO);
+	try
+	{
+		queue.enqueueNDRangeKernel(kernel, 0, global_work_size, local_work_size, NULL, NULL);
+		queue.finish();
+	} catch (cl::Error &error)
+	{
+		reporter.report("Could not execute kernel(s). Reason: "+std::string(error.what()), oul::ERROR);
+		reporter.report(getCLErrorString(error.err()), oul::ERROR);
+	}
+}
+
+cl::Buffer Context::createBuffer(cl::Context context, cl_mem_flags flags, size_t size, void * host_data, std::string bufferName)
+{
+	cl::Buffer dev_mem;
+	try
+	{
+		if (host_data != NULL)
+			flags |= CL_MEM_COPY_HOST_PTR;
+		dev_mem = cl::Buffer(context, flags, size, host_data, NULL);
+		dev_mem.setDestructorCallback(memoryDestructorCallback, static_cast<void*>(new std::string(bufferName)));
+	} catch (cl::Error &error)
+	{
+		reporter.report("Could not create a OpenCL buffer queue. Reason: "+std::string(error.what()), oul::ERROR);
+		reporter.report(getCLErrorString(error.err()), oul::ERROR);
+		throw;
+	}
+	return dev_mem;
+}
+
+void Context::readBuffer(cl::CommandQueue queue, cl::Buffer outputBuffer, size_t outputVolumeSize, void *outputData)
+{
+	try
+	{
+		queue.enqueueReadBuffer(outputBuffer, CL_TRUE, 0, outputVolumeSize, outputData, 0, 0);
+	} catch (cl::Error &error)
+	{
+		reporter.report("Could not read output volume buffer from OpenCL. Reason: "+std::string(error.what()), oul::ERROR);
+		reporter.report(getCLErrorString(error.err()), oul::ERROR);
+	}
 }
 
 } //namespace oul
