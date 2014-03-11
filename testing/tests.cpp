@@ -10,13 +10,13 @@ TEST_CASE("Can create instance of the manager","[oul][OpenCL]"){
 }
 
 TEST_CASE("Can create a Context with default DeviceCriteria","[oul][OpenCL]"){
-    oul::DeviceCriteria criteria;
+    oul::DeviceCriteria criteria = oul::TestFixture::getDefaultDeviceCriteria();
     oul::Context context;
     CHECK_NOTHROW(context = oul::opencl()->createContext(criteria));
 }
 
 TEST_CASE("OpenCL platform(s) installed","[oul][OpenCL]"){
-    oul::DeviceCriteria criteria;
+    oul::DeviceCriteria criteria = oul::TestFixture::getDefaultDeviceCriteria();
 
     CHECK(oul::opencl()->getPlatforms(oul::DEVICE_PLATFORM_ANY).size() != 0);
 }
@@ -66,8 +66,7 @@ TEST_CASE("Default construction gives expected values","[oul][OpenCL]"){
 //TODO make a better test for the devicePlatformMismatch function...
 TEST_CASE("Check for device and platform mismatch","[oul][OpenCL]"){
     oul::TestFixture fixture;
-    oul::Context context = oul::opencl()->createContext(oul::DeviceCriteria());
-
+    oul::Context context = oul::opencl()->createContext(oul::TestFixture::getDefaultDeviceCriteria());
     bool mismatch = oul::opencl()->devicePlatformMismatch(context.getDevice(0), context.getPlatform());
 
 #if defined(__APPLE__) || defined(__MACOSX)
@@ -79,7 +78,7 @@ TEST_CASE("Check for device and platform mismatch","[oul][OpenCL]"){
 
 TEST_CASE("Can run simple kernel from string","[oul][OpenCL]"){
     oul::TestFixture fixture;
-    oul::Context context = oul::opencl()->createContext(oul::DeviceCriteria());
+    oul::Context context = oul::opencl()->createContext(oul::TestFixture::getDefaultDeviceCriteria());
     CHECK_NOTHROW(fixture.canRunCodeFromString(context, fixture.getTestCode(), "test"));
 }
 
@@ -90,37 +89,37 @@ TEST_CASE("Can read TestKernels.cl", "[oul]"){
 
 TEST_CASE("Can create a program from file","[oul][OpenCL]"){
     oul::TestFixture fixture;
-    oul::Context context = oul::opencl()->createContext(oul::DeviceCriteria());
+    oul::Context context = oul::opencl()->createContext(oul::TestFixture::getDefaultDeviceCriteria());
     CHECK_NOTHROW(fixture.canRunCodeFromFile(context, "test_one"));
 }
 
-TEST_CASE("Can initialize OpenCL using GPU", "[oul][OpenCL]")
-{
+TEST_CASE("Can initialize OpenCL using GPU", "[oul][OpenCL]"){
 	oul::TestFixture fixture;
-	oul::DeviceCriteria criteria;
-	criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
+	oul::DeviceCriteria criteria = oul::TestFixture::getGPUDeviceCriteria();
 	CHECK_NOTHROW(oul::opencl()->createContext(criteria););
 }
 
-TEST_CASE("Can create a small global OpenCL buffer using GPU context", "[oul][OpenCL]")
-{
+TEST_CASE("Can create a small global OpenCL buffer using GPU context", "[oul][OpenCL]"){
 	oul::TestFixture fixture;
-	oul::DeviceCriteria criteria;
-	criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
+	oul::DeviceCriteria criteria = oul::TestFixture::getGPUDeviceCriteria();
 	oul::Context opencl = oul::opencl()->createContext(criteria);
 
 	size_t size = sizeof(cl_char);
-	cl::Buffer buffer = opencl.createBuffer(opencl.getContext(), CL_MEM_READ_WRITE, size, NULL, "global test buffer");
+	CHECK_NOTHROW(opencl.createBuffer(opencl.getContext(), CL_MEM_READ_WRITE, size, NULL, "global test buffer"));
 }
 
-TEST_CASE("Can create a small kernel, build a program and run it on a GPU", "[oul][OpenCL]")
-{
+TEST_CASE("Can create a small kernel, build a program and run it on a GPU", "[oul][OpenCL]"){
 	oul::TestFixture fixture;
-	oul::DeviceCriteria criteria;
-	criteria.setTypeCriteria(oul::DEVICE_TYPE_GPU);
-	oul::Context context = oul::opencl()->createContext(oul::DeviceCriteria());
+	oul::DeviceCriteria criteria = oul::TestFixture::getGPUDeviceCriteria();
+	oul::Context context = oul::opencl()->createContext(criteria);
 	CHECK_NOTHROW(fixture.canRunCodeFromString(context, fixture.getTestCode(), "test"));
 }
+
+TEST_CASE("Can write to buffer and read the data back", "[oul][OpenCL]"){
+	oul::TestFixture fixture;
+	CHECK_NOTHROW(fixture.canWriteToBufferAndReadItBack());
+}
+
 
 
 }//namespace test

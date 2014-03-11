@@ -18,6 +18,22 @@ TestFixture::~TestFixture(){
 	opencl()->shutdown();
 }
 
+DeviceCriteria TestFixture::getDefaultDeviceCriteria(){
+	return DeviceCriteria();
+}
+
+DeviceCriteria TestFixture::getCPUDeviceCriteria(){
+	DeviceCriteria retval = TestFixture::getDefaultDeviceCriteria();
+	retval.setTypeCriteria(DEVICE_TYPE_CPU);
+	return retval;
+}
+
+DeviceCriteria TestFixture::getGPUDeviceCriteria(){
+	DeviceCriteria retval = TestFixture::getDefaultDeviceCriteria();
+	retval.setTypeCriteria(DEVICE_TYPE_GPU);
+	return retval;
+}
+
 std::string TestFixture::getTestCode(){
     return "__kernel void test(void){size_t id = get_global_id(0);}";
 }
@@ -74,5 +90,26 @@ void TestFixture::canRunProgramOnQueue(cl::Program program, cl::CommandQueue que
     queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(4,1,1));
     queue.finish();
 }
+
+void TestFixture::canWriteToBufferAndReadItBack(){
+	oul::Context context = oul::opencl()->createContext(getGPUDeviceCriteria());
+
+	char buffer_input_data[] = "data to fill the buffer with";
+	int size = sizeof(buffer_input_data);
+	char buffer_output_data[size];
+
+	cl::Buffer buffer = context.createBuffer(context.getContext(), CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, size, buffer_input_data, "canWriteToBufferAndReadItBack");
+
+	int queueNumber = 0;
+	context.getQueue(queueNumber).enqueueWriteBuffer(buffer, CL_TRUE, 0, size, buffer_input_data, 0, 0);
+	context.getQueue(queueNumber).enqueueReadBuffer(buffer, CL_TRUE, 0, size, buffer_output_data, 0, 0);
+
+	std::string input_string(buffer_input_data);
+	std::string output_string(buffer_output_data);
+	std::string error_msg = "Did not get back the same data as was written to the buffer";
+	if(input_string != output_string)
+	 throw oul::Exception(error_msg.c_str());
+}
+
 
 } /* namespace oul */

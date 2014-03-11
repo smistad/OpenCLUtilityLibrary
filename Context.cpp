@@ -229,6 +229,7 @@ cl::Kernel Context::createKernel(cl::Program program, std::string kernel_name)
 	{
 		reporter.report("Could not create kernel. Reason:"+std::string(error.what()), oul::ERROR);
 		reporter.report(getCLErrorString(error.err()), oul::ERROR);
+		throw;
 	}
 
 	return kernel;
@@ -245,6 +246,7 @@ void Context::executeKernel(cl::CommandQueue queue, cl::Kernel kernel, size_t gl
 	{
 		reporter.report("Could not execute kernel(s). Reason: "+std::string(error.what()), oul::ERROR);
 		reporter.report(getCLErrorString(error.err()), oul::ERROR);
+		throw;
 	}
 }
 
@@ -275,6 +277,7 @@ void Context::readBuffer(cl::CommandQueue queue, cl::Buffer outputBuffer, size_t
 	{
 		reporter.report("Could not read output volume buffer from OpenCL. Reason: "+std::string(error.what()), oul::ERROR);
 		reporter.report(getCLErrorString(error.err()), oul::ERROR);
+		throw;
 	}
 }
 

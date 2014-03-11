@@ -21,8 +21,13 @@ public:
 	TestFixture();
 	~TestFixture();
 
+	static DeviceCriteria getDefaultDeviceCriteria();
+	static DeviceCriteria getCPUDeviceCriteria();
+	static DeviceCriteria getGPUDeviceCriteria();
+
 	//will not throw exceptions
 	std::string getTestCode();
+	oul::Context getContext();
 
 	std::vector<oul::PlatformDevices> getDevices(oul::DeviceType type);
 	std::vector<oul::PlatformDevices> getCPUDevices();
@@ -38,10 +43,10 @@ public:
 	void canRunCodeFromString(oul::Context context, std::string source, std::string kernel_name);
 	void canRunCodeFromFile(oul::Context context, std::string kernel_name);
 	void canRunProgramOnQueue(cl::Program program, cl::CommandQueue queue, std::string kernel_name);
+	void canWriteToBufferAndReadItBack();
 
 private:
 	std::string test_kernels;
-
 };
 
 } /* namespace oul */
