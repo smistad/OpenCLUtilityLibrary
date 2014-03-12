@@ -35,7 +35,7 @@ DeviceCriteria TestFixture::getGPUDeviceCriteria(){
 }
 
 std::string TestFixture::getTestCode(){
-    return "__kernel void test(void){size_t id = get_global_id(0);}";
+    return "__kernel void test(void){size_t id = get_global_id(0); id++;}";
 }
 
 std::vector<oul::PlatformDevices> TestFixture::getDevices(oul::DeviceType type){
