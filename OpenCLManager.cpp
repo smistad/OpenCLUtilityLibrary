@@ -378,9 +378,10 @@ OpenCLManager::OpenCLManager() {
 
 Context OpenCLManager::createContext(
         std::vector<cl::Device> &devices,
-        unsigned long * OpenGLContext
+        unsigned long * OpenGLContext,
+        bool enableProfiling
         ) {
-    return Context(devices, OpenGLContext);
+    return Context(devices, OpenGLContext, enableProfiling);
 }
 
 /**
@@ -460,11 +461,11 @@ Context OpenCLManager::createContext(
 /**
  * This method finds a set of devices which satisfies the supplied device criteria and creates a context
  */
-Context OpenCLManager::createContext(const DeviceCriteria &deviceCriteria, unsigned long * OpenGLContext) {
+Context OpenCLManager::createContext(const DeviceCriteria &deviceCriteria, unsigned long * OpenGLContext, bool enableProfiling) {
     std::vector<PlatformDevices> platformDevices = getDevices(deviceCriteria);
     std::vector<cl::Device> validDevices = getDevicesForBestPlatform(
             deviceCriteria, platformDevices);
-    return oul::Context(validDevices,OpenGLContext);
+    return oul::Context(validDevices, OpenGLContext, enableProfiling);
 }
 
 OpenCLManager* opencl() {
@@ -474,10 +475,10 @@ OpenCLManager* opencl() {
 OpenCLManager* OpenCLManager::instance = NULL;
 
 
-Context OpenCLManager::createContext(cl::Device device, unsigned long * OpenGLContext) {
+Context OpenCLManager::createContext(cl::Device device, unsigned long * OpenGLContext, bool enableProfiling) {
     std::vector<cl::Device> deviceVector;
     deviceVector.push_back(device);
-    return this->createContext(deviceVector, OpenGLContext);
+    return this->createContext(deviceVector, OpenGLContext, enableProfiling);
 }
 
 }                //namespace oul

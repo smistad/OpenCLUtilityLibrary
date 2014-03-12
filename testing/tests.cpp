@@ -2,7 +2,7 @@
 
 #include "TestFixture.hpp"
 #include "OpenCLManager.hpp"
-#include "RuntimeMeasurement.hpp"
+#include "RuntimeMeasurementManager.hpp"
 
 namespace test
 {
@@ -122,23 +122,22 @@ TEST_CASE("Can write to buffer and read the data back", "[oul][OpenCL]"){
 }
 
 TEST_CASE("Can run profiling on simple test code", "[oul][OpenCL][profiling]"){
-	oul::RuntimeMeasurementsManager* runtime = oul::RuntimeMeasurementsManager::getInstance();
-	runtime->enable();
 
 	oul::TestFixture fixture;
 	oul::DeviceCriteria criteria = oul::TestFixture::getGPUDeviceCriteria();
-	oul::Context context = oul::opencl()->createContext(criteria);
+	bool enableProfiling = true;
+	oul::Context context = oul::opencl()->createContext(criteria, NULL, enableProfiling);
 	int programID = context.createProgramFromString(fixture.getTestCode(), "");
 	cl::Program program = context.getProgram(programID);
 	cl::CommandQueue queue = context.getQueue(0); //getQueueForDevice(device)?
 
+	oul::RuntimeMeasurementsManagerPtr runtime = context.getRunTimeMeasurementManager();
+	runtime->enable();
 	runtime->startCLTimer("time", queue);
 	CHECK_NOTHROW(fixture.canRunProgramOnQueue(program, queue, "test"));
 	runtime->stopCLTimer("time", queue);
 
 	runtime->printAll();
-
-	runtime->disable(); //needed to reset state of the runtimemessurmentmanager
 }
 
 

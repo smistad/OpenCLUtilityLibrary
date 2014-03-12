@@ -32,7 +32,10 @@ void CL_CALLBACK contextCallback(const char *errinfo, const void *private_info, 
 }
 
 
-Context::Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext) {
+Context::Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext, bool enableProfiling) :
+		profilingEnabled(enableProfiling),
+		runtimeManager(new RuntimeMeasurementsManager())
+	{
     this->garbageCollector = new GarbageCollector;
 
     this->devices = devices;
@@ -79,7 +82,7 @@ Context::Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext)
 
     // Create a command queue for each device
     for(int i = 0; i < devices.size(); i++) {
-        if(oul::RuntimeMeasurementsManager::isEnabled()) {
+        if(profilingEnabled) {
             this->queues.push_back(cl::CommandQueue(context, devices[i], CL_QUEUE_PROFILING_ENABLE));
         } else {
             this->queues.push_back(cl::CommandQueue(context, devices[i]));
@@ -164,6 +167,10 @@ cl::Program Context::buildSources(cl::Program::Sources source, std::string build
         throw error;
     }
     return program;
+}
+
+RuntimeMeasurementsManagerPtr Context::getRunTimeMeasurementManager(){
+	return runtimeManager;
 }
 
 

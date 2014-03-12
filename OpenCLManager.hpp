@@ -25,15 +25,15 @@ class OpenCLManager {
 
         Context createContext(
                 std::vector<cl::Device> &devices,
-                unsigned long * OpenGLContext = NULL);
+                unsigned long * OpenGLContext = NULL, bool enableProfiling = false);
         Context createContext(
                 cl::Device device,
-                unsigned long * OpenGLContext = NULL);
+                unsigned long * OpenGLContext = NULL, bool enableProfiling = false);
         Context createContext(
                 int argc,
                 char ** argv,
                 DeviceCriteria &defaultCriteria);
-        Context createContext(const DeviceCriteria &criteria, unsigned long * OpenGLContext = NULL);
+        Context createContext(const DeviceCriteria &criteria, unsigned long * OpenGLContext = NULL, bool enableProfiling = false);
 
         std::vector<PlatformDevices> getDevices(const DeviceCriteria &criteria);
         std::vector<cl::Platform> getPlatforms(

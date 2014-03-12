@@ -43,6 +43,8 @@ set(SOURCE_FILES
     OpenCLManager.cpp
     RuntimeMeasurement.hpp
     RuntimeMeasurement.cpp
+    RuntimeMeasurementManager.hpp
+    RuntimeMeasurementManager.cpp
 )
 
 set(OpenCLUtilityLibrary_LINK_LIBRARIES

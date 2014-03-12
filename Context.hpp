@@ -7,6 +7,7 @@
 #include "Exceptions.hpp"
 #include "GarbageCollector.hpp"
 #include "Reporter.hpp"
+#include "RuntimeMeasurementManager.hpp"
 
 namespace oul {
 
@@ -19,7 +20,7 @@ class Context {
 
 public:
 	Context() {garbageCollector = NULL;};
-	Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext);
+	Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext, bool enableProfiling = false);
 
 	int createProgramFromSource(std::string filename, std::string buildOptions = "");
 	int createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions = "");
@@ -44,6 +45,7 @@ public:
 	cl::Context getContext();
 	cl::Platform getPlatform();
 	GarbageCollector * getGarbageCollector();
+	RuntimeMeasurementsManagerPtr getRunTimeMeasurementManager();
 
 private:
 	cl::Program buildSources(cl::Program::Sources source, std::string buildOptions);
@@ -56,6 +58,9 @@ private:
 	std::vector<cl::Device> devices;
 	cl::Platform platform;
 	GarbageCollector * garbageCollector;
+
+	bool profilingEnabled;
+	RuntimeMeasurementsManagerPtr runtimeManager;
 };
 
 };
