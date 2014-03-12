@@ -6,18 +6,20 @@ option(BUILD_TESTS "Build tests." ON)
 option(BUILD_EXAMPLES "Build examples." ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake)
+find_package( Boost REQUIRED )
 find_package( OpenCL REQUIRED )
 find_package( OpenGL REQUIRED )
 
 set(OpenCLUtilityLibrary_INCLUDE_DIRS
     ${OpenCLUtilityLibrary_SOURCE_DIR}
     ${OpenCLUtilityLibrary_SOURCE_DIR}/CL
+    ${Boost_INCLUDE_DIRS}
     ${OPENCL_INCLUDE_DIRS}
     ${OPENGL_INCLUDE_DIR}
     ${OpenCLUtilityLibrary_BINARY_DIR}
 )
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g") # generate debug information
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g") # generate debug information
 include_directories(${OpenCLUtilityLibrary_INCLUDE_DIRS})
 
 set(SOURCE_FILES
@@ -44,6 +46,7 @@ set(SOURCE_FILES
 )
 
 set(OpenCLUtilityLibrary_LINK_LIBRARIES
+    ${BOOST_LIBRARIES}
     ${OPENCL_LIBRARIES}
     ${OPENGL_LIBRARIES}
 )
