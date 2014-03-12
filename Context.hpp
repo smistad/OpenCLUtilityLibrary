@@ -42,6 +42,7 @@ public:
 
 	cl::CommandQueue getQueue(unsigned int i);
 	cl::Device getDevice(unsigned int i);
+	cl::Device getDevice(cl::CommandQueue);
 	cl::Context getContext();
 	cl::Platform getPlatform();
 	GarbageCollector * getGarbageCollector();

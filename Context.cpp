@@ -132,8 +132,13 @@ cl::CommandQueue Context::getQueue(unsigned int i) {
     return queues[i];
 }
 
+
 cl::Device Context::getDevice(unsigned int i) {
     return devices[i];
+}
+
+cl::Device getDevice(cl::CommandQueue queue){
+	return queue.getInfo<CL_QUEUE_DEVICE>();
 }
 
 cl::Context Context::getContext() {
