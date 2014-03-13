@@ -1,6 +1,7 @@
 #ifndef GARBAGECOLLECTOR_HPP_
 #define GARBAGECOLLECTOR_HPP_
 
+#include <boost/shared_ptr.hpp>
 #include "CL/OpenCL.hpp"
 #include <set>
 
@@ -20,6 +21,8 @@ class GarbageCollector {
         std::set<cl::Memory *> memoryObjects;
 
 };
+typedef boost::shared_ptr<class GarbageCollector> GarbageCollectorPtr;
+
 }
 
 #endif /* GARBAGECOLLECTOR_HPP_ */

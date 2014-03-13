@@ -9,6 +9,7 @@ using namespace oul;
 #undef min
 #undef max
 
+
 void HistogramPyramid::compileCode(oul::Context &context) {
     // Check if context has the program, if not compile it
     if(!context.hasProgram("oul::HistogramPyramids")) {

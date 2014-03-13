@@ -19,7 +19,7 @@ namespace oul {
 class Context {
 
 public:
-	Context() {garbageCollector = NULL;};
+	Context();
 	Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext, bool enableProfiling = false);
 
 	int createProgramFromSource(std::string filename, std::string buildOptions = "");
@@ -42,10 +42,13 @@ public:
 
 	cl::CommandQueue getQueue(unsigned int i);
 	cl::Device getDevice(unsigned int i);
-	cl::Device getDevice(cl::CommandQueue);
+	cl::Device getDevice(cl::CommandQueue queue);
 	cl::Context getContext();
 	cl::Platform getPlatform();
-	GarbageCollector * getGarbageCollector();
+
+	GarbageCollector * getGarbageCollector(); //DEPRECATED, DON'T USE
+	GarbageCollectorPtr getGarbageCollectorPtr();
+
 	RuntimeMeasurementsManagerPtr getRunTimeMeasurementManager();
 
 private:
@@ -58,11 +61,13 @@ private:
 	std::vector<cl::Program> programs;
 	std::vector<cl::Device> devices;
 	cl::Platform platform;
-	GarbageCollector * garbageCollector;
+	GarbageCollectorPtr garbageCollector;
 
 	bool profilingEnabled;
 	RuntimeMeasurementsManagerPtr runtimeManager;
 };
+
+typedef boost::shared_ptr<class Context> ContextPtr;
 
 };
 

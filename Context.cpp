@@ -14,6 +14,7 @@
 #include <CL/cl_gl.h>
 #endif
 #endif
+
 namespace oul
 {
 
@@ -31,12 +32,21 @@ void CL_CALLBACK contextCallback(const char *errinfo, const void *private_info, 
 	r.report("Context callback:\n " + std::string(errinfo), oul::ERROR);
 }
 
+Context::Context() {
+	//TODO make private or implement properly
+	reporter.report("[!!!WARNING!!!] Calling default oul::Context constructor, object might not be correctly instanciated.", oul::WARNING);
+}
 
 Context::Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext, bool enableProfiling) :
 		profilingEnabled(enableProfiling),
 		runtimeManager(new RuntimeMeasurementsManager())
 	{
-    this->garbageCollector = new GarbageCollector;
+	if(profilingEnabled)
+		runtimeManager->enable();
+	else
+		runtimeManager->disable();
+
+    this->garbageCollector = GarbageCollectorPtr(new GarbageCollector);
 
     this->devices = devices;
     // TODO: make sure that all devices have the same platform
@@ -149,8 +159,13 @@ cl::Platform Context::getPlatform() {
     return platform;
 }
 
-GarbageCollector * Context::getGarbageCollector() {
-    return garbageCollector;
+GarbageCollector* Context::getGarbageCollector() {
+	GarbageCollector* retval = garbageCollector.get();
+    return retval;
+}
+
+GarbageCollectorPtr Context::getGarbageCollectorPtr(){
+	return garbageCollector;
 }
 
 cl::Program Context::buildSources(cl::Program::Sources source, std::string buildOptions) {
@@ -164,10 +179,10 @@ cl::Program Context::buildSources(cl::Program::Sources source, std::string build
     } catch(cl::Error &error) {
         if(error.err() == CL_BUILD_PROGRAM_FAILURE) {
             for(unsigned int i=0; i<devices.size(); i++){
-                std::cout << "Build log, device " << i <<":\n" << std::endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[i]) << std::endl;
+            	reporter.report("Build log, device "+oul::number(i)+ "\n"+ program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[i]), oul::ERROR);
             }
         }
-        std::cout << "[ERROR] " << getCLErrorString(error.err()) << std::endl;
+        reporter.report(getCLErrorString(error.err()), oul::ERROR);
 
         throw error;
     }

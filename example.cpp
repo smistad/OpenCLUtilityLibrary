@@ -24,7 +24,7 @@ int main() {
 
     // Test garbage collector
     Buffer * a = new Buffer(context.getContext(), CL_MEM_READ_WRITE, sizeof(float)*100);
-    oul::GarbageCollector * GC = context.getGarbageCollector();
+    oul::GarbageCollectorPtr GC = context.getGarbageCollectorPtr();
     GC->addMemoryObject(a);
     a->setDestructorCallback((void (*)(_cl_mem *, void *))notify, NULL);
     float * data = new float[100]();
