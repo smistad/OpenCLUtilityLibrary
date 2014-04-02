@@ -39,16 +39,22 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
     // Get the platform of device
     cl::Platform platform = device.getInfo<CL_DEVICE_PLATFORM>();
     // Get all devices that are capable of OpenGL interop with this platform
-    // Create properties for CL-GL context
 #if defined(__APPLE__) || defined(__MACOSX)
     // Apple (untested)
-    // TODO: create GL context for Apple
+    // Create GL context for Apple
+    // https://developer.apple.com/library/mac/documentation/graphicsimaging/reference/cgl_opengl/Reference/reference.html#//apple_ref/c/func/CGLCreateContext
+
+    CGLPixelFormatAttribute attribs[] = {}; 
+    CGLPixelFormatObj pix;
+    CGLChoosePixelFormat(attribs, &pix, NULL);
+    CGLContextObj glContext;
+    CGLCreateContext(pix, NULL, &glContext);
+
     cl_context_properties cps[] = {
         CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,
-        (cl_context_properties)CGLGetShareGroup(CGLGetCurrentContext()),
+        (cl_context_properties)CGLGetShareGroup(glContext),
         0};
 
-    return false;
 #else
 #ifdef _WIN32
     // Windows
@@ -85,7 +91,8 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
     }
 
     cl_context_properties * cps = createInteropContextProperties(platform, (cl_context_properties)gl2Context, (cl_context_properties)display);
-
+#endif
+#endif
     // check if any of these devices have the same cl_device_id as deviceID
     // Query which devices are associated with GL context
     cl_device_id cl_gl_device_ids[32];
@@ -105,8 +112,6 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
         }
     }
     return found;
-#endif
-#endif
 }
 
 bool OpenCLManager::devicePlatformMismatch(
