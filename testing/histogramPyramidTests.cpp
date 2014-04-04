@@ -12,7 +12,7 @@ void compileCode(oul::Context &context) {
 	context.createProgramFromSource(std::string(OUL_DIR)+"/HistogramPyramids.cl", "-I " + std::string(OUL_DIR) + "");
 }
 
-TEST_CASE("Histogram Pyramid OpenCL code compiles", "[oul]") {
+TEST_CASE("Histogram Pyramid OpenCL code compiles", "[oul][histogram]") {
     oul::TestFixture fixture;
     std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
     // For every platform
@@ -23,7 +23,7 @@ TEST_CASE("Histogram Pyramid OpenCL code compiles", "[oul]") {
     }
 }
 
-TEST_CASE("3D Histogram Pyramid Buffer create", "[oul]") {
+TEST_CASE("3D Histogram Pyramid Buffer create", "[oul][histogram]") {
     oul::TestFixture fixture;
     std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
     // For every platform and every device:
@@ -51,7 +51,7 @@ TEST_CASE("3D Histogram Pyramid Buffer create", "[oul]") {
     }
 }
 
-TEST_CASE("2D Histogram Pyramid create", "[oul]") {
+TEST_CASE("2D Histogram Pyramid create", "[oul][histogram]") {
     oul::TestFixture fixture;
     std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
     // For every platform and every device:
@@ -81,7 +81,7 @@ TEST_CASE("2D Histogram Pyramid create", "[oul]") {
 }
 
 
-TEST_CASE("3D Histogram Pyramid create", "[oul]") {
+TEST_CASE("3D Histogram Pyramid create", "[oul][histogram]") {
     oul::TestFixture fixture;
     std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
     // For every platform and every device:
@@ -131,7 +131,7 @@ unsigned char * createRandomData(unsigned int size, unsigned int * sum) {
     return data;
 }
 
-TEST_CASE("3D Histogram Pyramid Buffer Sum", "[oul]") {
+TEST_CASE("3D Histogram Pyramid Buffer Sum", "[oul][histogram]") {
     oul::TestFixture fixture;
     std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
     // For every platform and every device:
@@ -164,7 +164,7 @@ TEST_CASE("3D Histogram Pyramid Buffer Sum", "[oul]") {
 }
 
 
-TEST_CASE("2D Histogram Pyramid Sum", "[oul]") {
+TEST_CASE("2D Histogram Pyramid Sum", "[oul][histogram]") {
     oul::TestFixture fixture;
     std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
     // For every platform and every device:
@@ -198,7 +198,7 @@ TEST_CASE("2D Histogram Pyramid Sum", "[oul]") {
 }
 
 
-TEST_CASE("3D Histogram Pyramid Sum", "[oul]") {
+TEST_CASE("3D Histogram Pyramid Sum", "[oul][histogram]") {
     oul::TestFixture fixture;
     std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
     // For every platform and every device:
@@ -237,7 +237,7 @@ TEST_CASE("3D Histogram Pyramid Sum", "[oul]") {
     }
 }
 
-TEST_CASE("2D Histogram Pyramid create positions", "[oul]") {
+TEST_CASE("2D Histogram Pyramid create positions", "[oul][histogram]") {
     oul::TestFixture fixture;
     std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
     // For every platform and every device:
@@ -301,7 +301,7 @@ TEST_CASE("2D Histogram Pyramid create positions", "[oul]") {
     }
 }
 
-TEST_CASE("3D Histogram Pyramid create positions", "[oul]") {
+TEST_CASE("3D Histogram Pyramid create positions", "[oul][histogram]") {
     oul::TestFixture fixture;
     std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
     // For every platform and every device:
@@ -371,7 +371,7 @@ TEST_CASE("3D Histogram Pyramid create positions", "[oul]") {
     }
 }
 
-TEST_CASE("3D Histogram Pyramid Buffer create positions", "[oul]") {
+TEST_CASE("3D Histogram Pyramid Buffer create positions", "[oul][histogram]") {
     oul::TestFixture fixture;
     std::vector<oul::PlatformDevices> platformDevices = fixture.getAllDevices();
     // For every platform and every device:

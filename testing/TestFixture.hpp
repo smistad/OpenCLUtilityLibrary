@@ -40,8 +40,8 @@ public:
 
 	//will throw exceptions if they fail
 	void canReadTestKernelFile();
-	void canRunCodeFromString(oul::Context context, std::string source, std::string kernel_name);
-	void canRunCodeFromFile(oul::Context context, std::string kernel_name);
+	void canRunCodeFromString(oul::ContextPtr context, std::string source, std::string kernel_name);
+	void canRunCodeFromFile(oul::ContextPtr context, std::string kernel_name);
 	void canRunProgramOnQueue(cl::Program program, cl::CommandQueue queue, std::string kernel_name);
 	void canWriteToBufferAndReadItBack();
 
