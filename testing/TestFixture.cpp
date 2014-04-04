@@ -86,8 +86,6 @@ void TestFixture::canRunCodeFromFile(oul::Context context, std::string kernel_na
 void TestFixture::canRunProgramOnQueue(cl::Program program, cl::CommandQueue queue, std::string kernel_name){
     cl::Kernel kernel(program, kernel_name.c_str());
     queue.enqueueTask(kernel);
-    //TODO remove magic numbers
-    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(4,1,1));
     queue.finish();
 }
 
