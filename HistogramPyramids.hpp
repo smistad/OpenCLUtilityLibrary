@@ -16,7 +16,7 @@ class HistogramPyramid {
         virtual cl::Buffer createPositionBuffer() = 0;
         virtual void deleteHPlevels() = 0;
     protected:
-        oul::Context context;
+        oul::Context context; //this will call the default constructor in Context
         int size;
         int sum;
 };

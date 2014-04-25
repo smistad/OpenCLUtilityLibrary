@@ -73,36 +73,34 @@ void TestFixture::canReadTestKernelFile(){
     oul::readFile(test_kernels);
 }
 
-void TestFixture::canRunCodeFromString(oul::Context context, std::string source, std::string kernel_name){
-    context.createProgramFromString(source);
-    this->canRunProgramOnQueue(context.getProgram(0), context.getQueue(0), kernel_name);
+void TestFixture::canRunCodeFromString(oul::ContextPtr context, std::string source, std::string kernel_name){
+    context->createProgramFromString(source);
+    this->canRunProgramOnQueue(context->getProgram(0), context->getQueue(0), kernel_name);
 }
 
-void TestFixture::canRunCodeFromFile(oul::Context context, std::string kernel_name){
-    context.createProgramFromSource(test_kernels);
-    this->canRunProgramOnQueue(context.getProgram(0), context.getQueue(0), kernel_name);
+void TestFixture::canRunCodeFromFile(oul::ContextPtr context, std::string kernel_name){
+    context->createProgramFromSource(test_kernels);
+    this->canRunProgramOnQueue(context->getProgram(0), context->getQueue(0), kernel_name);
 }
 
 void TestFixture::canRunProgramOnQueue(cl::Program program, cl::CommandQueue queue, std::string kernel_name){
     cl::Kernel kernel(program, kernel_name.c_str());
     queue.enqueueTask(kernel);
-    //TODO remove magic numbers
-    queue.enqueueNDRangeKernel(kernel, cl::NullRange, cl::NDRange(4,1,1));
     queue.finish();
 }
 
 void TestFixture::canWriteToBufferAndReadItBack(){
-	oul::Context context = oul::opencl()->createContext(getGPUDeviceCriteria());
+	oul::ContextPtr context = oul::opencl()->createContextPtr(getGPUDeviceCriteria());
 
 	char buffer_input_data[] = "data to fill the buffer with";
 	int size = sizeof(buffer_input_data);
 	char buffer_output_data[size];
 
-	cl::Buffer buffer = context.createBuffer(context.getContext(), CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, size, buffer_input_data, "canWriteToBufferAndReadItBack");
+	cl::Buffer buffer = context->createBuffer(context->getContext(), CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, size, buffer_input_data, "canWriteToBufferAndReadItBack");
 
 	int queueNumber = 0;
-	context.getQueue(queueNumber).enqueueWriteBuffer(buffer, CL_TRUE, 0, size, buffer_input_data, 0, 0);
-	context.getQueue(queueNumber).enqueueReadBuffer(buffer, CL_TRUE, 0, size, buffer_output_data, 0, 0);
+	context->getQueue(queueNumber).enqueueWriteBuffer(buffer, CL_TRUE, 0, size, buffer_input_data, 0, 0);
+	context->getQueue(queueNumber).enqueueReadBuffer(buffer, CL_TRUE, 0, size, buffer_output_data, 0, 0);
 
 	std::string input_string(buffer_input_data);
 	std::string output_string(buffer_output_data);
