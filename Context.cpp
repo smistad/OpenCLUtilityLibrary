@@ -34,7 +34,7 @@ void CL_CALLBACK contextCallback(const char *errinfo, const void *private_info, 
 
 Context::Context() {
 	//TODO make private or implement properly
-	reporter.report("[!!!WARNING!!!] Calling default oul::Context constructor, object might not be correctly instanciated.", oul::WARNING);
+	reporter.report("[!!!WARNING!!!] Calling default oul::Context constructor, object is not correctly instantiated, make this private!", oul::WARNING);
 }
 
 Context::Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext, bool enableProfiling) :
@@ -60,14 +60,14 @@ Context::Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext,
 #if defined(__APPLE__) || defined(__MACOSX)
         cps = createInteropContextProperties(
                 this->platform,
-                (cl_context_properties)CGLGetShareGroup(CGLGetCurrentContext()),
+                (cl_context_properties)CGLGetShareGroup(OpenGLContext),
                 NULL
         );
 #else
 #ifdef _WIN32
         cps = createInteropContextProperties(
                 this->platform,
-                (cl_context_properties)wglGetCurrentContext(),
+                (cl_context_properties)OpenGLContext,
                 (cl_context_properties)wglGetCurrentDC()
         );
 #else

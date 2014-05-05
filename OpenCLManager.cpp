@@ -463,9 +463,16 @@ Context OpenCLManager::createContext(
  */
 Context OpenCLManager::createContext(const DeviceCriteria &deviceCriteria, unsigned long * OpenGLContext, bool enableProfiling) {
     std::vector<PlatformDevices> platformDevices = getDevices(deviceCriteria);
-    std::vector<cl::Device> validDevices = getDevicesForBestPlatform(
-            deviceCriteria, platformDevices);
+    std::vector<cl::Device> validDevices = getDevicesForBestPlatform(deviceCriteria, platformDevices);
+
     return oul::Context(validDevices, OpenGLContext, enableProfiling);
+}
+
+ContextPtr OpenCLManager::createContextPtr(const DeviceCriteria &deviceCriteria, unsigned long * OpenGLContext, bool enableProfiling) {
+    std::vector<PlatformDevices> platformDevices = getDevices(deviceCriteria);
+    std::vector<cl::Device> validDevices = getDevicesForBestPlatform(deviceCriteria, platformDevices);
+
+	return ContextPtr(new oul::Context(validDevices, OpenGLContext, enableProfiling));
 }
 
 OpenCLManager* opencl() {

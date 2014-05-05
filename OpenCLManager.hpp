@@ -35,6 +35,9 @@ class OpenCLManager {
                 DeviceCriteria &defaultCriteria);
         Context createContext(const DeviceCriteria &criteria, unsigned long * OpenGLContext = NULL, bool enableProfiling = false);
 
+        ContextPtr createContextPtr(const DeviceCriteria &criteria, unsigned long * OpenGLContext = NULL, bool enableProfiling = false);
+
+
         std::vector<PlatformDevices> getDevices(const DeviceCriteria &criteria);
         std::vector<cl::Platform> getPlatforms(
                 oul::DevicePlatform platformCriteria);

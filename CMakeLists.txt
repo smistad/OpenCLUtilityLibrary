@@ -69,6 +69,8 @@ endif(BUILD_TESTS)
 # Configure file for find_package module 
 #------------------------------------------------------------------------------
 
+set(OUL_DIR ${PROJECT_SOURCE_DIR})
+
 set(OpenCLUtilityLibrary_LIBRARY
     OpenCLUtilityLibrary
    )
@@ -89,7 +91,6 @@ configure_file (
 #------------------------------------------------------------------------------
 
 set(TEST_DIR ${PROJECT_SOURCE_DIR}/testing)
-set(OUL_DIR ${PROJECT_SOURCE_DIR})
 
 configure_file(
  "${PROJECT_SOURCE_DIR}/CMake/OulConfig.hpp.in"
