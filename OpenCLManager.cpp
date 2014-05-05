@@ -1,3 +1,5 @@
+#define NOMINMAX
+#include <algorithm>
 #include "OpenCLManager.hpp"
 
 #include "Context.hpp"
