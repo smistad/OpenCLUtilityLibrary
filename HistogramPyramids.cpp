@@ -9,6 +9,13 @@ using namespace oul;
 #undef min
 #undef max
 
+double round(double number) {
+	return number < 0.0 ? ceil(number-0.5) : floor(number + 0.5);
+}
+
+double log2(double number) {
+	return log(number)/log(2.0);
+}
 
 void HistogramPyramid::compileCode(oul::Context &context) {
     // Check if context has the program, if not compile it

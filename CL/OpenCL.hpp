@@ -5,6 +5,6 @@
 #define __CL_ENABLE_EXCEPTIONS
 #include "CL/cl.hpp"
 
-
+#undef ERROR
 
 #endif /* OPENCL_HPP_ */

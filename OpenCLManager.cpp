@@ -174,7 +174,7 @@ void OpenCLManager::sortDevicesAccordingToPreference(
 
         // put devices back to vector and calculate scores
         int platformScore = 0;
-        for (int j = 0; j < std::min(maxNumberOfDevices, (int) platformDevices[i].second.size()); j++) {
+        for (int j = 0; j < min(maxNumberOfDevices, (int) platformDevices[i].second.size()); j++) {
             sortedPlatformDevices[i].push_back(deviceScores[j].device);
             platformScore += deviceScores[j].score;
         }

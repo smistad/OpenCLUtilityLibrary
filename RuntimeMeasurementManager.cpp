@@ -133,6 +133,7 @@ double RuntimeMeasurement::getAverage() const {
 }
 
 double RuntimeMeasurement::getStdDeviation() const {
+	return 0.0;
 	// TODO: implement
 }
 

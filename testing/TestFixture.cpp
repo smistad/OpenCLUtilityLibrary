@@ -95,7 +95,7 @@ void TestFixture::canWriteToBufferAndReadItBack(){
 	oul::Context context = oul::opencl()->createContext(getGPUDeviceCriteria());
 
 	char buffer_input_data[] = "data to fill the buffer with";
-	int size = sizeof(buffer_input_data);
+	const int size = sizeof(buffer_input_data);
 	char buffer_output_data[size];
 
 	cl::Buffer buffer = context.createBuffer(context.getContext(), CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, size, buffer_input_data, "canWriteToBufferAndReadItBack");
