@@ -5,6 +5,7 @@
 #include <map>
 #include "CL/OpenCL.hpp"
 #include "RuntimeMeasurement.hpp"
+#include <boost/chrono.hpp>
 
 namespace oul {
 
@@ -29,7 +30,7 @@ public:
 	void startNumberedRegularTimer(std::string name);
 	void stopNumberedRegularTimer(std::string name);
 
-	RuntimeMeasurement getTiming(std::string name);
+	RuntimeMeasurementPtr getTiming(std::string name);
 
 	void print(std::string name);
 	void printAll();
@@ -39,6 +40,7 @@ private:
 	std::map<std::string, RuntimeMeasurementPtr> timings;
 	std::map<std::string, unsigned int> numberings;
 	std::map<std::string, cl::Event> startEvents;
+	std::map<std::string, boost::chrono::system_clock::time_point> startTimes;
 };
 
 typedef boost::shared_ptr<class RuntimeMeasurementsManager> RuntimeMeasurementsManagerPtr;

@@ -34,3 +34,18 @@ void RuntimeMeasurement::print() const {
 			<< std::endl;
 }
 
+double RuntimeMeasurement::getSum() const {
+	return sum;
+}
+
+double RuntimeMeasurement::getAverage() const {
+	return sum / samples;
+}
+
+double RuntimeMeasurement::getStdDeviation() const {
+	// TODO: implement
+    return 0.0;
+}
+
+
+

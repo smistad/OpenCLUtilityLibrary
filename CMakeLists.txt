@@ -6,7 +6,7 @@ option(BUILD_TESTS "Build tests." ON)
 option(BUILD_EXAMPLES "Build examples." ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake)
-find_package( Boost REQUIRED )
+find_package( Boost COMPONENTS system chrono REQUIRED )
 find_package( OpenCL REQUIRED )
 find_package( OpenGL REQUIRED )
 
@@ -48,10 +48,12 @@ set(SOURCE_FILES
 )
 
 set(OpenCLUtilityLibrary_LINK_LIBRARIES
-    ${BOOST_LIBRARIES}
+    ${Boost_LIBRARIES}
     ${OPENCL_LIBRARIES}
     ${OPENGL_LIBRARIES}
 )
+
+message("-boost libs ${Boost_LIBRARIES}")
 
 add_library (OpenCLUtilityLibrary ${SOURCE_FILES})
 target_link_libraries(OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})

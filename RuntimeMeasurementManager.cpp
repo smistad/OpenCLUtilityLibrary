@@ -73,11 +73,29 @@ void RuntimeMeasurementsManager::stopCLTimer(std::string name, cl::CommandQueue 
 void RuntimeMeasurementsManager::startRegularTimer(std::string name) {
 	if (!enabled)
 		return;
+
+	startTimes[name] = boost::chrono::system_clock::now();
 }
 
 void RuntimeMeasurementsManager::stopRegularTimer(std::string name) {
 	if (!enabled)
 		return;
+
+	if(startTimes.count(name) == 0)
+	    return;
+
+	boost::chrono::duration<double, boost::milli> time = boost::chrono::system_clock::now() - startTimes[name];
+    if (timings.count(name) == 0) {
+		// No timings with this name exists, create a new one
+		RuntimeMeasurementPtr runtime(new RuntimeMeasurement(name));
+
+		runtime->addSample(time.count());
+		timings[name] =  runtime;
+	} else {
+		timings[name]->addSample(time.count());
+	}
+
+    startTimes.erase(name);
 }
 
 void RuntimeMeasurementsManager::startNumberedCLTimer(std::string name, cl::CommandQueue queue) {
@@ -100,8 +118,14 @@ void RuntimeMeasurementsManager::stopNumberedRegularTimer(std::string name) {
 		return;
 }
 
-RuntimeMeasurement RuntimeMeasurementsManager::getTiming(std::string name) {
-	return *timings[name].get();
+RuntimeMeasurementPtr RuntimeMeasurementsManager::getTiming(std::string name) {
+    if(timings.count(name) == 0) {
+        // Create a new empty timing
+		RuntimeMeasurementPtr runtime(new RuntimeMeasurement(name));
+		timings[name] = runtime;
+    }
+
+	return timings[name];
 }
 
 void RuntimeMeasurementsManager::print(std::string name) {
@@ -122,18 +146,6 @@ void RuntimeMeasurementsManager::printAll() {
 }
 
 RuntimeMeasurementsManager::RuntimeMeasurementsManager() {
-}
-
-double RuntimeMeasurement::getSum() const {
-	return sum;
-}
-
-double RuntimeMeasurement::getAverage() const {
-	return sum / samples;
-}
-
-double RuntimeMeasurement::getStdDeviation() const {
-	// TODO: implement
 }
 
 bool RuntimeMeasurementsManager::isEnabled() {

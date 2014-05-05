@@ -17,6 +17,7 @@ public:
 	double getAverage() const;
 	double getStdDeviation() const;
 	void print() const;
+	virtual ~RuntimeMeasurement() {};
 
 private:
 	RuntimeMeasurement();
