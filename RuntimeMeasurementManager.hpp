@@ -35,6 +35,11 @@ public:
 	void printAll();
 
 private:
+	cl::Event enqueueNewMarker(cl::CommandQueue queue) ;
+	void verifyThatEventExists(std::string name);
+	void verifyQueueProfilingIsEnabled(cl::CommandQueue queue);
+	void addSampleToRuntimeMeasurement(std::string name, double runtime);
+
 	bool enabled;
 	std::map<std::string, RuntimeMeasurementPtr> timings;
 	std::map<std::string, unsigned int> numberings;

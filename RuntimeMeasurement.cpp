@@ -18,8 +18,7 @@ void RuntimeMeasurement::addSample(double runtime) {
 
 void RuntimeMeasurement::print() const {
 	std::cout << "Runtime of " << name << std::endl;
-	std::cout << "----------------------------------------------------"
-			<< std::endl;
+	std::cout << "----------------------------------------------------" << std::endl;
 	if (samples == 0) {
 		std::cout << "None recorded." << std::endl;
 	} else if (samples == 1) {

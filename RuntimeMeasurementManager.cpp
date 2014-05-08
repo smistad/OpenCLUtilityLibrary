@@ -15,19 +15,9 @@ void RuntimeMeasurementsManager::startCLTimer(std::string name, cl::CommandQueue
 	if (!enabled)
 		return;
 
-	if (queue.getInfo<CL_QUEUE_PROPERTIES>() != CL_QUEUE_PROFILING_ENABLE) {
-		throw oul::Exception(
-				"Failed to get profiling info. Make sure that RuntimeMeasurementManager::enable() is called before the OpenCL context is created.",
-				__LINE__, __FILE__);
-	}
-	cl::Event startEvent;
-#if !defined(CL_VERSION_1_2) || defined(CL_USE_DEPRECATED_OPENCL_1_1_APIS)
-	// Use deprecated API
-	queue.enqueueMarker(&startEvent);
-#else
-	queue.enqueueMarkerWithWaitList(NULL, &startEvent)
-#endif
-	queue.finish();
+	this->verifyQueueProfilingIsEnabled(queue);
+
+	cl::Event startEvent = this->enqueueNewMarker(queue);
 	startEvents.insert(std::make_pair(name, startEvent));
 }
 
@@ -35,39 +25,18 @@ void RuntimeMeasurementsManager::stopCLTimer(std::string name, cl::CommandQueue 
 	if (!enabled)
 		return;
 
-	if (queue.getInfo<CL_QUEUE_PROPERTIES>() != CL_QUEUE_PROFILING_ENABLE) {
-		throw oul::Exception(
-				"Failed to get profiling info. Make sure that RuntimeMeasurementManager::enable() is called before the OpenCL context is created.",
-				__LINE__, __FILE__);
-	}
+	this->verifyQueueProfilingIsEnabled(queue);
+	this->verifyThatEventExists(name);
 
-	// check that the startEvent actually exist
-	if (startEvents.count(name) == 0) {
-		throw oul::Exception("Unknown CL timer");
-	}
-	cl_ulong start, end;
-	cl::Event endEvent;
-#if !defined(CL_VERSION_1_2) || defined(CL_USE_DEPRECATED_OPENCL_1_1_APIS)
-	// Use deprecated API
-	queue.enqueueMarker(&endEvent);
-#else
-	queue.enqueueMarkerWithWaitList(NULL, &endEvent);
-#endif
-	queue.finish();
-	cl::Event startEvent = startEvents[name];
-	startEvent.getProfilingInfo<cl_ulong>(CL_PROFILING_COMMAND_START, &start);
-	endEvent.getProfilingInfo<cl_ulong>(CL_PROFILING_COMMAND_START, &end);
-	if (timings.count(name) == 0) {
-		// No timings with this name exists, create a new one
-		RuntimeMeasurementPtr runtime(new RuntimeMeasurement(name));
-		runtime->addSample((end - start) * 1.0e-6);
-		timings[name] =  runtime;
-	} else {
-		timings[name]->addSample((end - start) * 1.0e-6);
-	}
+	cl::Event startEvent = startEvents.at(name);
+	cl_ulong start = startEvent.getProfilingInfo<CL_PROFILING_COMMAND_START>();
+    startEvents.erase(name);
 
-	// Remove the start event
-	startEvents.erase(name);
+	cl::Event endEvent = this->enqueueNewMarker(queue);
+	cl_ulong end = endEvent.getProfilingInfo<CL_PROFILING_COMMAND_START>();
+
+	double runtime_ms = (end - start) * 1.0e-6; //converting from nano- to milliseconds
+	this->addSampleToRuntimeMeasurement(name, runtime_ms);
 }
 
 void RuntimeMeasurementsManager::startRegularTimer(std::string name) {
@@ -101,14 +70,14 @@ void RuntimeMeasurementsManager::stopNumberedRegularTimer(std::string name) {
 }
 
 RuntimeMeasurement RuntimeMeasurementsManager::getTiming(std::string name) {
-	return *timings[name].get();
+	return *timings.at(name).get();
 }
 
 void RuntimeMeasurementsManager::print(std::string name) {
 	if (!enabled)
 		return;
 
-	timings[name]->print();
+	timings.at(name)->print();
 }
 
 void RuntimeMeasurementsManager::printAll() {
@@ -134,10 +103,49 @@ double RuntimeMeasurement::getAverage() const {
 
 double RuntimeMeasurement::getStdDeviation() const {
 	// TODO: implement
+    return -1;
 }
 
 bool RuntimeMeasurementsManager::isEnabled() {
 	return enabled;
+}
+
+cl::Event RuntimeMeasurementsManager::enqueueNewMarker(cl::CommandQueue queue) {
+    cl::Event event;
+#if !defined(CL_VERSION_1_2) || defined(CL_USE_DEPRECATED_OPENCL_1_1_APIS)
+    // Use deprecated API
+    queue.enqueueMarker(&event);
+#else
+    queue.enqueueMarkerWithWaitList(NULL, &event)
+#endif
+    queue.finish();
+
+    return event;
+}
+
+void RuntimeMeasurementsManager::verifyThatEventExists(std::string name) {
+    if (startEvents.count(name) == 0) {
+        throw oul::Exception("Unknown CL timer");
+    }
+}
+
+void RuntimeMeasurementsManager::verifyQueueProfilingIsEnabled(cl::CommandQueue queue) {
+    if (queue.getInfo<CL_QUEUE_PROPERTIES>() != CL_QUEUE_PROFILING_ENABLE) {
+        throw oul::Exception(
+                "Failed to get profiling info. Make sure that RuntimeMeasurementManager::enable() is called before the OpenCL context is created.",
+                __LINE__, __FILE__);
+    }
+}
+
+void RuntimeMeasurementsManager::addSampleToRuntimeMeasurement(std::string name, double runtime) {
+    if (timings.count(name) == 0) {
+        // No timings with this name exists, create a new one
+        RuntimeMeasurementPtr runtimeMeasurement(new RuntimeMeasurement(name));
+        runtimeMeasurement->addSample(runtime);
+        timings[name] =  runtimeMeasurement;
+    } else {
+        timings.at(name)->addSample(runtime);
+    }
 }
 
 } //namespace oul
