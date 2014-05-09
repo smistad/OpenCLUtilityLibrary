@@ -1,11 +1,16 @@
 #ifndef REPORTER_H_
 #define REPORTER_H_
 
+#ifdef ERROR
+#undef ERROR
+#endif
+
 #include <string>
 #include <sstream>
 
 namespace oul
 {
+
 
 enum ReporterLevel{
 	DEBUG,

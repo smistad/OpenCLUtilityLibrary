@@ -2,6 +2,8 @@
 #include <cmath>
 #include <iostream>
 #include "OulConfig.hpp"
+
+
 using namespace cl;
 using namespace oul;
 
@@ -9,6 +11,15 @@ using namespace oul;
 #undef min
 #undef max
 
+double log2( double n )  
+{  
+    return log( n ) / log( 2.0 );  
+}
+
+double round( double n )
+{
+	return (n - floor(n) > 0.5) ? ceil(n) : floor(n);
+}
 
 void HistogramPyramid::compileCode(oul::Context &context) {
     // Check if context has the program, if not compile it

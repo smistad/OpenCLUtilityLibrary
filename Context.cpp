@@ -196,6 +196,7 @@ RuntimeMeasurementsManagerPtr Context::getRunTimeMeasurementManager(){
 
 int Context::createProgramFromBinary(std::string filename, std::string buildOptions) {
     //TODO todo
+	return 0;
 }
 
 int Context::createProgramFromSourceWithName(
