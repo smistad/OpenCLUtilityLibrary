@@ -32,16 +32,14 @@ cl_context_properties * createInteropContextProperties(
 #else
 #ifdef _WIN32
     // Windows
-    // TODO: create GL context for Windows
-    cl_context_properties cps[] = {
-        CL_GL_CONTEXT_KHR,
-        (cl_context_properties)wglGetCurrentContext(),
-        CL_WGL_HDC_KHR,
-        (cl_context_properties)wglGetCurrentDC(),
-        CL_CONTEXT_PLATFORM,
-        (cl_context_properties)(platform)(),
-        0
-    };
+    cl_context_properties * cps = new cl_context_properties[7];
+    cps[0] = CL_GL_CONTEXT_KHR;
+    cps[1] = OpenGLContext;
+    cps[2] = CL_WGL_HDC_KHR;
+    cps[3] = display;
+    cps[4] = CL_CONTEXT_PLATFORM;
+    cps[5] = (cl_context_properties) (platform)(); 
+	cps[6] = 0;
 #else
     cl_context_properties * cps = new cl_context_properties[7];
     cps[0] = CL_GL_CONTEXT_KHR;
@@ -49,7 +47,8 @@ cl_context_properties * createInteropContextProperties(
     cps[2] = CL_GLX_DISPLAY_KHR;
     cps[3] = display;
     cps[4] = CL_CONTEXT_PLATFORM;
-    cps[5] = (cl_context_properties) (platform)(), cps[6] = 0;
+    cps[5] = (cl_context_properties) (platform)(); 
+	cps[6] = 0;
 #endif
 #endif
     return cps;

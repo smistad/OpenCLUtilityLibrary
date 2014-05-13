@@ -9,6 +9,7 @@
 #include "Reporter.hpp"
 #include <utility>
 
+
 namespace oul {
 
 typedef std::pair<cl::Platform, std::vector<cl::Device> > PlatformDevices;
@@ -71,6 +72,11 @@ class OpenCLManager {
 };
 
 OpenCLManager* opencl(); //Shortcut for accessing the OpenCLManager
+
+#ifdef _WIN32
+// This is a function used to get the device context needed to create OpenGL context on windows
+HDC getHDC();
+#endif
 
 }
 ;

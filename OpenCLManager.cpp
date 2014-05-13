@@ -13,6 +13,8 @@
 #include <OpenGL/OpenGL.h>
 #else
 #if _WIN32
+#include <Windows.h>
+#include <CL/cl_gl.h>
 #else
 #include <GL/glx.h>
 #include <CL/cl_gl.h>
@@ -35,6 +37,100 @@ void OpenCLManager::shutdown() {
     instance = NULL;
 }
 
+#ifdef _WIN32
+#pragma comment (lib, "opengl32.lib")
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+
+HWND windowsHWND;
+int CreateWindowsWindow()
+{
+        MSG msg          = {0};
+        WNDCLASS wc      = {0}; 
+        wc.lpfnWndProc   = WndProc;
+        wc.hInstance     = NULL;
+        wc.hbrBackground = (HBRUSH)(COLOR_BACKGROUND);
+        wc.lpszClassName = "dummywindow";
+        wc.style = CS_OWNDC;
+
+        if( !RegisterClass(&wc) )
+                return 1;
+
+        windowsHWND = CreateWindow(wc.lpszClassName,"dummywindow",0,0,0,1,1,HWND_MESSAGE,0,NULL,0);
+
+        while( GetMessage( &msg, NULL, 0, 0 ) > 0 )
+                DispatchMessage( &msg );
+        return 0;
+}
+
+HDC windowsHDC;
+
+HDC getHDC() {
+	if(windowsHDC == NULL) {
+		std::cout << "creating windows window to get DC" << std::endl;
+		CreateWindowsWindow();
+		
+	}
+	return windowsHDC;
+}
+
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+        switch(message)
+        {
+        case WM_CREATE:
+                {
+                PIXELFORMATDESCRIPTOR pfd =
+                {
+                        sizeof(PIXELFORMATDESCRIPTOR),
+                        1,
+                        PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    //Flags
+                        PFD_TYPE_RGBA,            //The kind of framebuffer. RGBA or palette.
+                        32,                        //Colordepth of the framebuffer.
+                        0, 0, 0, 0, 0, 0,
+                        0,
+                        0,
+                        0,
+                        0, 0, 0, 0,
+                        24,                        //Number of bits for the depthbuffer
+                        8,                        //Number of bits for the stencilbuffer
+                        0,                        //Number of Aux buffers in the framebuffer.
+                        PFD_MAIN_PLANE,
+                        0,
+                        0, 0, 0
+                };
+
+                HDC ourWindowHandleToDeviceContext = GetDC(hWnd);
+				windowsHDC = ourWindowHandleToDeviceContext;
+
+                int  letWindowsChooseThisPixelFormat;
+                letWindowsChooseThisPixelFormat = ChoosePixelFormat(ourWindowHandleToDeviceContext, &pfd); 
+                SetPixelFormat(ourWindowHandleToDeviceContext,letWindowsChooseThisPixelFormat, &pfd);
+
+                HGLRC ourOpenGLRenderingContext = wglCreateContext(ourWindowHandleToDeviceContext);
+                wglMakeCurrent (ourWindowHandleToDeviceContext, ourOpenGLRenderingContext);
+				std::cout << "HDC is: " << windowsHDC << std::endl;
+				std::cout << "GL context in windows window is: " << ourOpenGLRenderingContext << std::endl;
+                wglDeleteContext(ourOpenGLRenderingContext);
+				
+                PostQuitMessage(0);
+                }
+                break;
+		case WM_DESTROY:
+				std::cout << "window destroyed" << std::endl;
+				break;
+        default:
+			std::cout << "window default" << std::endl;
+
+                return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+		
+        return 0;
+
+} 
+#endif
+
 bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
     // Get the cl_device_id of the device
     cl_device_id deviceID = device();
@@ -55,16 +151,18 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
 #ifdef _WIN32
     // Windows
     // TODO: create GL context for Windows
-    cl_context_properties cps[] = {
-        CL_GL_CONTEXT_KHR,
-        (cl_context_properties)wglGetCurrentContext(),
-        CL_WGL_HDC_KHR,
-        (cl_context_properties)wglGetCurrentDC(),
-        CL_CONTEXT_PLATFORM,
-        (cl_context_properties)(platform)(),
-        0
-    };
-    return false;
+	// http://msdn.microsoft.com/en-us/library/windows/desktop/dd374379%28v=vs.85%29.aspx
+    HDC hdc = getHDC();
+	if(hdc == NULL)
+		throw Exception("Could not get windows GL DC");
+
+    // create a rendering context  
+    HGLRC hglrc = wglCreateContext (hdc); 
+	// have to make it current as well for this to work
+	wglMakeCurrent(hdc,hglrc); 
+	if(hglrc == NULL)
+		throw Exception("Could not create windows GL context");
+	cl_context_properties * cps = createInteropContextProperties(platform, (cl_context_properties)hglrc, (cl_context_properties)hdc);
 #else
     // Linux
     // Create a GL context using glX
@@ -87,8 +185,8 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
     }
 
     cl_context_properties * cps = createInteropContextProperties(platform, (cl_context_properties)gl2Context, (cl_context_properties)display);
-
-    // check if any of these devices have the same cl_device_id as deviceID
+#endif
+	// check if any of these devices have the same cl_device_id as deviceID
     // Query which devices are associated with GL context
     cl_device_id cl_gl_device_ids[32];
     size_t returnSize = 0;
@@ -106,9 +204,15 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
             break;
         }
     }
-    return found;
+
 #endif
+	// Cleanup
+#ifdef _WIN32
+	//wglMakeCurrent(NULL,NULL);
+	//DestroyWindow(windowsHWND);
+	//wglDeleteContext(hglrc);
 #endif
+	return found;
 }
 
 bool OpenCLManager::devicePlatformMismatch(

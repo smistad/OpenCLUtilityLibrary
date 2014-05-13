@@ -3,6 +3,7 @@
 #include <iostream>
 #include "HelperFunctions.hpp"
 #include "RuntimeMeasurement.hpp"
+#include "OpenCLManager.hpp"
 
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/cl_gl.h>
@@ -65,10 +66,11 @@ Context::Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext,
         );
 #else
 #ifdef _WIN32
+		HDC hdc = oul::getHDC();
         cps = createInteropContextProperties(
                 this->platform,
                 (cl_context_properties)OpenGLContext,
-                (cl_context_properties)wglGetCurrentDC()
+                (cl_context_properties)hdc
         );
 #else
         std::cout << "current glX context is " << OpenGLContext << std::endl;
