@@ -14,6 +14,7 @@
 #include <CL/cl_gl.h>
 #endif
 #endif
+#include <iostream>
 
 namespace oul {
 
@@ -24,10 +25,16 @@ cl_context_properties * createInteropContextProperties(
 #if defined(__APPLE__) || defined(__MACOSX)
     // Apple (untested)
     // TODO: create GL context for Apple
-    cl_context_properties cps[] = {
-        CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,
-        (cl_context_properties)CGLGetShareGroup(CGLGetCurrentContext()),
-        0};
+std::cout << "trying to get share group of gl context" << std::endl;
+CGLSetCurrentContext((CGLContextObj)OpenGLContext);
+CGLShareGroupObj shareGroup = CGLGetShareGroup((CGLContextObj)OpenGLContext);
+if(shareGroup == NULL)
+throw Exception("Not able to get sharegroup");
+    cl_context_properties * cps = new cl_context_properties[3];
+    cps[0] = CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE;
+    cps[1] = (cl_context_properties)shareGroup;
+    cps[2] = 0;
+std::cout << "success " << shareGroup << std::endl;
 
 #else
 #ifdef _WIN32

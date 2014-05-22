@@ -10,6 +10,7 @@
 
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/cl_gl.h>
+#include <OpenCL/cl_gl_ext.h>
 #include <OpenGL/OpenGL.h>
 #else
 #if _WIN32
@@ -141,12 +142,66 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
 #if defined(__APPLE__) || defined(__MACOSX)
     // Apple (untested)
     // TODO: create GL context for Apple
+    // https://developer.apple.com/library/mac/documentation/graphicsimaging/reference/cgl_opengl/Reference/reference.html#//apple_ref/c/func/CGLCreateContext
+
+std::cout << "trying to make Mac GL context" << std::endl;
+CGLPixelFormatAttribute attribs[15] = {
+    kCGLPFAOpenGLProfile, (CGLPixelFormatAttribute)kCGLOGLPVersion_3_2_Core, // This sets the context to 3.2
+    kCGLPFAColorSize,     (CGLPixelFormatAttribute)24,
+    kCGLPFAAlphaSize,     (CGLPixelFormatAttribute)8,
+    kCGLPFAAccelerated,
+    kCGLPFADoubleBuffer,
+	kCGLPFAAllowOfflineRenderers,
+ kCGLPFAAllRenderers,
+    kCGLPFASampleBuffers, (CGLPixelFormatAttribute)1,
+    kCGLPFASamples,       (CGLPixelFormatAttribute)4,
+    (CGLPixelFormatAttribute)0
+};
+    CGLPixelFormatObj pix;
+GLint npix;
+    CGLError error = CGLChoosePixelFormat(attribs, &pix, &npix);
+	std::cout << " error: " << error << std::endl;
+    CGLContextObj glContext;
+    CGLCreateContext(pix, NULL, &glContext);
+CGLSetCurrentContext(glContext);
+std::cout << glContext << std::endl;
+std::cout << CGLGetCurrentContext() << std::endl;
+std::cout << "trying to get share group of gl context" << std::endl;
+CGLShareGroupObj shareGroup = CGLGetShareGroup(glContext);
+if(shareGroup == NULL)
+throw Exception("Not able to get sharegroup");
+std::cout << "success " << shareGroup << std::endl;
+
     cl_context_properties cps[] = {
         CL_CONTEXT_PROPERTY_USE_CGL_SHAREGROUP_APPLE,
-        (cl_context_properties)CGLGetShareGroup(CGLGetCurrentContext()),
+        (cl_context_properties)shareGroup,
         0};
 
-    return false;
+    cl_device_id cl_gl_device_ids[32];
+    size_t returnSize = 0;
+	cl_context clContext = clCreateContext(cps, 0, NULL, 0, 0, NULL);
+
+/*
+  size_t size;
+  cl_uint num_devices;
+  clGetContextInfo(clContext, CL_CONTEXT_DEVICES, 0, NULL, &size);
+
+  num_devices = size / sizeof(cl_device_id);
+std::cout << num_devices << "!!!!!!!" << std::endl;
+*/
+    clGetGLContextInfoAPPLE(clContext, glContext, CL_CGL_DEVICE_FOR_CURRENT_VIRTUAL_SCREEN_APPLE, 32 * sizeof(cl_device_id), &cl_gl_device_ids, &returnSize);
+
+    reporter.report("There are " + oul::number(returnSize / sizeof(cl_device_id)) + " devices that can be associated with the GL context", oul::INFO);
+
+    bool found = false;
+    for (int i = 0; i < returnSize / sizeof(cl_device_id); i++) {
+        cl::Device device2(cl_gl_device_ids[i]);
+        if (deviceID == device2()) {
+            found = true;
+            break;
+        }
+    }
+
 #else
 #ifdef _WIN32
     // Windows
@@ -185,7 +240,7 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
     }
 
     cl_context_properties * cps = createInteropContextProperties(platform, (cl_context_properties)gl2Context, (cl_context_properties)display);
-#endif
+#endif // linux
 	// check if any of these devices have the same cl_device_id as deviceID
     // Query which devices are associated with GL context
     cl_device_id cl_gl_device_ids[32];
@@ -205,7 +260,7 @@ bool OpenCLManager::deviceHasOpenGLInteropCapability(const cl::Device &device) {
         }
     }
 
-#endif
+#endif // windows or linux
 	// Cleanup
 #ifdef _WIN32
 	//wglMakeCurrent(NULL,NULL);

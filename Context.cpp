@@ -61,7 +61,7 @@ Context::Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext,
 #if defined(__APPLE__) || defined(__MACOSX)
         cps = createInteropContextProperties(
                 this->platform,
-                (cl_context_properties)CGLGetShareGroup(OpenGLContext),
+                (cl_context_properties)OpenGLContext,
                 NULL
         );
 #else
