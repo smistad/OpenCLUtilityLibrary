@@ -101,7 +101,8 @@ void RuntimeMeasurementsManager::stopNumberedRegularTimer(std::string name) {
 }
 
 RuntimeMeasurement RuntimeMeasurementsManager::getTiming(std::string name) {
-	return *timings[name].get();
+//	return *timings[name].get(); //This causes segfaults in some situations
+	return *timings.at(name).get();
 }
 
 void RuntimeMeasurementsManager::print(std::string name) {
