@@ -16,7 +16,9 @@
 #endif
 #endif
 
+// Some include files for reading the modification date of files
 #ifdef WIN32
+#include <windows.h>
 #else
 #include <sys/stat.h>
 #include <time.h>
@@ -292,8 +294,11 @@ cl::Program Context::buildProgramFromBinary(std::string filename, std::string bu
         const size_t pos = cache.find("-");
         const size_t pos2 = cache.find("-", pos+1);
         if(pos != std::string::npos && pos2 != std::string::npos) {
+            // Get modification date of file
             #ifdef WIN32
-            std::cout << "reading file modified date on windows not implemented yet" << std::endl;
+            HANDLE hFile = CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+            FILETIME ftCreate, ftAccess, ftWrite;
+            GetFileTime(hFile, &ftCreate, &ftAccess, &ftWrite);
             #else
             struct stat attrib; // create a file attribute structure
             stat(filename.c_str(), &attrib);
