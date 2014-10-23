@@ -16,6 +16,13 @@
 #endif
 #endif
 
+#ifdef WIN32
+#else
+#include <sys/stat.h>
+#include <time.h>
+#endif
+#include <fstream>
+
 namespace oul
 {
 
@@ -102,11 +109,15 @@ Context::Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext,
     }
 }
 
-int Context::createProgramFromSource(std::string filename, std::string buildOptions) {
-    std::string sourceCode = readFile(filename);
-
-    cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
-    cl::Program program = buildSources(source, buildOptions);
+int Context::createProgramFromSource(std::string filename, std::string buildOptions, bool useCaching) {
+    cl::Program program;
+    if(useCaching) {
+        program = buildProgramFromBinary(filename, buildOptions);
+    } else {
+        std::string sourceCode = readFile(filename);
+        cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
+        program = buildSources(source, buildOptions);
+    }
     programs.push_back(program);
     return programs.size()-1;
 }
@@ -196,9 +207,113 @@ RuntimeMeasurementsManagerPtr Context::getRunTimeMeasurementManager(){
 }
 
 
-int Context::createProgramFromBinary(std::string filename, std::string buildOptions) {
-    //TODO todo
-	return 0;
+cl::Program Context::writeBinary(std::string filename, std::string buildOptions) {
+    // Build program from source file and store the binary file
+    std::string sourceCode = readFile(filename);
+
+    cl::Program::Sources source(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
+    cl::Program program = buildSources(source, buildOptions);
+
+    VECTOR_CLASS<std::size_t> binarySizes;
+    binarySizes = program.getInfo<CL_PROGRAM_BINARY_SIZES>();
+
+    VECTOR_CLASS<char *> binaries;
+    binaries = program.getInfo<CL_PROGRAM_BINARIES>();
+
+    std::string binaryFilename = filename + ".bin";
+    FILE * file = fopen(binaryFilename.c_str(), "wb");
+    if(!file)
+        printf("could not write to file\n");
+    fwrite(binaries[0], sizeof(char), (int)binarySizes[0], file);
+    fclose(file);
+
+    // Write cache file
+    std::string cacheFilename = filename + ".cache";
+    FILE * cacheFile = fopen(cacheFilename.c_str(), "w");
+    std::string timeStr;
+    #ifdef WIN32
+    #else
+    struct stat attrib; // create a file attribute structure
+    stat(filename.c_str(), &attrib);
+    timeStr = ctime(&(attrib.st_mtime));
+    #endif
+    VECTOR_CLASS<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
+    timeStr += "-" + devices[0].getInfo<CL_DEVICE_NAME>() + "\n";
+    timeStr += "-" + buildOptions;
+    fwrite(timeStr.c_str(), sizeof(char), timeStr.size(), cacheFile);
+    fclose(cacheFile);
+
+    return program;
+}
+
+cl::Program Context::readBinary(std::string filename) {
+    std::ifstream sourceFile(filename.c_str(), std::ios_base::binary | std::ios_base::in);
+    std::string sourceCode(
+        std::istreambuf_iterator<char>(sourceFile),
+        (std::istreambuf_iterator<char>()));
+    cl::Program::Binaries binary(1, std::make_pair(sourceCode.c_str(), sourceCode.length()));
+
+    VECTOR_CLASS<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
+    if(devices.size() > 1) {
+        // Currently only support compiling for one device
+        cl::Device device = devices[0];
+        devices.clear();
+        devices.push_back(device);
+    }
+
+    cl::Program program = cl::Program(context, devices, binary);
+
+    // Build program for these specific devices
+    program.build(devices);
+    return program;
+}
+
+cl::Program Context::buildProgramFromBinary(std::string filename, std::string buildOptions) {
+    cl::Program program;
+    std::string binaryFilename = filename + ".bin";
+
+    // Check if a binary file exists
+    std::ifstream binaryFile(binaryFilename.c_str(), std::ios_base::binary | std::ios_base::in);
+    if(binaryFile.fail()) {
+        program = writeBinary(filename, buildOptions);
+    } else {
+        // Compare modified dates of binary file and source file
+        std::string cacheFilename = filename + ".cache";
+
+        // Read cache file
+        std::ifstream cacheFile(cacheFilename.c_str());
+        std::string cache(
+            std::istreambuf_iterator<char>(cacheFile),
+            (std::istreambuf_iterator<char>()));
+
+        bool outOfDate = true;
+        bool wrongDeviceID = true;
+        bool buildOptionsChanged = true;
+        const size_t pos = cache.find("-");
+        const size_t pos2 = cache.find("-", pos+1);
+        if(pos != std::string::npos && pos2 != std::string::npos) {
+            #ifdef WIN32
+            std::cout << "reading file modified date on windows not implemented yet" << std::endl;
+            #else
+            struct stat attrib; // create a file attribute structure
+            stat(filename.c_str(), &attrib);
+            outOfDate = strcmp(ctime(&(attrib.st_mtime)), cache.substr(0, pos).c_str()) != 0;
+            #endif
+            VECTOR_CLASS<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
+            wrongDeviceID = cache.substr(pos+1, pos2-pos-2) != devices[0].getInfo<CL_DEVICE_NAME>();
+            buildOptionsChanged = cache.substr(pos2+1) != buildOptions;
+        }
+
+        if(outOfDate || wrongDeviceID || buildOptionsChanged) {
+            std::cout << "Binary is out of date. Compiling..." << std::endl;
+            program = writeBinary(filename, buildOptions);
+        } else {
+            std::cout << "Binary is not out of date." << std::endl;
+            program = readBinary(binaryFilename);
+        }
+    }
+
+    return program;
 }
 
 int Context::createProgramFromSourceWithName(
@@ -222,14 +337,6 @@ int Context::createProgramFromStringWithName(
         std::string code,
         std::string buildOptions) {
     programNames[programName] = createProgramFromString(code,buildOptions);
-    return programNames[programName];
-}
-
-int Context::createProgramFromBinaryWithName(
-        std::string programName,
-        std::string filename,
-        std::string buildOptions) {
-    programNames[programName] = createProgramFromBinary(filename,buildOptions);
     return programNames[programName];
 }
 

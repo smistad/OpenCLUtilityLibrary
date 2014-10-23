@@ -22,14 +22,12 @@ public:
 	Context();
 	Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext, bool enableProfiling = false);
 
-	int createProgramFromSource(std::string filename, std::string buildOptions = "");
+	int createProgramFromSource(std::string filename, std::string buildOptions = "", bool caching = true);
 	int createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions = "");
 	int createProgramFromString(std::string code, std::string buildOptions = "");
-	int createProgramFromBinary(std::string filename, std::string buildOptions = "");
 	int createProgramFromSourceWithName(std::string programName, std::string filename, std::string buildOptions = "");
 	int createProgramFromSourceWithName(std::string programName, std::vector<std::string> filenames, std::string buildOptions = "");
 	int createProgramFromStringWithName(std::string programName, std::string code, std::string buildOptions = "");
-	int createProgramFromBinaryWithName(std::string programName, std::string filename, std::string buildOptions = "");
 	cl::Program getProgram(unsigned int i);
 	cl::Program getProgram(std::string name);
 	bool hasProgram(std::string name);
@@ -52,6 +50,9 @@ public:
 	RuntimeMeasurementsManagerPtr getRunTimeMeasurementManager();
 
 private:
+    cl::Program writeBinary(std::string filename, std::string buildOptions);
+    cl::Program readBinary(std::string filename);
+    cl::Program buildProgramFromBinary(std::string filename, std::string buildOptions);
 	cl::Program buildSources(cl::Program::Sources source, std::string buildOptions);
 
 	Reporter reporter;
