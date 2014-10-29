@@ -146,6 +146,7 @@ void RuntimeMeasurementsManager::printAll() {
 }
 
 RuntimeMeasurementsManager::RuntimeMeasurementsManager() {
+    enabled = false;
 }
 
 bool RuntimeMeasurementsManager::isEnabled() {
