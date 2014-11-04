@@ -28,6 +28,22 @@
 namespace oul
 {
 
+
+bool Context::isImageFormatSupported(cl_channel_order order, cl_channel_type type, cl_mem_object_type imageType) {
+    std::vector<cl::ImageFormat> formats;
+    context.getSupportedImageFormats(CL_MEM_READ_WRITE, imageType, &formats);
+
+    bool isSupported = false;
+    for(int i = 0; i < formats.size(); i++) {
+    	if(formats[i].image_channel_order == order && formats[i].image_channel_data_type == type) {
+    		isSupported = true;
+    		break;
+    	}
+    }
+
+    return isSupported;
+}
+
 void CL_CALLBACK memoryDestructorCallback(cl_mem memobj, void* user_data)
 {
 	std::string* data_pointer = static_cast<std::string*>(user_data);

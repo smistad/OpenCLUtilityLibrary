@@ -32,6 +32,8 @@ public:
 	cl::Program getProgram(std::string name);
 	bool hasProgram(std::string name);
 
+	bool isImageFormatSupported(cl_channel_order order, cl_channel_type type, cl_mem_object_type imageType);
+
 	cl::Kernel createKernel(cl::Program program, std::string kernel_name); //can throw cl::Error
 	void executeKernel(cl::CommandQueue queue, cl::Kernel kernel, size_t global_work_size, size_t local_work_size); //can throw cl::Error
 
