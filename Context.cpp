@@ -23,18 +23,18 @@ void CL_CALLBACK memoryDestructorCallback(cl_mem memobj, void* user_data)
 	std::string* data_pointer = static_cast<std::string*>(user_data);
 	std::string data = *data_pointer;
 	Reporter r;
-	r.report("Memory destructor callback: " + data, oul::INFO);
+	r.report("Memory destructor callback: " + data, oul::rlINFO);
 }
 
 void CL_CALLBACK contextCallback(const char *errinfo, const void *private_info, size_t cb, void *user_data)
 {
 	Reporter r;
-	r.report("Context callback:\n " + std::string(errinfo), oul::ERROR);
+	r.report("Context callback:\n " + std::string(errinfo), oul::rlERROR);
 }
 
 Context::Context() {
 	//TODO make private or implement properly
-	reporter.report("[!!!WARNING!!!] Calling default oul::Context constructor, object is not correctly instantiated, make this private!", oul::WARNING);
+	reporter.report("[!!!WARNING!!!] Calling default oul::Context constructor, object is not correctly instantiated, make this private!", oul::rlWARNING);
 }
 
 Context::Context(std::vector<cl::Device> devices, unsigned long * OpenGLContext, bool enableProfiling) :
@@ -179,10 +179,10 @@ cl::Program Context::buildSources(cl::Program::Sources source, std::string build
     } catch(cl::Error &error) {
         if(error.err() == CL_BUILD_PROGRAM_FAILURE) {
             for(unsigned int i=0; i<devices.size(); i++){
-            	reporter.report("Build log, device "+oul::number(i)+ "\n"+ program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[i]), oul::ERROR);
+            	reporter.report("Build log, device "+oul::number(i)+ "\n"+ program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices[i]), oul::rlERROR);
             }
         }
-        reporter.report(getCLErrorString(error.err()), oul::ERROR);
+        reporter.report(getCLErrorString(error.err()), oul::rlERROR);
 
         throw error;
     }
@@ -196,6 +196,8 @@ RuntimeMeasurementsManagerPtr Context::getRunTimeMeasurementManager(){
 
 int Context::createProgramFromBinary(std::string filename, std::string buildOptions) {
     //TODO todo
+    reporter.report("Calling function that is not implemented.", oul::rlERROR);
+    return -1;
 }
 
 int Context::createProgramFromSourceWithName(
@@ -250,12 +252,12 @@ cl::Kernel Context::createKernel(cl::Program program, std::string kernel_name)
 	try
 	{
 		kernel = cl::Kernel(program, kernel_name.c_str(), NULL);
-		reporter.report("Created kernel with name "+std::string(kernel_name), oul::INFO);
+		reporter.report("Created kernel with name "+std::string(kernel_name), oul::rlINFO);
 	}
 	catch(cl::Error &error)
 	{
-		reporter.report("Could not create kernel. Reason:"+std::string(error.what()), oul::ERROR);
-		reporter.report(getCLErrorString(error.err()), oul::ERROR);
+		reporter.report("Could not create kernel. Reason:"+std::string(error.what()), oul::rlERROR);
+		reporter.report(getCLErrorString(error.err()), oul::rlERROR);
 		throw;
 	}
 
@@ -264,15 +266,15 @@ cl::Kernel Context::createKernel(cl::Program program, std::string kernel_name)
 
 void Context::executeKernel(cl::CommandQueue queue, cl::Kernel kernel, size_t global_work_size, size_t local_work_size)
 {
-	reporter.report("Executing kernel", oul::INFO);
+	reporter.report("Executing kernel", oul::rlINFO);
 	try
 	{
 		queue.enqueueNDRangeKernel(kernel, 0, global_work_size, local_work_size, NULL, NULL);
 		queue.finish();
 	} catch (cl::Error &error)
 	{
-		reporter.report("Could not execute kernel(s). Reason: "+std::string(error.what()), oul::ERROR);
-		reporter.report(getCLErrorString(error.err()), oul::ERROR);
+		reporter.report("Could not execute kernel(s). Reason: "+std::string(error.what()), oul::rlERROR);
+		reporter.report(getCLErrorString(error.err()), oul::rlERROR);
 		throw;
 	}
 }
@@ -288,8 +290,8 @@ cl::Buffer Context::createBuffer(cl::Context context, cl_mem_flags flags, size_t
 		dev_mem.setDestructorCallback(memoryDestructorCallback, static_cast<void*>(new std::string(bufferName)));
 	} catch (cl::Error &error)
 	{
-		reporter.report("Could not create a OpenCL buffer queue. Reason: "+std::string(error.what()), oul::ERROR);
-		reporter.report(getCLErrorString(error.err()), oul::ERROR);
+		reporter.report("Could not create a OpenCL buffer queue. Reason: "+std::string(error.what()), oul::rlERROR);
+		reporter.report(getCLErrorString(error.err()), oul::rlERROR);
 		throw;
 	}
 	return dev_mem;
@@ -302,8 +304,8 @@ void Context::readBuffer(cl::CommandQueue queue, cl::Buffer outputBuffer, size_t
 		queue.enqueueReadBuffer(outputBuffer, CL_TRUE, 0, outputVolumeSize, outputData, 0, 0);
 	} catch (cl::Error &error)
 	{
-		reporter.report("Could not read output volume buffer from OpenCL. Reason: "+std::string(error.what()), oul::ERROR);
-		reporter.report(getCLErrorString(error.err()), oul::ERROR);
+		reporter.report("Could not read output volume buffer from OpenCL. Reason: "+std::string(error.what()), oul::rlERROR);
+		reporter.report(getCLErrorString(error.err()), oul::rlERROR);
 		throw;
 	}
 }

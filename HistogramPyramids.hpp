@@ -1,15 +1,18 @@
 #ifndef HISTOGRAMPYRAMIDS_HPP_
 #define HISTOGRAMPYRAMIDS_HPP_
 
+#include "OpenCLUtilityLibrary_Export.h"
+
 #include "Context.hpp"
 #include <vector>
 
-namespace oul {
+namespace oul
+{
 
 /**
  * Abstract class for all HistogramPyramids
  */
-class HistogramPyramid {
+class OPENCLUTILITYLIBRARY_EXPORT HistogramPyramid {
     public:
         static void compileCode(oul::Context &context);
         int getSum();
@@ -24,7 +27,7 @@ class HistogramPyramid {
 /**
  * 2D Histogram pyramid
  */
-class HistogramPyramid2D : public HistogramPyramid {
+class OPENCLUTILITYLIBRARY_EXPORT HistogramPyramid2D : public HistogramPyramid {
     public:
         HistogramPyramid2D(oul::Context &context);
         void create(cl::Image2D &image, int, int);
@@ -38,7 +41,7 @@ class HistogramPyramid2D : public HistogramPyramid {
 /**
  * 3D Histogram pyramid (that uses 3D textures)
  */
-class HistogramPyramid3D : public HistogramPyramid {
+class OPENCLUTILITYLIBRARY_EXPORT HistogramPyramid3D : public HistogramPyramid {
     public:
         HistogramPyramid3D(oul::Context &context);
         void create(cl::Image3D &image, int, int, int);
@@ -52,7 +55,7 @@ class HistogramPyramid3D : public HistogramPyramid {
 /**
  * 3D Histogram pyramid (which uses buffers instead of textures)
  */
-class HistogramPyramid3DBuffer : public HistogramPyramid {
+class OPENCLUTILITYLIBRARY_EXPORT HistogramPyramid3DBuffer : public HistogramPyramid {
     public:
         HistogramPyramid3DBuffer(oul::Context &context);
         void create(cl::Buffer &buffer, int, int, int);

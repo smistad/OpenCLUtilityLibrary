@@ -125,17 +125,6 @@ void RuntimeMeasurementsManager::printAll() {
 RuntimeMeasurementsManager::RuntimeMeasurementsManager() {
 }
 
-double RuntimeMeasurement::getSum() const {
-	return sum;
-}
-
-double RuntimeMeasurement::getAverage() const {
-	return sum / samples;
-}
-
-double RuntimeMeasurement::getStdDeviation() const {
-	// TODO: implement
-}
 
 bool RuntimeMeasurementsManager::isEnabled() {
 	return enabled;

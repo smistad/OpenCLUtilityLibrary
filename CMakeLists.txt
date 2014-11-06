@@ -11,6 +11,7 @@ find_package( OpenCL REQUIRED )
 find_package( OpenGL REQUIRED )
 
 set(OpenCLUtilityLibrary_INCLUDE_DIRS
+    ${OpenCLUtilityLibrary_BINARY_DIR}
     ${OpenCLUtilityLibrary_SOURCE_DIR}
     ${OpenCLUtilityLibrary_SOURCE_DIR}/CL
     ${Boost_INCLUDE_DIRS}
@@ -53,11 +54,13 @@ set(OpenCLUtilityLibrary_LINK_LIBRARIES
     ${OPENGL_LIBRARIES}
 )
 
-add_library (OpenCLUtilityLibrary ${SOURCE_FILES})
+add_library(OpenCLUtilityLibrary ${SOURCE_FILES})
+include(GenerateExportHeader)
+generate_export_header(OpenCLUtilityLibrary)
 target_link_libraries(OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
 
 if(BUILD_EXAMPLES)
-    add_executable (example example.cpp)
+    add_executable(example example.cpp)
     target_link_libraries(example OpenCLUtilityLibrary)
 endif(BUILD_EXAMPLES)
 

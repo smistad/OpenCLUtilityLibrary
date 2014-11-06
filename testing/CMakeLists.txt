@@ -20,11 +20,7 @@ set(EXECUTABLE_SOURCE_FILES
     tests.cpp
 )
 
-set(OpenCLUtilityLibrary_LINK_LIBRARIES
-    ${OpenCLUtilityLibrary}
-)
-
-add_library (TestOpenCLUtilityLibrary ${SOURCE_FILES})
+add_library(TestOpenCLUtilityLibrary ${SOURCE_FILES})
 target_link_libraries(TestOpenCLUtilityLibrary OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
 
 set(TestOpenCLUtilityLibrary_LIBRARY
@@ -32,6 +28,6 @@ set(TestOpenCLUtilityLibrary_LIBRARY
     PARENT_SCOPE
    )
 
-add_executable (Catch ${EXECUTABLE_SOURCE_FILES} ${SOURCE_FILES})
+add_executable(Catch ${EXECUTABLE_SOURCE_FILES} ${SOURCE_FILES})
 target_link_libraries(Catch OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
 

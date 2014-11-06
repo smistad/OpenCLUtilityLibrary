@@ -1,17 +1,19 @@
 #ifndef REPORTER_H_
 #define REPORTER_H_
 
+#include "OpenCLUtilityLibrary_Export.h"
+
 #include <string>
 #include <sstream>
 
 namespace oul
 {
 
-enum ReporterLevel{
-	DEBUG,
-	INFO,
-	WARNING,
-	ERROR
+enum OPENCLUTILITYLIBRARY_EXPORT ReporterLevel{
+    rlDEBUG,
+    rlINFO,
+    rlWARNING,
+    rlERROR
 };
 template <class T>
 std::string number(T number){
@@ -26,7 +28,7 @@ std::string number(T number){
  *  \date: Feb 28, 2014
  *  \author: Janne Beate Bakeng, SINTEF
  */
-class Reporter
+class OPENCLUTILITYLIBRARY_EXPORT Reporter
 {
 public:
 	Reporter();

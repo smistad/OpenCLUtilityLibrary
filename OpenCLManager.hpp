@@ -1,6 +1,12 @@
 #ifndef OPENCLMANAGER_HPP_
 #define OPENCLMANAGER_HPP_
 
+#include "OpenCLUtilityLibrary_Export.h"
+
+#if _WIN32
+#define NOMINMAX
+#endif
+
 #include "CL/OpenCL.hpp"
 #include <vector>
 #include "Context.hpp"
@@ -9,7 +15,8 @@
 #include "Reporter.hpp"
 #include <utility>
 
-namespace oul {
+namespace oul
+{
 
 typedef std::pair<cl::Platform, std::vector<cl::Device> > PlatformDevices;
 
@@ -18,7 +25,7 @@ typedef std::pair<cl::Platform, std::vector<cl::Device> > PlatformDevices;
  * In the long run this object will contain the state of OpenCL in an application.
  * E.g. which devices are currently in use, how much memory is used etc.
  */
-class OpenCLManager {
+class OPENCLUTILITYLIBRARY_EXPORT OpenCLManager {
     public:
         static OpenCLManager * getInstance();
         static void shutdown();
@@ -70,7 +77,7 @@ class OpenCLManager {
         static OpenCLManager * instance;
 };
 
-OpenCLManager* opencl(); //Shortcut for accessing the OpenCLManager
+OpenCLManager OPENCLUTILITYLIBRARY_EXPORT *opencl(); //Shortcut for accessing the OpenCLManager
 
 }
 ;

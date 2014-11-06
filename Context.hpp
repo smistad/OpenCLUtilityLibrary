@@ -1,6 +1,8 @@
 #ifndef CONTEXT_HPP_
 #define CONTEXT_HPP_
 
+#include "OpenCLUtilityLibrary_Export.h"
+
 #include "CL/OpenCL.hpp"
 #include <vector>
 #include <map>
@@ -16,7 +18,7 @@ namespace oul {
  * Its main purpose is to be a class that can't be sent between different 
  * functions and objects that does OpenCL processing.
  */
-class Context {
+class OPENCLUTILITYLIBRARY_EXPORT Context {
 
 public:
 	Context();
@@ -25,7 +27,7 @@ public:
 	int createProgramFromSource(std::string filename, std::string buildOptions = "");
 	int createProgramFromSource(std::vector<std::string> filenames, std::string buildOptions = "");
 	int createProgramFromString(std::string code, std::string buildOptions = "");
-	int createProgramFromBinary(std::string filename, std::string buildOptions = "");
+    int createProgramFromBinary(std::string filename, std::string buildOptions = "");
 	int createProgramFromSourceWithName(std::string programName, std::string filename, std::string buildOptions = "");
 	int createProgramFromSourceWithName(std::string programName, std::vector<std::string> filenames, std::string buildOptions = "");
 	int createProgramFromStringWithName(std::string programName, std::string code, std::string buildOptions = "");

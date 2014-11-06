@@ -1,14 +1,17 @@
 #ifndef TIMING_HPP_
 #define TIMING_HPP_
 
+#include "OpenCLUtilityLibrary_Export.h"
+
 #include <string>
 #include <boost/shared_ptr.hpp>
 
-namespace oul {
+namespace oul
+{
 /**
  * A class for a runtime measurement
  */
-class RuntimeMeasurement {
+class OPENCLUTILITYLIBRARY_EXPORT RuntimeMeasurement {
 
 public:
 	RuntimeMeasurement(std::string name);

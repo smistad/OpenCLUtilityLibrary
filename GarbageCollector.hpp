@@ -1,6 +1,8 @@
 #ifndef GARBAGECOLLECTOR_HPP_
 #define GARBAGECOLLECTOR_HPP_
 
+#include "OpenCLUtilityLibrary_Export.h"
+
 #include <boost/shared_ptr.hpp>
 #include "CL/OpenCL.hpp"
 #include <set>
@@ -12,7 +14,7 @@ namespace oul {
  * want to delete an OpenCL memory object at a specific location in your code
  * instead of waiting for the object to reach the end of its scope.
  */
-class GarbageCollector {
+class OPENCLUTILITYLIBRARY_EXPORT GarbageCollector {
     public:
         void addMemoryObject(cl::Memory *);
         void deleteMemoryObject(cl::Memory *);

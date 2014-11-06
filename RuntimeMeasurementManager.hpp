@@ -1,6 +1,8 @@
 #ifndef RUNTIMEMEASUREMENTMANAGER_HPP_
 #define RUNTIMEMEASUREMENTMANAGER_HPP_
 
+#include "OpenCLUtilityLibrary_Export.h"
+
 #include <string>
 #include <map>
 #include "CL/OpenCL.hpp"
@@ -8,7 +10,7 @@
 
 namespace oul {
 
-class RuntimeMeasurementsManager {
+class OPENCLUTILITYLIBRARY_EXPORT RuntimeMeasurementsManager {
 
 public:
 	RuntimeMeasurementsManager();
