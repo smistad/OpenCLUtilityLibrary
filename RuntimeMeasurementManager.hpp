@@ -1,7 +1,7 @@
 #ifndef RUNTIMEMEASUREMENTMANAGER_HPP_
 #define RUNTIMEMEASUREMENTMANAGER_HPP_
 
-#include "OpenCLUtilityLibrary_Export.h"
+#include "openclutilitylibrary_export.h"
 
 #include <string>
 #include <map>

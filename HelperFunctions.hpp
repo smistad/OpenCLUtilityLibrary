@@ -1,7 +1,7 @@
 #ifndef HELPER_FUNCTIONS_HPP
 #define HELPER_FUNCTIONS_HPP
 
-#include "OpenCLUtilityLibrary_Export.h"
+#include "openclutilitylibrary_export.h"
 
 #include <string>
 #include "CL/OpenCL.hpp"

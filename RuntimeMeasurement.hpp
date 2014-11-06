@@ -1,7 +1,7 @@
 #ifndef TIMING_HPP_
 #define TIMING_HPP_
 
-#include "OpenCLUtilityLibrary_Export.h"
+#include "openclutilitylibrary_export.h"
 
 #include <string>
 #include <boost/shared_ptr.hpp>

@@ -1,7 +1,7 @@
 #ifndef DEVICECRITERIA_HPP_
 #define DEVICECRITERIA_HPP_
 
-#include "OpenCLUtilityLibrary_Export.h"
+#include "openclutilitylibrary_export.h"
 
 #include <vector>
 

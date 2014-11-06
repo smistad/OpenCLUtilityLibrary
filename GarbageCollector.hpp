@@ -1,7 +1,7 @@
 #ifndef GARBAGECOLLECTOR_HPP_
 #define GARBAGECOLLECTOR_HPP_
 
-#include "OpenCLUtilityLibrary_Export.h"
+#include "openclutilitylibrary_export.h"
 
 #include <boost/shared_ptr.hpp>
 #include "CL/OpenCL.hpp"

@@ -1,7 +1,7 @@
 #ifndef HISTOGRAMPYRAMIDS_HPP_
 #define HISTOGRAMPYRAMIDS_HPP_
 
-#include "OpenCLUtilityLibrary_Export.h"
+#include "openclutilitylibrary_export.h"
 
 #include "Context.hpp"
 #include <vector>

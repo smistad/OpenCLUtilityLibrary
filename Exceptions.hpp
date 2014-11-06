@@ -1,7 +1,7 @@
 #ifndef EXCEPTIONS_HPP
 #define EXCEPTIONS_HPP
 
-#include "OpenCLUtilityLibrary_Export.h"
+#include "openclutilitylibrary_export.h"
 
 #include <exception>
 #include <cstdio>

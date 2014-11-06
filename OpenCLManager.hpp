@@ -1,7 +1,7 @@
 #ifndef OPENCLMANAGER_HPP_
 #define OPENCLMANAGER_HPP_
 
-#include "OpenCLUtilityLibrary_Export.h"
+#include "openclutilitylibrary_export.h"
 
 #if _WIN32
 #define NOMINMAX

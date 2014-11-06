@@ -1,7 +1,7 @@
 #ifndef CONTEXT_HPP_
 #define CONTEXT_HPP_
 
-#include "OpenCLUtilityLibrary_Export.h"
+#include "openclutilitylibrary_export.h"
 
 #include "CL/OpenCL.hpp"
 #include <vector>

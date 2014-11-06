@@ -1,7 +1,7 @@
 #ifndef REPORTER_H_
 #define REPORTER_H_
 
-#include "OpenCLUtilityLibrary_Export.h"
+#include "openclutilitylibrary_export.h"
 
 #include <string>
 #include <sstream>
