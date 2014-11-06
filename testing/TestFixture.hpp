@@ -1,6 +1,8 @@
 #ifndef TESTFIXTURE_HPP_
 #define TESTFIXTURE_HPP_
 
+#include "openclutilitylibrary_export.h"
+
 #include "OpenCLManager.hpp"
 #include "CL/OpenCL.hpp"
 #include "DeviceCriteria.hpp"
@@ -15,7 +17,7 @@ namespace oul
  * \author Janne Beate Bakeng, SINTEF
  */
 
-class TestFixture
+class OPENCLUTILITYLIBRARY_EXPORT TestFixture
 {
 public:
 	TestFixture();
