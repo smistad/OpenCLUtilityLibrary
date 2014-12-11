@@ -3,7 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 project(OpenCLUtilityLibrary)
 
 option(BUILD_TESTS "Build tests." ON)
-option(BUILD_EXAMPLES "Build examples." ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake)
 find_package( Boost COMPONENTS system chrono REQUIRED )
@@ -19,7 +18,6 @@ set(OpenCLUtilityLibrary_INCLUDE_DIRS
     ${OpenCLUtilityLibrary_BINARY_DIR}
 )
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g") # generate debug information
 include_directories(${OpenCLUtilityLibrary_INCLUDE_DIRS})
 
 set(SOURCE_FILES
@@ -58,13 +56,15 @@ message("-boost libs ${Boost_LIBRARIES}")
 add_library (OpenCLUtilityLibrary ${SOURCE_FILES})
 target_link_libraries(OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
 
-if(BUILD_EXAMPLES)
-    add_executable (example example.cpp)
-    target_link_libraries(example OpenCLUtilityLibrary)
-endif(BUILD_EXAMPLES)
-
 if(BUILD_TESTS)
     add_subdirectory(testing)
+    get_directory_property(hasParent PARENT_DIRECTORY)
+    if(hasParent)
+        set(OUL_TEST_SOURCE_FILES
+            ${OUL_TEST_SOURCE_FILES}
+            PARENT_SCOPE
+        )
+    endif()
 endif(BUILD_TESTS)
 
 #------------------------------------------------------------------------------

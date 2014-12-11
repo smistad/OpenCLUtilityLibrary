@@ -8,30 +8,36 @@ include_directories(
     ${OpenCLUtilityLibrary_INCLUDE_DIRS}
     )
 
-set(SOURCE_FILES
-    TestFixture.hpp
-    TestFixture.cpp
+
+set(OUL_TEST_SOURCE_FILES
+    ${PROJECT_SOURCE_DIR}/testing/TestFixture.hpp
+    ${PROJECT_SOURCE_DIR}/testing/TestFixture.cpp
+    ${PROJECT_SOURCE_DIR}/testing/histogramPyramidTests.cpp
+    ${PROJECT_SOURCE_DIR}/testing/tests.cpp
 )
 
 set(EXECUTABLE_SOURCE_FILES
     catch/catch.hpp
     CatchMain.cpp
-    histogramPyramidTests.cpp
-    tests.cpp
 )
 
 set(OpenCLUtilityLibrary_LINK_LIBRARIES
     ${OpenCLUtilityLibrary}
 )
 
-add_library (TestOpenCLUtilityLibrary ${SOURCE_FILES})
-target_link_libraries(TestOpenCLUtilityLibrary OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
+# What was this used for?
+#add_library (TestOpenCLUtilityLibrary ${SOURCE_FILES})
+#target_link_libraries(TestOpenCLUtilityLibrary OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
 
-set(TestOpenCLUtilityLibrary_LIBRARY
-    TestOpenCLUtilityLibrary
+#set(TestOpenCLUtilityLibrary_LIBRARY
+#    TestOpenCLUtilityLibrary
+#    PARENT_SCOPE
+#   )
+set(OUL_TEST_SOURCE_FILES
+    ${OUL_TEST_SOURCE_FILES}
     PARENT_SCOPE
-   )
+)
 
-add_executable (Catch ${EXECUTABLE_SOURCE_FILES} ${SOURCE_FILES})
-target_link_libraries(Catch OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
+add_executable (testOUL ${OUL_TEST_SOURCE_FILES} ${EXECUTABLE_SOURCE_FILES})
+target_link_libraries(testOUL OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
 
