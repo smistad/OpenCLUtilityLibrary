@@ -36,8 +36,27 @@ TEST_CASE("OpenCL GPU device(s) available","[oul][OpenCL]"){
     CHECK(fixture.isGPUDeviceAvailable());
 }
 
-//TODO This test fails on Apple
-//Apple functionality not implemented yet
+#ifdef CL_VERSION_1_2
+TEST_CASE("If OpenCL Version 1.2 headers are used, the OpenCL runtime API also have to support 1.2", "[oul][OpenCL]") {
+    oul::TestFixture fixture;
+    std::vector<oul::PlatformDevices> devices = fixture.getAllDevices();
+    for(unsigned int i=0; i< devices.size(); i++){
+        for(int j = 0; j < devices[i].second.size(); j++) {
+            cl::Device device = devices[i].second[j];
+            INFO("Device " << device.getInfo<CL_DEVICE_NAME>())
+            std::string version = device.getInfo<CL_DEVICE_VERSION>();
+            // Check that version is above or equal to 1.2
+            int startPos = version.find(" ")+1;
+            int endPos = version.find(" ", startPos);
+            std::string versionNr = version.substr(startPos, endPos-startPos);
+            CHECK(versionNr != "1.0");
+            CHECK(versionNr != "1.1");
+
+        }
+    }
+}
+#endif
+
 TEST_CASE("At least one OpenCL device has OpenGL interop capability","[oul][OpenCL][OpenGL]"){
     oul::TestFixture fixture;
     bool foundOpenGLInteropCapableDevice  = false;
