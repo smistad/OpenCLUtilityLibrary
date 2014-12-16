@@ -43,6 +43,7 @@ class OpenCLManager {
         std::vector<cl::Platform> getPlatforms(
                 oul::DevicePlatform platformCriteria);
 
+        bool deviceSatisfiesCriteria(const DeviceCriteria& criteria, const cl::Device &device);
         bool deviceHasOpenGLInteropCapability(const cl::Device &device);
         bool devicePlatformMismatch(
                 const cl::Device &device,

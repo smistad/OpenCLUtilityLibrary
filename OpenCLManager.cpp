@@ -453,6 +453,27 @@ std::vector<cl::Device> OpenCLManager::getDevicesForBestPlatform(
     return validDevices;
 }
 
+
+bool OpenCLManager::deviceSatisfiesCriteria(const DeviceCriteria& criteria, const cl::Device &device) {
+    bool success = true;
+    if(criteria.getTypeCriteria() == DEVICE_TYPE_GPU) {
+        success = device.getInfo<CL_DEVICE_TYPE>()== CL_DEVICE_TYPE_GPU;
+    } else if(criteria.getTypeCriteria() == DEVICE_TYPE_CPU) {
+        success =  device.getInfo<CL_DEVICE_TYPE>()== CL_DEVICE_TYPE_CPU;
+    }
+    if(!success)
+        return false;
+    if(criteria.hasCapabilityCriteria(DEVICE_CAPABILITY_OPENGL_INTEROP)) {
+        success = deviceHasOpenGLInteropCapability(device);
+    }
+    if(!success)
+        return false;
+    if(criteria.getPlatformCriteria() != DEVICE_PLATFORM_ANY) {
+        success = getDevicePlatform(device.getInfo<CL_DEVICE_VENDOR>()) == criteria.getPlatformCriteria();
+    }
+    return success;
+}
+
 std::vector<PlatformDevices> OpenCLManager::getDevices(
         const DeviceCriteria &deviceCriteria) {
 
