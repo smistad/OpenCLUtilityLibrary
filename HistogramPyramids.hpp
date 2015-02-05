@@ -14,7 +14,7 @@ namespace oul
  */
 class OPENCLUTILITYLIBRARY_EXPORT HistogramPyramid {
     public:
-        static void compileCode(oul::Context &context);
+        static void compileCode(oul::Context &context, std::string kernel_dir);
         int getSum();
         virtual cl::Buffer createPositionBuffer() = 0;
         virtual void deleteHPlevels() = 0;
@@ -29,7 +29,7 @@ class OPENCLUTILITYLIBRARY_EXPORT HistogramPyramid {
  */
 class OPENCLUTILITYLIBRARY_EXPORT HistogramPyramid2D : public HistogramPyramid {
     public:
-        HistogramPyramid2D(oul::Context &context);
+        HistogramPyramid2D(oul::Context &context, std::string kernel_dir);
         void create(cl::Image2D &image, int, int);
         cl::Buffer createPositionBuffer();
         void deleteHPlevels();
@@ -43,7 +43,7 @@ class OPENCLUTILITYLIBRARY_EXPORT HistogramPyramid2D : public HistogramPyramid {
  */
 class OPENCLUTILITYLIBRARY_EXPORT HistogramPyramid3D : public HistogramPyramid {
     public:
-        HistogramPyramid3D(oul::Context &context);
+        HistogramPyramid3D(oul::Context &context, std::string kernel_dir);
         void create(cl::Image3D &image, int, int, int);
         cl::Buffer createPositionBuffer();
         void deleteHPlevels();
@@ -57,7 +57,7 @@ class OPENCLUTILITYLIBRARY_EXPORT HistogramPyramid3D : public HistogramPyramid {
  */
 class OPENCLUTILITYLIBRARY_EXPORT HistogramPyramid3DBuffer : public HistogramPyramid {
     public:
-        HistogramPyramid3DBuffer(oul::Context &context);
+        HistogramPyramid3DBuffer(oul::Context &context, std::string kernel_dir);
         void create(cl::Buffer &buffer, int, int, int);
         cl::Buffer createPositionBuffer();
         void deleteHPlevels();

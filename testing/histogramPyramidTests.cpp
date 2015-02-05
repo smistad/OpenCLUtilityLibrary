@@ -43,7 +43,7 @@ TEST_CASE("3D Histogram Pyramid Buffer create", "[oul][histogram]") {
                     data
             );
             delete[] data;
-            oul::HistogramPyramid3DBuffer hp(context);
+            oul::HistogramPyramid3DBuffer hp(context, OUL_DIR);
             INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
             INFO("Platform: " << platformDevices[i].first.getInfo<CL_PLATFORM_NAME>());
             CHECK_NOTHROW(hp.create(buffer, sizeX, sizeY, sizeZ));
@@ -71,7 +71,7 @@ TEST_CASE("2D Histogram Pyramid create", "[oul][histogram]") {
                     0,
                     data
             );
-            oul::HistogramPyramid2D hp(context);
+            oul::HistogramPyramid2D hp(context, OUL_DIR);
             INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
             INFO("Platform: " << platformDevices[i].first.getInfo<CL_PLATFORM_NAME>());
             CHECK_NOTHROW(hp.create(image, sizeX, sizeY));
@@ -107,7 +107,7 @@ TEST_CASE("3D Histogram Pyramid create", "[oul][histogram]") {
                     data
             );
             delete[] data;
-            oul::HistogramPyramid3D hp(context);
+            oul::HistogramPyramid3D hp(context, OUL_DIR);
             INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
             INFO("Platform: " << platformDevices[i].first.getInfo<CL_PLATFORM_NAME>());
             CHECK_NOTHROW(hp.create(image, sizeX, sizeY, sizeZ));
@@ -153,7 +153,7 @@ TEST_CASE("3D Histogram Pyramid Buffer Sum", "[oul][histogram]") {
                     data
             );
             delete[] data;
-            oul::HistogramPyramid3DBuffer hp(context);
+            oul::HistogramPyramid3DBuffer hp(context, OUL_DIR);
             hp.create(buffer, sizeX, sizeY, sizeZ);
 
             INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
@@ -187,7 +187,7 @@ TEST_CASE("2D Histogram Pyramid Sum", "[oul][histogram]") {
                     data
             );
             delete[] data;
-            oul::HistogramPyramid2D hp(context);
+            oul::HistogramPyramid2D hp(context, OUL_DIR);
             hp.create(image, sizeX, sizeY);
 
             INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
@@ -227,7 +227,7 @@ TEST_CASE("3D Histogram Pyramid Sum", "[oul][histogram]") {
                     data
             );
             delete[] data;
-            oul::HistogramPyramid3D hp(context);
+            oul::HistogramPyramid3D hp(context, OUL_DIR);
             hp.create(image, sizeX, sizeY, sizeZ);
 
             INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
@@ -259,7 +259,7 @@ TEST_CASE("2D Histogram Pyramid create positions", "[oul][histogram]") {
                     0,
                     data
             );
-            oul::HistogramPyramid2D hp(context);
+            oul::HistogramPyramid2D hp(context, OUL_DIR);
             hp.create(image, sizeX, sizeY);
 
             INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
@@ -328,7 +328,7 @@ TEST_CASE("3D Histogram Pyramid create positions", "[oul][histogram]") {
                     0, 0,
                     data
             );
-            oul::HistogramPyramid3D hp(context);
+            oul::HistogramPyramid3D hp(context, OUL_DIR);
             hp.create(image, sizeX, sizeY, sizeZ);
 
             INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());
@@ -392,7 +392,7 @@ TEST_CASE("3D Histogram Pyramid Buffer create positions", "[oul][histogram]") {
                     sizeof(char)*sizeX*sizeY*sizeZ,
                     data
             );
-            oul::HistogramPyramid3DBuffer hp(context);
+            oul::HistogramPyramid3DBuffer hp(context, OUL_DIR);
             hp.create(buffer, sizeX, sizeY, sizeZ);
 
             INFO("Device: " << device.getInfo<CL_DEVICE_NAME>());

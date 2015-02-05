@@ -10,24 +10,27 @@ using namespace oul;
 #undef max
 
 
-void HistogramPyramid::compileCode(oul::Context &context) {
+void HistogramPyramid::compileCode(oul::Context &context, std::string kernel_dir) {
     // Check if context has the program, if not compile it
     if(!context.hasProgram("oul::HistogramPyramids")) {
-        context.createProgramFromSourceWithName("oul::HistogramPyramids", std::string(OUL_DIR)+"/HistogramPyramids.cl", "-I " + std::string(OUL_DIR) + "");
+    	if (kernel_dir.empty())
+    		kernel_dir = OUL_DIR;
+    	std::string kernel_file = kernel_dir + "/HistogramPyramids.cl";
+        context.createProgramFromSourceWithName("oul::HistogramPyramids", kernel_file, "-I " + kernel_dir + "");
     }
 }
 
-HistogramPyramid2D::HistogramPyramid2D(oul::Context &context) {
-    compileCode(context);
+HistogramPyramid2D::HistogramPyramid2D(oul::Context &context, std::string kernel_dir) {
+    compileCode(context, kernel_dir);
     this->context = context;
 }
-HistogramPyramid3D::HistogramPyramid3D(oul::Context &context) {
+HistogramPyramid3D::HistogramPyramid3D(oul::Context &context, std::string kernel_dir) {
     // TODO : check if device in context support writing to 3D images
-    compileCode(context);
+    compileCode(context, kernel_dir);
     this->context = context;
 }
-HistogramPyramid3DBuffer::HistogramPyramid3DBuffer(oul::Context &context) {
-    compileCode(context);
+HistogramPyramid3DBuffer::HistogramPyramid3DBuffer(oul::Context &context, std::string kernel_dir) {
+    compileCode(context, kernel_dir);
     this->context = context;
 }
 
