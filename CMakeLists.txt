@@ -5,7 +5,7 @@ project(OpenCLUtilityLibrary)
 option(BUILD_TESTS "Build tests." ON)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/CMake)
-find_package( Boost COMPONENTS system chrono REQUIRED )
+find_package( Boost COMPONENTS system chrono thread REQUIRED )
 find_package( OpenCL REQUIRED )
 find_package( OpenGL REQUIRED )
 

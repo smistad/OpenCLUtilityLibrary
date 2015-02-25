@@ -4,6 +4,7 @@
 #include "HelperFunctions.hpp"
 #include "RuntimeMeasurement.hpp"
 #include "OpenCLManager.hpp"
+#include <boost/thread/lock_guard.hpp>
 
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/cl_gl.h>
@@ -28,6 +29,7 @@
 namespace oul
 {
 
+boost::mutex buildBinaryMutex; // a global mutex
 
 bool Context::isImageFormatSupported(cl_channel_order order, cl_channel_type type, cl_mem_object_type imageType) {
     std::vector<cl::ImageFormat> formats;
@@ -296,6 +298,7 @@ cl::Program Context::readBinary(std::string filename) {
 }
 
 cl::Program Context::buildProgramFromBinary(std::string filename, std::string buildOptions) {
+    boost::lock_guard<boost::mutex> lock(buildBinaryMutex);
     cl::Program program;
     std::string binaryFilename = filename + ".bin";
 
@@ -344,7 +347,7 @@ cl::Program Context::buildProgramFromBinary(std::string filename, std::string bu
             std::cout << "Binary is out of date. Compiling..." << std::endl;
             program = writeBinary(filename, buildOptions);
         } else {
-            std::cout << "Binary is not out of date." << std::endl;
+            //std::cout << "Binary is not out of date." << std::endl;
             program = readBinary(binaryFilename);
         }
     }

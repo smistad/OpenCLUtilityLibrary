@@ -8,6 +8,7 @@
 #include "GarbageCollector.hpp"
 #include "Reporter.hpp"
 #include "RuntimeMeasurementManager.hpp"
+#include <boost/thread/mutex.hpp>
 
 namespace oul {
 
@@ -51,6 +52,7 @@ public:
 
 	RuntimeMeasurementsManagerPtr getRunTimeMeasurementManager();
 
+
 private:
     cl::Program writeBinary(std::string filename, std::string buildOptions);
     cl::Program readBinary(std::string filename);
@@ -68,6 +70,7 @@ private:
 
 	bool profilingEnabled;
 	RuntimeMeasurementsManagerPtr runtimeManager;
+
 };
 
 typedef boost::shared_ptr<class Context> ContextPtr;
