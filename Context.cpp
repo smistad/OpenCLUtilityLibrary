@@ -5,6 +5,7 @@
 #include "RuntimeMeasurement.hpp"
 #include "OpenCLManager.hpp"
 #include <boost/thread/lock_guard.hpp>
+#include <boost/filesystem.hpp>
 
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/cl_gl.h>
@@ -240,7 +241,27 @@ cl::Program Context::writeBinary(std::string filename, std::string buildOptions)
     VECTOR_CLASS<char *> binaries;
     binaries = program.getInfo<CL_PROGRAM_BINARIES>();
 
-    std::string binaryFilename = filename + ".bin";
+    std::string binaryPath = std::string(OUL_OPENCL_KERNEL_BINARY_PATH);
+    std::string binaryFilename = binaryPath + filename + ".bin";
+    std::string cacheFilename = binaryPath + filename + ".cache";
+    if(binaryPath != "") {
+        // Remove shared path from filename
+        for(int i = 0; i < std::min(filename.size(), binaryPath.size()); i++) {
+            if(binaryPath[i] == filename[i]) {
+
+            } else {
+                binaryFilename = binaryPath + filename.substr(i) + ".bin";
+                cacheFilename = binaryPath + filename.substr(i) + ".cache";
+                break;
+            }
+        }
+    }
+
+    // Create directories if they don't exist
+    if(binaryFilename.rfind("/") != std::string::npos) {
+        std::string directoryPath = binaryFilename.substr(0, binaryFilename.rfind("/"));
+        boost::filesystem::create_directories(directoryPath);
+    }
     FILE * file = fopen(binaryFilename.c_str(), "wb");
     if(!file)
         printf("could not write to file\n");
@@ -248,7 +269,6 @@ cl::Program Context::writeBinary(std::string filename, std::string buildOptions)
     fclose(file);
 
     // Write cache file
-    std::string cacheFilename = filename + ".cache";
     FILE * cacheFile = fopen(cacheFilename.c_str(), "w");
     std::string timeStr;
     #ifdef WIN32
@@ -300,7 +320,21 @@ cl::Program Context::readBinary(std::string filename) {
 cl::Program Context::buildProgramFromBinary(std::string filename, std::string buildOptions) {
     boost::lock_guard<boost::mutex> lock(buildBinaryMutex);
     cl::Program program;
-    std::string binaryFilename = filename + ".bin";
+    std::string binaryPath = std::string(OUL_OPENCL_KERNEL_BINARY_PATH);
+    std::string binaryFilename = binaryPath + filename + ".bin";
+    std::string cacheFilename = binaryPath + filename + ".cache";
+    if(binaryPath != "") {
+        // Remove shared path from filename
+        for(int i = 0; i < std::min(filename.size(), binaryPath.size()); i++) {
+            if(binaryPath[i] == filename[i]) {
+
+            } else {
+                binaryFilename = binaryPath + filename.substr(i) + ".bin";
+                cacheFilename = binaryPath + filename.substr(i) + ".cache";
+                break;
+            }
+        }
+    }
 
     // Check if a binary file exists
     std::ifstream binaryFile(binaryFilename.c_str(), std::ios_base::binary | std::ios_base::in);
@@ -308,7 +342,6 @@ cl::Program Context::buildProgramFromBinary(std::string filename, std::string bu
         program = writeBinary(filename, buildOptions);
     } else {
         // Compare modified dates of binary file and source file
-        std::string cacheFilename = filename + ".cache";
 
         // Read cache file
         std::ifstream cacheFile(cacheFilename.c_str());
