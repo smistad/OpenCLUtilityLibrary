@@ -21,6 +21,8 @@
 // Some include files for reading the modification date of files
 #ifdef WIN32
 #include <windows.h>
+#undef min
+#undef max
 #else
 #include <sys/stat.h>
 #include <time.h>
