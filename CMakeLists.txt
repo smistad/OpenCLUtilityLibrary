@@ -58,9 +58,11 @@ set(OpenCLUtilityLibrary_LINK_LIBRARIES
     ${OPENGL_LIBRARIES}
 )
 
-message("-boost libs ${Boost_LIBRARIES}")
-
 add_library (OpenCLUtilityLibrary ${SOURCE_FILES})
+if(CMAKE_SYSTEM_NAME STREQUAL Linux)
+    # If OS is Linux, add X explicitly to library list
+    list(APPEND OpenCLUtilityLibrary_LINK_LIBRARIES X11)
+endif()
 target_link_libraries(OpenCLUtilityLibrary ${OpenCLUtilityLibrary_LINK_LIBRARIES})
 
 if(BUILD_TESTS)
