@@ -2,6 +2,7 @@
 #define TIMING_HPP_
 
 #include <string>
+#include <stdio.h>
 #include <boost/shared_ptr.hpp>
 
 namespace oul {
@@ -16,7 +17,7 @@ public:
 	double getSum() const;
 	double getAverage() const;
 	double getStdDeviation() const;
-	void print() const;
+	std::string print() const;
 	virtual ~RuntimeMeasurement() {};
 
 private:
