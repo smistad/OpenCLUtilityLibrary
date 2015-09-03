@@ -1,5 +1,6 @@
 #include "RuntimeMeasurement.hpp"
 #include <iostream>
+#include <sstream>
 
 using namespace oul;
 
@@ -16,22 +17,27 @@ void RuntimeMeasurement::addSample(double runtime) {
 	sum += runtime;
 }
 
-void RuntimeMeasurement::print() const {
-	std::cout << "Runtime of " << name << std::endl;
-	std::cout << "----------------------------------------------------"
-			<< std::endl;
+std::string RuntimeMeasurement::print() const {
+	
+	std::stringstream buffer;
+
+	buffer << "Runtime of " << name << std::endl;
+	buffer << "----------------------------------------------------" << std::endl;
 	if (samples == 0) {
-		std::cout << "None recorded." << std::endl;
+		buffer << "None recorded." << std::endl;
 	} else if (samples == 1) {
-		std::cout << sum << " ms" << std::endl;
+		buffer << sum << " ms" << std::endl;
 	} else {
-		std::cout << "Total: " << sum << " ms" << std::endl;
-		std::cout << "Average: " << sum / samples << " ms" << std::endl;
-		std::cout << "Standard deviation: " << "TODO" << " ms" << std::endl; //TODO
-		std::cout << "Number of samples: " << samples << std::endl;
+		buffer << "Total: " << sum << " ms" << std::endl;
+		buffer << "Average: " << sum / samples << " ms" << std::endl;
+		buffer << "Standard deviation: " << "TODO" << " ms" << std::endl; //TODO
+		buffer << "Number of samples: " << samples << std::endl;
 	}
-	std::cout << "----------------------------------------------------"
-			<< std::endl;
+	buffer << "----------------------------------------------------" << std::endl;
+
+	std::cout << buffer.str();
+	return buffer.str();
+
 }
 
 double RuntimeMeasurement::getSum() const {
