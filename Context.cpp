@@ -6,6 +6,8 @@
 #include "OpenCLManager.hpp"
 #include <boost/thread/lock_guard.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/functional/hash.hpp>
 
 #if defined(__APPLE__) || defined(__MACOSX)
 #include <OpenCL/cl_gl.h>
@@ -243,17 +245,20 @@ cl::Program Context::writeBinary(std::string filename, std::string buildOptions)
     VECTOR_CLASS<char *> binaries;
     binaries = program.getInfo<CL_PROGRAM_BINARIES>();
 
+    boost::hash<std::string> hash_function;
+    std::string deviceName = getDevice(0).getInfo<CL_DEVICE_NAME>();
+    std::size_t hash = hash_function(buildOptions + deviceName);
     std::string binaryPath = std::string(OUL_OPENCL_KERNEL_BINARY_PATH);
-    std::string binaryFilename = binaryPath + filename + ".bin";
-    std::string cacheFilename = binaryPath + filename + ".cache";
+    std::string binaryFilename = binaryPath + filename + "_" + boost::lexical_cast<std::string>(hash) + ".bin";
+    std::string cacheFilename = binaryPath + filename + "_" + boost::lexical_cast<std::string>(hash) + ".cache";
     if(binaryPath != "") {
         // Remove shared path from filename
         for(int i = 0; i < std::min(filename.size(), binaryPath.size()); i++) {
             if(binaryPath[i] == filename[i]) {
 
             } else {
-                binaryFilename = binaryPath + filename.substr(i) + ".bin";
-                cacheFilename = binaryPath + filename.substr(i) + ".cache";
+                binaryFilename = binaryPath + filename.substr(i) + "_" + boost::lexical_cast<std::string>(hash) + ".bin";
+                cacheFilename = binaryPath + filename.substr(i) + "_" + boost::lexical_cast<std::string>(hash) + ".cache";
                 break;
             }
         }
@@ -322,17 +327,21 @@ cl::Program Context::readBinary(std::string filename) {
 cl::Program Context::buildProgramFromBinary(std::string filename, std::string buildOptions) {
     boost::lock_guard<boost::mutex> lock(buildBinaryMutex);
     cl::Program program;
+
+    boost::hash<std::string> hash_function;
+    std::string deviceName = getDevice(0).getInfo<CL_DEVICE_NAME>();
+    std::size_t hash = hash_function(buildOptions + deviceName);
     std::string binaryPath = std::string(OUL_OPENCL_KERNEL_BINARY_PATH);
-    std::string binaryFilename = binaryPath + filename + ".bin";
-    std::string cacheFilename = binaryPath + filename + ".cache";
+    std::string binaryFilename = binaryPath + filename + "_" + boost::lexical_cast<std::string>(hash) + ".bin";
+    std::string cacheFilename = binaryPath + filename + "_" + boost::lexical_cast<std::string>(hash) + ".cache";
     if(binaryPath != "") {
         // Remove shared path from filename
         for(int i = 0; i < std::min(filename.size(), binaryPath.size()); i++) {
             if(binaryPath[i] == filename[i]) {
 
             } else {
-                binaryFilename = binaryPath + filename.substr(i) + ".bin";
-                cacheFilename = binaryPath + filename.substr(i) + ".cache";
+                binaryFilename = binaryPath + filename.substr(i) + "_" + boost::lexical_cast<std::string>(hash) + ".bin";
+                cacheFilename = binaryPath + filename.substr(i) + "_" + boost::lexical_cast<std::string>(hash) + ".cache";
                 break;
             }
         }
