@@ -25,7 +25,7 @@ void RuntimeMeasurementsManager::startCLTimer(std::string name, cl::CommandQueue
 	// Use deprecated API
 	queue.enqueueMarker(&startEvent);
 #else
-	queue.enqueueMarkerWithWaitList(NULL, &startEvent)
+    queue.enqueueMarkerWithWaitList(NULL, &startEvent);
 #endif
 	queue.finish();
 	startEvents.insert(std::make_pair(name, startEvent));
